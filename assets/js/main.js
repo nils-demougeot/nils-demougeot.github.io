@@ -65,8 +65,11 @@
   function motd() {
     const d = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
     return '<div class="motd"><span class="dim">Last login: ' + d + ' on ttys001</span>' +
-      '<span class="hi">Hi, I\'m Nils\' terminal. Click a quick command below, or type one and press <span class="k">' + icon('enter') + '</span></span>' +
-      '<div class="motd-tips"><span>start with <button class="run" data-run="whoami">whoami</button></span><span><span class="k">Tab</span> autocomplete</span><span><span class="k">' + icon('arrow-up') + '</span> history</span><span><span class="k">/</span> open from anywhere</span><span><button class="run" data-run="help">help</button> all commands</span></div></div>';
+      (finePointer
+        ? '<span class="hi">Hi, I\'m Nils\' terminal. Click a quick command below, or type one and press <span class="k">' + icon('enter') + '</span></span>' +
+          '<div class="motd-tips"><span>start with <button class="run" data-run="whoami">whoami</button></span><span><span class="k">Tab</span> autocomplete</span><span><span class="k">' + icon('arrow-up') + '</span> history</span><span><span class="k">/</span> open from anywhere</span><span><button class="run" data-run="help">help</button> all commands</span></div></div>'
+        : '<span class="hi">Hi, I\'m Nils\' terminal. Tap a command below, or type your own.</span>' +
+          '<div class="motd-tips"><span>start with <button class="run" data-run="whoami">whoami</button></span><span><button class="run" data-run="help">help</button> all commands</span></div></div>');
   }
   function append(body, cmd, keepSmall) {
     const d = document.createElement('div'); d.className = 'entry';
@@ -86,12 +89,12 @@
       ['summer 2025', '<span class="logo-tile sm crop"><img src="' + LOGO.transdev + '" alt="Transdev"></span>', 'Cybersecurity &amp; Data intern', 'Transdev · threat detection &amp; security dashboards'],
       ['summer 2022', '<span class="logo-tile sm"><img src="' + LOGO.mit + '" alt="MIT"></span>', 'Research intern', 'MIT, Research Lab of Electronics · network coding']
     ].map((r) => '<div class="xp-row"><span class="xp-when">' + r[0] + '</span>' + r[1] + '<div><b>' + r[2] + '</b><span>' + r[3] + '</span></div></div>').join('') + '</div>',
-    tree: () => '<div class="edu"><div class="gantt"><div class="today"></div>' +
+    tree: () => narrow() ? eduList() : '<div class="edu"><div class="gantt"><div class="today"></div>' +
       '<div class="bar-row"><div class="bar" style="left:35.6%;width:64.4%;background:#f4f4f5;color:#000"><img src="' + LOGO.esilv + '" alt="">ESILV Paris · Data &amp; AI engineering</div></div>' +
       '<div class="bar-row"><div class="bar" style="left:62.2%;width:5.5%;background:#34d399"></div><span class="bar-lbl" style="right:calc(37.8% + 10px);color:#34d399"><img src="' + LOGO.rtu + '" alt="">Riga TU · exchange, Sep → Jan</span></div>' +
       '<div class="bar-row"><div class="bar" style="left:8.9%;width:24.4%;background:#fb7185;color:#0c0d12">' + icon('cap') + 'High school</div><span class="bar-lbl" style="left:calc(33.3% + 10px);color:#fb7185">Boston · French Bac, Très Bien</span></div>' +
       '</div><div class="axis"><span style="left:0">2021</span><span style="left:26.7%;transform:translateX(-50%)">2023</span><span style="left:53.3%;transform:translateX(-50%)">2025</span><span style="left:76.4%;transform:translateX(-50%);color:#FFCC00">now</span><span style="right:0">2028</span></div></div>',
-    skills: () => '<div class="skillmap"><div class="graph">' + skillSvg() + '</div><div class="sk-info" aria-live="polite">' + skillInfo(null) + '</div></div><span class="graph-hint">hover a skill · click to pin it · ' + SKILL_COUNT + ' skills from my projects</span>',
+    skills: () => '<div class="skillmap"><div class="graph">' + skillSvg() + '</div><div class="sk-info" aria-live="polite">' + skillInfo(null) + '</div></div><span class="graph-hint">' + (finePointer ? 'hover a skill · click to pin it' : 'swipe the map · tap a skill') + ' · ' + SKILL_COUNT + ' skills from my projects</span>',
     locale: () => '<div class="gauges">' + [['FR', 'native', '#FFCC00', 0], ['EN', 'C1 · TOEFL 657', '#818cf8', 23.6], ['ES', 'intermediate', '#fb7185', 78.5]].map(([l, s, c, off]) =>
       '<div class="gauge"><div><svg viewBox="0 0 120 66"><path d="M10,60 A50,50 0 0 1 110,60" fill="none" stroke="#232735" stroke-width="10" stroke-linecap="round"/><path d="M10,60 A50,50 0 0 1 110,60" fill="none" stroke="' + c + '" stroke-width="10" stroke-linecap="round" stroke-dasharray="157.08" stroke-dashoffset="157.08" data-off="' + off + '"/></svg><b>' + l + '</b></div><span style="color:' + c + '">' + s + '</span></div>').join('') + '</div>',
     log: () => '<div class="vol"><p><span class="logo-tile sm ph" style="--c:#4ade80">' + icon('leaf') + '</span><span><strong>DeVinci Durable</strong>, Head of Communication &amp; Board Advisor.</span></p><div class="stats">' +
@@ -101,6 +104,14 @@
     sudo: () => '<div class="sudo"><div><small>' + icon('check') + 'access granted</small><b>I&#39;m ready to join your team.</b></div><a href="mailto:nils.demougeot@gmail.com?subject=Internship%20offer">Send the offer' + icon('arrow-up-right') + '</a></div>'
   };
   const SKILL_COUNT = SKILL_GRAPH.reduce((a, c) => a + c.skills.length, 0);
+  const narrow = () => out.clientWidth < 560;
+  function eduList() { // phone version of `education`: one row per school, with its span on a 2021 → 2028 line
+    return '<div class="edu-list">' + [
+      ['<span class="logo-tile sm"><img src="' + LOGO.esilv + '" alt=""></span>', 'ESILV Paris', 'Data &amp; AI engineering school', '2023 → 2028', '#f4f4f5', 35.6, 64.4],
+      ['<span class="logo-tile sm"><img src="' + LOGO.rtu + '" alt=""></span>', 'Riga Technical University', 'exchange semester', 'Sep 2025 → Jan 2026', '#34d399', 62.2, 5.5],
+      ['<span class="logo-tile sm ph" style="--c:#fb7185">' + icon('cap') + '</span>', 'International School of Boston', 'high school · French Bac, Très Bien', '2021 → 2023', '#fb7185', 8.9, 24.4]
+    ].map(([ic, t, sub, when, col, l, w]) => '<div class="edu-row" style="--c:' + col + '">' + ic + '<div><b>' + t + '</b><span>' + sub + '</span><i class="edu-bar"><i style="left:' + l + '%;width:' + w + '%"></i><em></em></i><small>' + when + '</small></div></div>').join('') + '</div>';
+  }
   function skillSvg() {
     const Wd = 780, H = 450, cx = Wd / 2, cy = H / 2, N = SKILL_GRAPH.length, links = [], nodes = [], hubs = [], F = 'font-family="JetBrains Mono, monospace"', halo = 'stroke="#0a0b10" stroke-width="4" paint-order="stroke"';
     let k = 0; const boxes = [];
@@ -139,7 +150,7 @@
   const projTitle = (id) => { const el = document.getElementById(id); return el ? $('h3', el).textContent : id; };
   const projNum = (id) => String($$('#projects > .proj').findIndex((el) => el.id === id) + 1).padStart(2, '0');
   function skillInfo(sel) {
-    if (!sel) return '<span class="sk-cat" style="--c:#a1a1aa">SKILLS MAP</span><b class="sk-name">' + SKILL_GRAPH.length + ' areas, ' + SKILL_COUNT + ' skills</b><p>Each skill is linked to the projects where I used it. Hover one, or pick an area:</p><div class="sk-legend">' +
+    if (!sel) return '<span class="sk-cat" style="--c:#a1a1aa">SKILLS MAP</span><b class="sk-name">' + SKILL_GRAPH.length + ' areas, ' + SKILL_COUNT + ' skills</b><p>Each skill is linked to the projects where I used it. ' + (finePointer ? 'Hover' : 'Tap') + ' one, or pick an area:</p><div class="sk-legend">' +
       SKILL_GRAPH.map((c, ci) => '<button type="button" data-hubbtn="' + ci + '" style="--c:' + c.color + '"><i></i>' + esc(c.name) + '</button>').join('') + '</div>';
     const c = SKILL_GRAPH[sel.c];
     if (sel.s == null) return '<span class="sk-cat" style="--c:' + c.color + '">AREA · ' + c.skills.length + ' SKILLS</span><b class="sk-name">' + esc(c.name) + '</b><div class="sk-legend">' +
@@ -210,6 +221,7 @@
       body = '<div class="txt"><span style="color:#a1a1aa">command not found: ' + esc(cmd) + (sug ? '. Did you mean <button class="run" data-run="' + esc(sug) + '">' + esc(sug) + '</button>?' : '. Try <button class="run" data-run="help">help</button>.') + '</span></div>';
     }
     const d = append(body, cmd);
+    const gr = $('.skillmap .graph', d); if (gr) requestAnimationFrame(() => { gr.scrollLeft = (gr.scrollWidth - gr.clientWidth) / 2; }); // phone: start centred on the map
     $$('.gauge path[data-off]', d).forEach((p) => requestAnimationFrame(() => requestAnimationFrame(() => (p.style.strokeDashoffset = p.getAttribute('data-off')))));
   }
   function typeRun(cmd, chip) {
@@ -278,13 +290,30 @@
     return d.w || null;
   }
   function setLive(k, on) {
-    const d = demos[k]; d.el.classList.toggle('is-live', on); $('.status em', d.el).textContent = on ? 'live' : 'paused';
+    const d = demos[k]; if (!on && d.el.classList.contains('is-full')) setFull(k, false);
+    d.el.classList.toggle('is-live', on); $('.status em', d.el).textContent = on ? 'live' : 'paused';
     if (window.PW) PW.pause(d.cv, !on);
     const w = demo(k); if (w && w.live) w.live(on);
   }
   function activate(k) { if (!demos[k]) return; reveal(demos[k].el); demo(k); if (state.act != null && state.act !== k) setLive(state.act, false); setLive(k, true); state.act = k; }
   function stopDemo() { if (state.act != null) setLive(state.act, false); state.act = null; }
   function toggleStab() { state.stab = !state.stab; const w = demo('quake'); w && w.setStab(state.stab); $('#stabLabel').textContent = state.stab ? 'Stabilizer ON' : 'Stabilizer OFF'; $('#stabDot').style.background = state.stab ? '#34d399' : '#f43f5e'; }
+  // Phones: a live demo can fill the screen (and turn to landscape where the browser allows), so it shows at laptop size.
+  function setFull(k, on) {
+    const d = demos[k], stage = $('.proj-stage', d.el), b = $('.pip-fs', d.el);
+    d.el.classList.toggle('is-full', on); html.classList.toggle('demo-full', on);
+    if (b) { b.innerHTML = icon(on ? 'minimize' : 'maximize'); b.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen'); }
+    try {
+      if (on && stage.requestFullscreen) stage.requestFullscreen().then(() => { if (screen.orientation && screen.orientation.lock) return screen.orientation.lock('landscape'); }).catch(() => {});
+      else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    } catch (e) { /* the CSS overlay still works without the Fullscreen API (iPhone) */ }
+  }
+  if (!finePointer) Object.keys(demos).forEach((k) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pip-fs'; b.setAttribute('aria-label', 'Full screen'); b.innerHTML = icon('maximize');
+    b.addEventListener('click', () => setFull(k, !demos[k].el.classList.contains('is-full')));
+    $('.pip', demos[k].el).appendChild(b);
+  });
+  document.addEventListener('fullscreenchange', () => { if (document.fullscreenElement) return; Object.keys(demos).forEach((k) => { if (demos[k].el.classList.contains('is-full')) setFull(k, false); }); });
   $$('[data-activate]').forEach((b) => b.addEventListener('click', () => activate(b.getAttribute('data-activate'))));
   $$('[data-stop]').forEach((b) => b.addEventListener('click', stopDemo));
   $$('.proj [data-act]').forEach((b) => b.addEventListener('click', () => { const k = b.closest('.proj').getAttribute('data-demo'), w = demo(k), a = b.getAttribute('data-act'); if (w && typeof w[a] === 'function') w[a](b); }));
@@ -560,7 +589,7 @@
   const page = $('.page');
   let entered = false;
   const enterPage = () => { if (entered) return; entered = true; page.classList.add('entered'); };
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px -12% 0px' }); // not a ratio: tall sections (projects on a phone) could never reach one
   $$('.reveal').forEach((el) => io.observe(el));
   // Active nav link = last section whose top has passed 35% of the viewport (bottom of page = contact).
   const navLinks = $$('.nav-link'), secs = [['top', $('.bento')], ['terminal', $('#terminal')], ['demos', $('#demos')], ['contact', $('#contact')]];

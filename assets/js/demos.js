@@ -567,7 +567,7 @@
       anim = Object.assign(r, { A, B, t0: t, stops, changes, dur: r.order.length ? 1.1 : 0 });
       out('note', A.replace(' - ', ' ') + ' → ' + B + ' · ' + r.min + ' min · ' + stops + ' stops · ' + changes + ' change' + (changes === 1 ? '' : 's'));
     }
-    function near(e) { if (!S) return -1; const [x, y] = v.at(e); let b = -1, bd = 12; S.forEach((s) => { const d = Math.hypot(s.x - x, s.y - y); if (d < bd) { bd = d; b = s.i; } }); return b; }
+    function near(e) { if (!S) return -1; const [x, y] = v.at(e); let b = -1, bd = e.pointerType === 'touch' ? Math.max(12, 22 / v.k) : 12; S.forEach((s) => { const d = Math.hypot(s.x - x, s.y - y); if (d < bd) { bd = d; b = s.i; } }); return b; }
     const off = listen(canvas, {
       pointermove: (e) => { hover = near(e); canvas.style.cursor = hover >= 0 ? 'pointer' : 'default'; },
       pointerleave: () => { hover = -1; },

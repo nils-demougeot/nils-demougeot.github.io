@@ -298,6 +298,14 @@ a:hover > .ext { transform: translate(2px, -2px); color: currentColor; }
 .sk-used button .ic { margin-left: auto; color: var(--mute-2); font-size: 13px; transition: transform .2s var(--spring), color .2s; }
 .sk-used button:hover { background: rgba(255, 255, 255, .05); } .sk-used button:hover .ic { color: var(--yellow); transform: translate(2px, -2px); }
 .graph-hint { font-size: 11px; color: var(--mute-3); }
+.edu-list { display: flex; flex-direction: column; gap: 14px; }
+.edu-row { display: flex; gap: 12px; align-items: flex-start; }
+.edu-row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-family: var(--sans); }
+.edu-row b { font-size: 14.5px; color: #fff; line-height: 1.25; } .edu-row span { font-size: 12px; color: var(--mute); }
+.edu-row small { font-family: var(--mono); font-size: 10.5px; color: var(--c); font-weight: 700; }
+.edu-bar { position: relative; display: block; height: 5px; border-radius: 3px; background: var(--line-2); margin: 5px 0 2px; }
+.edu-bar > i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--c); min-width: 5px; }
+.edu-bar > em { position: absolute; top: -3px; bottom: -3px; left: 76.4%; width: 1px; background: var(--yellow); }
 .gauges { display: flex; flex-wrap: wrap; gap: 12px; max-width: 560px; }
 .gauge { flex: 1 1 130px; background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 16px 14px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .gauge div { position: relative; width: 120px; height: 66px; }
@@ -395,6 +403,16 @@ a:hover > .ext { transform: translate(2px, -2px); color: currentColor; }
 @media (min-width: 560px) { .proj.is-live .pip-ctrl:has(.pip-note) { flex-wrap: nowrap; } .pip-ctrl .pill-btn { flex-shrink: 0; } }
 .proj.is-live .pip-back { display: flex; align-items: center; gap: 6px; margin-left: 10px; background: rgba(12, 13, 18, .85); color: #fff; border: 1px solid var(--line-3); padding: 3px 10px; border-radius: 9999px; font-family: var(--mono); font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .pip-back:hover { border-color: var(--yellow); }
+.pip-fs { display: none; }
+.proj.is-live .pip-fs { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(12, 13, 18, .88); border: 1px solid var(--line-3); color: #fff; font-size: 15px; cursor: pointer; }
+/* full-screen demo (phones only: the button only exists on touch devices) */
+html.demo-full, html.demo-full body { overflow: hidden; }
+html.demo-full .proj.is-full .proj-stage { position: fixed; inset: 0; z-index: 200; width: 100%; height: 100%; aspect-ratio: auto; background: #10121a; }
+html.demo-full .proj.is-full .pip-canvas { inset: 0 0 64px 0; }
+@media (orientation: portrait) {
+  html.demo-full .proj.is-full .pip-canvas { inset: 56px 0 96px 0; }
+  .proj.is-full .proj-stage::before { content: "↻  turn your phone sideways for the full-size demo"; position: absolute; top: 18px; left: 16px; right: 60px; font-family: var(--mono); font-size: 11px; color: var(--mute); z-index: 3; }
+}
 .pill-btn { display: inline-flex; align-items: center; gap: 6px; color: #0c0d12; border: 0; padding: 8px 14px; border-radius: 9999px; font-family: var(--mono); font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: transform .15s; }
 .pill-btn:active { transform: scale(.96); }
 .pill-btn .ic { font-size: 12px; }
@@ -503,9 +521,15 @@ a:hover > .ext { transform: translate(2px, -2px); color: currentColor; }
   .xp-when { width: 70px; }
   .nav-status { display: none; }
   .proj.is-live .proj-stage { aspect-ratio: 1 / 0.86; }
+  .pip { width: 58%; height: 58%; left: 18px; bottom: 18px; }
   .proj.is-live .pip-canvas { inset: 0 0 88px 0; }
   .proj-bar .file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .skillmap .sk-info { order: -1; max-width: none; min-height: 0; flex-basis: 100%; }
+  .skillmap .graph { flex-basis: 100%; overflow-x: auto; scrollbar-width: none; }
+  .skillmap .graph::-webkit-scrollbar { display: none; }
+  .skillmap .graph svg { min-width: 640px; }
 }
+@media (hover: none) { .foot span:last-child { display: none; } }
 @media (hover: none) { .hint { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
