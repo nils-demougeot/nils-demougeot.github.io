@@ -1,6 +1,6 @@
 # Nils Demougeot · Portfolio
 
-Interactive portfolio: particle intro, 3D "What I build" shapes, an explorable globe, a command-line terminal and live project demos. It is a plain static site (HTML, CSS, vanilla JS and a local copy of Three.js r128), with no build step and no external requests.
+Interactive portfolio: 3D data-landscape intro, 3D "What I build" shapes, an explorable globe, a command-line terminal and live project demos. It is a plain static site (HTML, CSS, vanilla JS and a local copy of Three.js r128), with no build step and no external requests.
 
 ## Deploy on GitHub Pages
 
@@ -28,10 +28,13 @@ assets/css/style.css    all styles (tokens at the top)
 assets/js/main.js       app: intro, cursor swarm, terminal, content data
 assets/js/widgets.js    WebGL widgets (particle shapes, globe, 3D project models: platform, hexapod, H160, rocket)
 assets/js/demos.js      the other project demos (2D canvas, ports of the real projects' logic)
+assets/js/gallery.js    screenshot galleries in the project covers + full-screen viewer
 assets/js/vendor/       three.js r128
-assets/data/            world land mask, Paris metro graph (Liv'in Paris), Boggle dictionary
-assets/img/logos/       ESILV, MIT, Riga TU, Transdev
+assets/data/            world land mask, Paris metro graph (Liv'in Paris), Boggle dictionary, galleries.js (screenshots per project)
+assets/img/logos/       ESILV, MIT, Riga TU
 assets/cv/              CV served by the Download button and `cv` command
+assets/img/projects/    project screenshots, one folder per card (managed by tools/galleries.html)
+tools/galleries.html    local tool to add, order, caption and blur project screenshots
 ```
 
 ## Editing content
@@ -41,15 +44,16 @@ assets/cv/              CV served by the Download button and `cv` command
 - **Globe places**: `PLACES` in `main.js`.
 - **Photo in `whoami`**: `assets/img/avatar.jpg` (square), path set in `AVATAR` in `main.js`.
 - **Logo / favicon**: `assets/img/logo-nd.png` (nav logo and browser tab icon).
-- **Projects**: one `<article class="proj">` per project in `index.html`, in display order (most relevant first). `data-cat` sets the filter chips (`ai`, `sw`, `hw`, `more`; update the counts on the chips if you move a card). The first 10 cards show by default; change `LIMIT` in `main.js`.
+- **Projects**: one `<article class="proj">` per project in `index.html`, in display order (most relevant first). `data-cat` sets the filter chips (`ai`, `sw`, `hw`, `more`; update the counts on the chips if you move a card). The first 10 cards show by default; change `LIMIT` in `main.js`. The Grid / List switch is remembered per browser; the list shows every project as a row that opens into the full card.
 - **Project covers**: replace a card's `<div class="cover">…</div>` with `<img class="cover-img" src="assets/img/projects/NAME.jpg" alt="…">` (16:10 works best).
+- **Screenshots (galleries)**: open `tools/galleries.html` in Chrome or Edge, pick the Portfolio folder, drop images on a project and click Save. The tool resizes them (1600 px JPEG), can pixelate private zones, writes them to `assets/img/projects/<card id>/` and rewrites `assets/data/galleries.js` (plain JSON, editable by hand). On the site, `assets/js/gallery.js` replaces the card's `.cover` with the gallery: the first 3 images scattered like cards on a gradient in the project colours, then each image on its own, and a full-screen viewer on click.
 - **Live demos**: a card with `data-demo="key"` gets its widget from `DEMOS` in `main.js`. Buttons with `data-act="name"` call that method on the widget, and widgets write back into elements marked `data-out="name"`.
 - **La Fabrique impact figures**: `IMPACT` at the top of the La Fabrique section of `demos.js` (water and CO₂ per kg of fabric) is a rough estimate; replace it with the app's own factors.
 - **CV**: overwrite `assets/cv/Nils_Demougeot_CV.pdf`.
 
 ## Behaviour notes
 
-- The intro plays once per browser session (about 2 s). It is skipped for deep links (`/#demos`) and when the OS asks for reduced motion. Click, scroll or press any key to skip it.
+- The intro plays once per browser session (about 3 s): a WebGL landscape of points that flattens, seen from above, onto the page's own dot grid (`runIntro` in `main.js`; without WebGL it runs in 2D). Timings are in its `T` object. It is skipped for deep links (`/#demos`) and when the OS asks for reduced motion. Click, scroll or press any key to skip it.
 - The cursor light and dust trail only run on devices with a mouse, and are off with reduced motion.
 - Press `/` anywhere to jump to the terminal. `projects` lists every project; hidden commands (`predict`, `leak`, `rlnc`, `ttt`, `route`, `quake`, `walk`, `explode`…) drive the demos. Clicking the Academics card runs `education`.
 - Demos start only when their card nears the viewport; the Boggle dictionary (≈700 KB) loads only when the Boggle demo is used.

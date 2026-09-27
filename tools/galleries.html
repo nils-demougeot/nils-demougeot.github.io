@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Galeries · portfolio</title>
+<link rel="icon" type="image/png" href="../assets/img/logo-nd.png">
+<link rel="stylesheet" href="../assets/css/style.css">
+<!-- Local tool (Chrome / Edge): pick the Portfolio folder once, drop screenshots on a project, save.
+     It resizes them (1600 px JPEG), can blur zones, stores them in assets/img/projects/<project>/ and rewrites assets/data/galleries.js. -->
+<style>
+  [hidden] { display: none !important; }
+  body { padding-bottom: 80px; }
+  .t-wrap { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
+  .t-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+  .t-head h1 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; letter-spacing: -.02em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+  .t-head h1 img { width: 34px; height: 34px; border-radius: 9px; }
+  .t-head p { color: var(--mute); font-size: 14px; max-width: 640px; margin-top: 6px; }
+  .t-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .t-btn { font: 700 12px var(--mono); border-radius: 9999px; padding: 10px 16px; border: 1px solid var(--line-3); background: var(--card); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; white-space: nowrap; }
+  .t-btn:hover { border-color: var(--yellow); color: #fff; }
+  .t-btn.primary { background: var(--yellow); color: #0c0d12; border-color: var(--yellow); }
+  .t-btn.primary:disabled { opacity: .35; cursor: default; }
+  .t-btn.sm { padding: 6px 11px; font-size: 11px; }
+  .t-btn.danger:hover { border-color: #f43f5e; color: #fb7185; }
+  .t-btn:disabled { opacity: .35; cursor: default; }
+  .t-chip { font: 600 11px var(--mono); color: var(--mute); border: 1px dashed var(--line-3); border-radius: 9999px; padding: 8px 12px; }
+  .t-start { max-width: 760px; margin: 40px auto; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 30px; }
+  .t-start h2 { font-size: 22px; font-weight: 800; margin-bottom: 18px; }
+  .t-start ol { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; counter-reset: s; }
+  .t-start li { display: flex; gap: 14px; color: var(--tx-3); font-size: 14.5px; line-height: 1.55; counter-increment: s; }
+  .t-start li::before { content: counter(s); flex-shrink: 0; width: 26px; height: 26px; border-radius: 9999px; background: var(--yellow); color: #0c0d12; font: 800 12px var(--mono); display: flex; align-items: center; justify-content: center; }
+  .t-start code { font-family: var(--mono); font-size: 12.5px; color: var(--yellow); }
+  .t-warn { color: #fb7185; font-size: 14px; margin-top: 14px; }
+  .t-grid { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .t-grid { grid-template-columns: 1fr; } .t-list { position: static; max-height: 260px; } }
+  .t-list { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 8px; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+  .t-proj { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; border: 0; background: transparent; color: var(--tx-2); text-align: left; cursor: pointer; font-size: 13.5px; }
+  .t-proj:hover { background: var(--card-2); }
+  .t-proj.on { background: var(--card-2); box-shadow: inset 0 0 0 1px var(--line-3); }
+  .t-proj i { width: 9px; height: 9px; border-radius: 9999px; background: var(--c); flex-shrink: 0; }
+  .t-proj span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .t-proj b { font: 700 10.5px var(--mono); color: var(--mute-3); min-width: 20px; text-align: center; }
+  .t-proj b.has { color: #0c0d12; background: var(--c); border-radius: 9999px; padding: 1px 7px; }
+  .t-proj em { width: 7px; height: 7px; border-radius: 9999px; background: var(--yellow); display: none; flex-shrink: 0; }
+  .t-proj.dirty em { display: block; }
+  .t-panel { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .t-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .t-box h2 { font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--mute); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .t-box h2 small { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--mute-2); }
+  .t-top { display: grid; grid-template-columns: minmax(0, 560px) minmax(220px, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 1150px) { .t-top { grid-template-columns: 1fr; } }
+  .t-pv .proj { max-width: 560px; }
+  .t-pv .pip-run > span { background: rgba(255, 255, 255, .9); padding: 6px 12px; }
+  .t-side { display: flex; flex-direction: column; gap: 16px; }
+  .t-side h3 { font-size: 20px; font-weight: 800; }
+  .t-side p { color: var(--mute); font-size: 13px; line-height: 1.55; }
+  .t-cols { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .t-cols input[type=color] { width: 44px; height: 34px; border: 1px solid var(--line-3); border-radius: 8px; background: none; padding: 2px; cursor: pointer; }
+  .t-cols input[type=color]:disabled { opacity: .55; cursor: default; }
+  .t-cols label { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--tx-3); cursor: pointer; }
+  .t-imgs { display: flex; flex-direction: column; gap: 10px; }
+  .t-img { display: grid; grid-template-columns: 26px 150px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+  .t-img .n { font: 800 13px var(--mono); color: var(--mute); padding-top: 4px; text-align: center; }
+  .t-img .th { position: relative; width: 150px; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; background: #0a0b10; box-shadow: 0 0 0 1px var(--line-2); cursor: zoom-in; }
+  .t-img .th img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+  .t-img .th small { position: absolute; left: 6px; bottom: 6px; font: 700 9.5px var(--mono); background: var(--yellow); color: #0c0d12; border-radius: 9999px; padding: 2px 7px; }
+  .t-img .meta { font: 500 10.5px var(--mono); color: var(--mute-2); margin-top: 6px; word-break: break-all; }
+  .t-img .f { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .t-img label { font: 700 10px var(--mono); color: var(--mute-2); text-transform: uppercase; letter-spacing: .04em; display: flex; flex-direction: column; gap: 4px; }
+  .t-img textarea, .t-img input { background: #0a0b10; border: 1px solid var(--line-2); border-radius: 8px; color: var(--tx-2); padding: 8px 10px; font: 13px/1.45 var(--sans); resize: vertical; text-transform: none; letter-spacing: 0; width: 100%; }
+  .t-img textarea:focus, .t-img input:focus { outline: none; border-color: var(--line-3); }
+  .t-img .b { display: flex; flex-direction: column; gap: 6px; }
+  .t-img .b div { display: flex; gap: 6px; }
+  @media (max-width: 700px) { .t-img { grid-template-columns: 22px minmax(0, 1fr); } .t-img .f, .t-img .b { grid-column: 1 / -1; } .t-img .b { flex-direction: row; flex-wrap: wrap; } }
+  .t-drop { margin-top: 12px; border: 1.5px dashed var(--line-3); border-radius: 14px; padding: 26px 18px; text-align: center; color: var(--mute); cursor: pointer; font-size: 14px; transition: border-color .2s, background .2s, color .2s; }
+  .t-drop b { color: #fff; }
+  .t-drop small { display: block; margin-top: 6px; font-size: 12px; color: var(--mute-2); }
+  .t-drop.over, .t-drop:hover { border-color: var(--yellow); color: #fff; background: rgba(255, 204, 0, .04); }
+  .t-empty { color: var(--mute-2); font-size: 13.5px; padding: 6px 2px; }
+  .t-modal { position: fixed; inset: 0; z-index: 400; background: rgba(8, 9, 12, .94); display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+  .t-modal[hidden] { display: none; }
+  .t-modal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .t-modal-top p { color: var(--mute); font-size: 13.5px; }
+  .t-modal-top p b { color: #fff; }
+  .t-cw { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .t-cw canvas { border-radius: 8px; cursor: crosshair; touch-action: none; box-shadow: 0 0 0 1px var(--line-3); }
+  .t-toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); opacity: 0; z-index: 500; background: #fff; color: #0c0d12; font: 600 13px var(--sans); padding: 12px 18px; border-radius: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); transition: opacity .25s, transform .25s; max-width: min(640px, calc(100vw - 32px)); pointer-events: none; }
+  .t-toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .t-toast.err { background: #fb7185; }
+</style>
+</head>
+<body>
+<div class="t-wrap">
+  <header class="t-head">
+    <div>
+      <h1><img src="../assets/img/logo-nd.png" alt="">Galeries</h1>
+      <p>Glisse des captures sur un projet : elles sont redimensionnées, rangées dans le bon dossier et affichées dans la card (collage puis diaporama). Rien ne part sur internet, tout reste sur ton disque.</p>
+    </div>
+    <div class="t-actions" id="actions" hidden>
+      <span class="t-chip" id="folder"></span>
+      <button type="button" class="t-btn" id="reload">Recharger</button>
+      <button type="button" class="t-btn primary" id="save" disabled>Enregistrer</button>
+    </div>
+  </header>
+
+  <section class="t-start" id="start">
+    <h2>Comment ça marche</h2>
+    <ol>
+      <li><span>Ouvre le dossier <code>Portfolio</code> (celui qui contient <code>index.html</code>). Le navigateur demande l'autorisation de le modifier : accepte. Il s'en souviendra la prochaine fois.</span></li>
+      <li><span>Choisis un projet à gauche, puis glisse tes images (ou colle une capture avec Ctrl+V). Range-les avec les flèches : les 3 premières forment le collage de la cover.</span></li>
+      <li><span>Ajoute une légende si tu veux, floute les zones sensibles, puis clique <b>Enregistrer</b>. Les images vont dans <code>assets/img/projects/&lt;projet&gt;/</code> et <code>assets/data/galleries.js</code> est mis à jour. Il ne reste qu'à commit et push.</span></li>
+    </ol>
+    <div class="t-actions">
+      <button type="button" class="t-btn primary" id="pick">Ouvrir le dossier du portfolio</button>
+      <button type="button" class="t-btn" id="resume" hidden></button>
+    </div>
+    <p class="t-warn" id="unsupported" hidden>Ce navigateur ne peut pas écrire dans un dossier. Ouvre cette page dans Chrome ou Edge.</p>
+  </section>
+
+  <div class="t-grid" id="app" hidden>
+    <nav class="t-list" id="list" aria-label="Projets"></nav>
+    <div class="t-panel">
+      <div class="t-box">
+        <div class="t-top">
+          <div class="t-pv" id="pv"></div>
+          <div class="t-side">
+            <div>
+              <h3 id="edTitle"></h3>
+              <p id="edPath"></p>
+            </div>
+            <div>
+              <p style="margin-bottom:8px">Couleurs du fond</p>
+              <div class="t-cols">
+                <input type="color" id="col1" aria-label="Couleur 1">
+                <input type="color" id="col2" aria-label="Couleur 2">
+                <label><input type="checkbox" id="colAuto"> auto (couleur de la card)</label>
+              </div>
+            </div>
+            <p>L'aperçu utilise le vrai code du site. Clique sur une image pour la voir en grand, comme sur le site.</p>
+            <a class="t-btn sm" id="siteLink" href="../index.html" target="_blank" rel="noopener" style="align-self:flex-start">Voir sur le site ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="t-box">
+        <h2><span>Images</span><small id="imgCount"></small></h2>
+        <div class="t-imgs" id="imgs"></div>
+        <div class="t-drop" id="drop" tabindex="0" role="button"><b>Glisse tes images ici</b> ou clique pour les choisir<small>PNG, JPG, WebP · colle une capture avec Ctrl+V · redimensionnées à 1600 px de large</small></div>
+        <input type="file" id="fileIn" accept="image/*" multiple hidden>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="t-modal" id="blur" hidden role="dialog" aria-modal="true" aria-label="Flouter des zones">
+  <div class="t-modal-top">
+    <p><b>Flouter des zones</b> · dessine des rectangles sur ce qui doit rester privé (noms, URL, e-mails…). <span id="blurCount"></span></p>
+    <div class="t-actions">
+      <button type="button" class="t-btn sm" id="blurUndo">Retirer la dernière</button>
+      <button type="button" class="t-btn sm" id="blurClear">Tout retirer</button>
+      <button type="button" class="t-btn sm" id="blurCancel">Annuler</button>
+      <button type="button" class="t-btn sm primary" id="blurOk">Valider</button>
+    </div>
+  </div>
+  <div class="t-cw" id="blurWrap"><canvas id="blurCv"></canvas></div>
+</div>
+<div class="t-toast" id="toast" role="status"></div>
+
+<script src="../assets/js/gallery.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const MAXW = 1600, QUALITY = 0.86, DATA = ['assets', 'data', 'galleries.js'], IMG = ['assets', 'img', 'projects'];
+  const HEAD = '// Screenshot galleries of the project cards, written by tools/galleries.html (safe to edit by hand: keep it valid JSON).\n' +
+    '// Key = card id without "p-". colors = the two background colours (optional, else taken from the card colour).\n';
+  // images: { id, src?, w, h, alt, caption, blur: [[x, y, w, h] as fractions], file? (new), name?, url? (preview) }
+  const S = { root: null, projects: [], data: {}, orphans: {}, sel: null, dirty: new Set(), removed: {}, gal: null, pv: 0 };
+  let uid = 0;
+
+  /* ───────── files ───────── */
+  async function dirAt(parts, create) { let d = S.root; for (const p of parts) d = await d.getDirectoryHandle(p, { create: !!create }); return d; }
+  async function fileAt(path) { const parts = path.split('/'), name = parts.pop(); return (await (await dirAt(parts)).getFileHandle(name)).getFile(); }
+  async function readText(parts) { try { return await (await fileAt(parts.join('/'))).text(); } catch (e) { return null; } }
+  async function writeFile(parts, data) {
+    const d = await dirAt(parts.slice(0, -1), true), fh = await d.getFileHandle(parts[parts.length - 1], { create: true });
+    const w = await fh.createWritable(); await w.write(data); await w.close();
+  }
+  function idb(mode, fn) {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('nd-galleries', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { const tx = r.result.transaction('kv', mode), q = fn(tx.objectStore('kv')); tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); };
+      r.onerror = () => rej(r.error);
+    });
+  }
+  const remember = (h) => idb('readwrite', (st) => st.put(h, 'root')).catch(() => {});
+  const recall = () => idb('readonly', (st) => st.get('root')).catch(() => null);
+
+  /* ───────── images ───────── */
+  function pixelate(c, x, y, w, h, B) {
+    x = Math.max(0, Math.floor(x)); y = Math.max(0, Math.floor(y)); w = Math.min(c.canvas.width - x, Math.ceil(w)); h = Math.min(c.canvas.height - y, Math.ceil(h));
+    if (w < 2 || h < 2) return;
+    B = Math.max(B, Math.min(w, h) / 4); // big text needs big blocks to stay unreadable
+    const sw = Math.max(1, Math.round(w / B)), sh = Math.max(1, Math.round(h / B)), t = document.createElement('canvas');
+    t.width = sw; t.height = sh; t.getContext('2d').drawImage(c.canvas, x, y, w, h, 0, 0, sw, sh);
+    c.save(); c.imageSmoothingEnabled = false; c.drawImage(t, 0, 0, sw, sh, x, y, w, h); c.restore();
+  }
+  // resized to MAXW, blurred zones pixelated, JPEG
+  async function encode(im) {
+    const bmp = await createImageBitmap(im.file || await fileAt(im.src));
+    const k = Math.min(1, MAXW / bmp.width), w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d');
+    c.fillStyle = '#10121a'; c.fillRect(0, 0, w, h); c.imageSmoothingQuality = 'high'; c.drawImage(bmp, 0, 0, w, h); if (bmp.close) bmp.close();
+    im.blur.forEach((r) => pixelate(c, r[0] * w, r[1] * h, r[2] * w, r[3] * h, Math.max(8, Math.round(w / 115))));
+    const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', QUALITY));
+    return { blob, w, h };
+  }
+  async function urlOf(im) {
+    if (im.url) return im.url;
+    try { im.url = URL.createObjectURL(im.file || await fileAt(im.src)); } catch (e) { im.url = ''; }
+    return im.url;
+  }
+  const slug = (s) => (String(s).replace(/\.[^.]+$/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)) || 'screenshot';
+  function freeName(base, taken) { let n = base + '.jpg', k = 2; while (taken.has(n)) n = base + '-' + k++ + '.jpg'; return n; }
+
+  /* ───────── load / save ───────── */
+  async function load(h) {
+    S.root = h;
+    const html = await readText(['index.html']);
+    if (!html || !/class="proj"/.test(html)) { S.root = null; toast('Ce dossier ne ressemble pas au portfolio (pas de index.html avec des projets). Choisis le dossier Portfolio.', true); return false; }
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    S.projects = $$('article.proj[id^="p-"]', doc).map((a) => ({
+      key: a.id.slice(2), title: (($('h3', a) || {}).textContent || a.id).trim(), file: (($('.file', a) || {}).textContent || '').trim(),
+      color: ((/--c:\s*([^;"]+)/.exec(a.getAttribute('style') || '') || [])[1] || '#fb7185').trim(), demo: a.hasAttribute('data-demo')
+    }));
+    const txt = await readText(DATA); let data = {};
+    if (txt && txt.indexOf('{') >= 0) {
+      try { data = JSON.parse(txt.slice(txt.indexOf('{', txt.indexOf('GALLERIES')), txt.lastIndexOf('}') + 1)); }
+      catch (e) { S.root = null; toast('assets/data/galleries.js n\'est pas du JSON valide : corrige-le avant d\'utiliser l\'outil.', true); return false; }
+    }
+    S.data = {}; S.orphans = {};
+    S.projects.forEach((p) => {
+      const d = data[p.key] || {};
+      S.data[p.key] = { colors: Array.isArray(d.colors) && d.colors.length ? d.colors.slice(0, 2) : null, images: (d.images || []).map((im) => Object.assign({ alt: '', caption: '' }, im, { id: ++uid, blur: [] })) };
+    });
+    Object.keys(data).forEach((k) => { if (!S.data[k]) S.orphans[k] = data[k]; });
+    S.dirty.clear(); S.removed = {}; remember(h);
+    $('#start').hidden = true; $('#app').hidden = false; $('#actions').hidden = false; $('#folder').textContent = '📁 ' + h.name;
+    const keep = S.sel && S.data[S.sel] ? S.sel : (S.projects.find((p) => S.data[p.key].images.length) || S.projects[0]).key;
+    S.sel = null; select(keep);
+    return true;
+  }
+  function manifest() {
+    const out = {};
+    S.projects.forEach((p) => {
+      const d = S.data[p.key]; if (!d.images.length) return;
+      const e = {}; if (d.colors) e.colors = d.colors;
+      e.images = d.images.map((im) => { const o = { src: im.src, w: im.w, h: im.h }; if (im.alt.trim()) o.alt = im.alt.trim(); if (im.caption.trim()) o.caption = im.caption.trim(); return o; });
+      out[p.key] = e;
+    });
+    Object.keys(S.orphans).forEach((k) => { out[k] = S.orphans[k]; });
+    return HEAD + 'window.GALLERIES = ' + JSON.stringify(out, null, 2) + ';\n';
+  }
+  async function save() {
+    if (!S.root || !S.dirty.size) return;
+    const btn = $('#save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
+    let files = 0;
+    try {
+      for (const key of Array.from(S.dirty)) {
+        const d = S.data[key], base = IMG.join('/') + '/' + key + '/', todo = d.images.filter((im) => im.file || im.blur.length), gone = S.removed[key] || [];
+        if (!todo.length && !gone.length) continue;
+        const dir = await dirAt(IMG.concat(key), true), taken = new Set();
+        for await (const n of dir.keys()) taken.add(n);
+        for (const im of todo) {
+          const out = await encode(im), own = !im.file && im.src && im.src.startsWith(base) && im.src.indexOf('/', base.length) < 0;
+          const name = own ? im.src.slice(base.length) : freeName(slug(im.name || (im.src || '').split('/').pop()), taken);
+          taken.add(name); await writeFile(IMG.concat(key, name), out.blob); files++;
+          if (im.url) URL.revokeObjectURL(im.url);
+          Object.assign(im, { src: base + name, w: out.w, h: out.h, blur: [], url: URL.createObjectURL(out.blob) }); delete im.file; delete im.name;
+        }
+        for (const src of gone) {
+          if (src.startsWith(base) && !d.images.some((im) => im.src === src)) { try { await dir.removeEntry(src.slice(base.length)); files++; } catch (e) { /* already gone */ } }
+        }
+      }
+      await writeFile(DATA, manifest()); files++;
+      S.dirty.clear(); S.removed = {};
+      toast('Enregistré ✓ (' + files + ' fichier' + (files > 1 ? 's' : '') + '). Il ne reste qu\'à commit et push.');
+    } catch (e) { console.error(e); toast('Erreur pendant l\'enregistrement : ' + e.message, true); }
+    renderList(); renderEditor(); status();
+  }
+
+  /* ───────── UI ───────── */
+  const proj = (k) => S.projects.find((p) => p.key === k);
+  let toastT = 0;
+  function toast(msg, err) { const t = $('#toast'); t.textContent = msg; t.classList.toggle('err', !!err); t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), err ? 6000 : 4200); }
+  function status() { const n = S.dirty.size, b = $('#save'); b.disabled = !n; b.textContent = n ? 'Enregistrer (' + n + ' projet' + (n > 1 ? 's' : '') + ')' : 'Enregistré'; }
+  function touch(key) { S.dirty.add(key || S.sel); status(); renderList(); }
+  function renderList() {
+    $('#list').innerHTML = S.projects.map((p) => {
+      const n = S.data[p.key].images.length;
+      return '<button type="button" class="t-proj' + (p.key === S.sel ? ' on' : '') + (S.dirty.has(p.key) ? ' dirty' : '') + '" data-key="' + p.key + '" style="--c:' + esc(p.color) + '"><i></i><span>' + esc(p.title) + '</span><em title="modifié"></em><b class="' + (n ? 'has' : '') + '">' + n + '</b></button>';
+    }).join('');
+  }
+  function select(key) { if (S.sel === key) return; S.sel = key; renderList(); renderEditor(); }
+  const hex = (c) => { c = String(c).trim(); if (/^#[0-9a-f]{3}$/i.test(c)) c = '#' + c.slice(1).split('').map((x) => x + x).join(''); return /^#[0-9a-f]{6}$/i.test(c) ? c.toLowerCase() : '#888888'; };
+  function renderEditor() {
+    const p = proj(S.sel), d = S.data[p.key];
+    $('#edTitle').textContent = p.title;
+    $('#edPath').textContent = 'Images dans assets/img/projects/' + p.key + '/' + (p.demo ? ' · la card a une démo : le collage lui laisse la place en bas à gauche.' : '');
+    $('#siteLink').href = '../index.html#p-' + p.key;
+    const auto = !d.colors; $('#colAuto').checked = auto;
+    $('#col1').value = hex(auto ? p.color : d.colors[0]); $('#col2').value = hex(auto ? PGallery.partner(p.color) : d.colors[1] || PGallery.partner(d.colors[0]));
+    $('#col1').disabled = $('#col2').disabled = auto;
+    const n = d.images.length;
+    $('#imgCount').textContent = n ? n + ' image' + (n > 1 ? 's' : '') + (n > 1 ? ' · les ' + Math.min(3, n) + ' premières font le collage' : '') : '';
+    $('#imgs').innerHTML = n ? d.images.map((im, j) => {
+      const tag = im.file ? 'nouvelle' : im.blur.length ? im.blur.length + ' zone' + (im.blur.length > 1 ? 's' : '') + ' à flouter' : '';
+      return '<div class="t-img" data-id="' + im.id + '"><span class="n">' + (j + 1) + '</span>' +
+        '<div><div class="th" data-act="view"><img alt="">' + (tag ? '<small>' + tag + '</small>' : '') + '</div><div class="meta">' + esc(im.file ? im.file.name : (im.src || '').split('/').pop()) + ' · ' + im.w + '×' + im.h + '</div></div>' +
+        '<div class="f"><label>Légende (affichée en grand)<textarea rows="2" data-f="caption" placeholder="Ce que montre la capture, en une phrase">' + esc(im.caption) + '</textarea></label>' +
+        '<label>Texte alternatif (optionnel)<input data-f="alt" value="' + esc(im.alt) + '" placeholder="' + esc(p.title + ', screenshot ' + (j + 1)) + '"></label></div>' +
+        '<div class="b"><div><button type="button" class="t-btn sm" data-act="up"' + (j ? '' : ' disabled') + ' aria-label="Monter">↑</button><button type="button" class="t-btn sm" data-act="down"' + (j < n - 1 ? '' : ' disabled') + ' aria-label="Descendre">↓</button></div>' +
+        '<button type="button" class="t-btn sm" data-act="blur">Flouter…</button><button type="button" class="t-btn sm danger" data-act="del">Retirer</button></div></div>';
+    }).join('') : '<p class="t-empty">Pas encore d\'image : la card garde son emplacement vide.</p>';
+    d.images.forEach(async (im) => { const el = $('.t-img[data-id="' + im.id + '"] .th img'); if (el) el.src = await urlOf(im); });
+    preview();
+  }
+  async function preview() {
+    const p = proj(S.sel), d = S.data[p.key], token = ++S.pv, host = $('#pv');
+    const imgs = await Promise.all(d.images.map(async (im) => ({ src: await urlOf(im), w: im.w, h: im.h, alt: im.alt, caption: im.caption })));
+    if (token !== S.pv) return;
+    if (S.gal) S.gal.destroy();
+    host.innerHTML = '<article class="proj" style="--c:' + esc(p.color) + '"><div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">' + esc(p.file) + '</span></div>' +
+      '<div class="proj-stage"><div class="cover"><span>' + esc(p.title) + ' · pas d\'image</span></div>' + (p.demo ? '<div class="pip"><div class="pip-run"><span>Run demo</span></div></div>' : '') + '</div>' +
+      '<div class="proj-body"><div class="proj-title"><h3>' + esc(p.title) + '</h3></div></div></article>';
+    S.gal = imgs.length ? PGallery.build($('.proj', host), { colors: d.colors, images: imgs }) : null;
+  }
+  async function addFiles(files) {
+    if (!S.root || !S.sel) return;
+    const d = S.data[S.sel]; let added = 0;
+    for (const f of Array.from(files)) {
+      if (!/^image\//.test(f.type)) continue;
+      let bmp; try { bmp = await createImageBitmap(f); } catch (e) { toast(f.name + ' : image illisible', true); continue; }
+      const k = Math.min(1, MAXW / bmp.width);
+      d.images.push({ id: ++uid, file: f, name: f.name && f.name !== 'image.png' ? f.name : S.sel + '-' + (d.images.length + 1), w: Math.round(bmp.width * k), h: Math.round(bmp.height * k), alt: '', caption: '', blur: [] });
+      if (bmp.close) bmp.close(); added++;
+    }
+    if (added) { touch(); renderEditor(); toast(added + ' image' + (added > 1 ? 's' : '') + ' ajoutée' + (added > 1 ? 's' : '') + '. Pense à enregistrer.'); }
+  }
+
+  /* ───────── blur editor ───────── */
+  let BE = null;
+  async function openBlur(im) {
+    let bmp; try { bmp = await createImageBitmap(im.file || await fileAt(im.src)); } catch (e) { toast('Image introuvable sur le disque', true); return; }
+    BE = { im, bmp, rects: im.blur.map((r) => r.slice()), start: null, cur: null };
+    $('#blur').hidden = false; drawBlur();
+  }
+  function box(a, b) { return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1])]; }
+  function drawBlur() {
+    if (!BE) return;
+    const wrap = $('#blurWrap'), cv = $('#blurCv'), b = BE.bmp, k = Math.min(wrap.clientWidth / b.width, wrap.clientHeight / b.height, 1);
+    cv.width = Math.max(1, Math.round(b.width * k)); cv.height = Math.max(1, Math.round(b.height * k));
+    const c = cv.getContext('2d'); c.drawImage(b, 0, 0, cv.width, cv.height);
+    const all = BE.start && BE.cur ? BE.rects.concat([box(BE.start, BE.cur)]) : BE.rects;
+    all.forEach((r) => {
+      const x = r[0] * cv.width, y = r[1] * cv.height, w = r[2] * cv.width, h = r[3] * cv.height;
+      pixelate(c, x, y, w, h, Math.max(4, Math.round(cv.width / 115)));
+      c.strokeStyle = '#FFCC00'; c.lineWidth = 1.5; c.setLineDash([5, 4]); c.strokeRect(x + 0.5, y + 0.5, w, h); c.setLineDash([]);
+    });
+    $('#blurCount').textContent = BE.rects.length ? BE.rects.length + ' zone' + (BE.rects.length > 1 ? 's' : '') + '.' : '';
+  }
+  function closeBlur() { if (BE && BE.bmp.close) BE.bmp.close(); BE = null; $('#blur').hidden = true; }
+  const posIn = (e) => { const r = $('#blurCv').getBoundingClientRect(); return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))]; };
+  $('#blurCv').addEventListener('pointerdown', (e) => { if (!BE) return; e.currentTarget.setPointerCapture(e.pointerId); BE.start = BE.cur = posIn(e); });
+  $('#blurCv').addEventListener('pointermove', (e) => { if (BE && BE.start) { BE.cur = posIn(e); drawBlur(); } });
+  $('#blurCv').addEventListener('pointerup', (e) => {
+    if (!BE || !BE.start) return; const r = box(BE.start, posIn(e)); BE.start = BE.cur = null;
+    if (r[2] > 0.004 && r[3] > 0.004) BE.rects.push(r); drawBlur();
+  });
+  $('#blurUndo').addEventListener('click', () => { if (BE) { BE.rects.pop(); drawBlur(); } });
+  $('#blurClear').addEventListener('click', () => { if (BE) { BE.rects = []; drawBlur(); } });
+  $('#blurCancel').addEventListener('click', closeBlur);
+  $('#blurOk').addEventListener('click', async () => {
+    const im = BE.im; im.blur = BE.rects; closeBlur();
+    if (im.url) URL.revokeObjectURL(im.url);
+    im.url = im.blur.length ? URL.createObjectURL((await encode(im)).blob) : ''; // preview with the blur applied
+    touch(); renderEditor();
+  });
+  addEventListener('resize', drawBlur);
+
+  /* ───────── events ───────── */
+  $('#list').addEventListener('click', (e) => { const b = e.target.closest('[data-key]'); if (b) select(b.getAttribute('data-key')); });
+  $('#imgs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const d = S.data[S.sel], id = +b.closest('.t-img').getAttribute('data-id'), j = d.images.findIndex((im) => im.id === id), im = d.images[j], a = b.getAttribute('data-act');
+    if (a === 'view') { if (S.gal) PGallery.open(S.gal, j); return; }
+    if (a === 'blur') { openBlur(im); return; }
+    if (a === 'up' || a === 'down') { const k = a === 'up' ? j - 1 : j + 1; if (k < 0 || k >= d.images.length) return; d.images.splice(j, 1); d.images.splice(k, 0, im); }
+    if (a === 'del') {
+      if (!confirm('Retirer cette image de la galerie ?' + (im.src ? ' Le fichier sera supprimé à l\'enregistrement.' : ''))) return;
+      d.images.splice(j, 1); if (im.src) (S.removed[S.sel] = S.removed[S.sel] || []).push(im.src); if (im.url) URL.revokeObjectURL(im.url);
+    }
+    touch(); renderEditor();
+  });
+  $('#imgs').addEventListener('input', (e) => {
+    const f = e.target.getAttribute('data-f'); if (!f) return;
+    const im = S.data[S.sel].images.find((x) => x.id === +e.target.closest('.t-img').getAttribute('data-id')); im[f] = e.target.value;
+    if (!S.dirty.has(S.sel)) touch();
+    clearTimeout(S.capT); S.capT = setTimeout(preview, 500);
+  });
+  $('#colAuto').addEventListener('change', (e) => { const d = S.data[S.sel]; d.colors = e.target.checked ? null : [$('#col1').value, $('#col2').value]; touch(); renderEditor(); });
+  ['#col1', '#col2'].forEach((s) => $(s).addEventListener('input', () => { S.data[S.sel].colors = [$('#col1').value, $('#col2').value]; if (!S.dirty.has(S.sel)) touch(); clearTimeout(S.colT); S.colT = setTimeout(preview, 120); }));
+  const drop = $('#drop');
+  drop.addEventListener('click', () => $('#fileIn').click());
+  drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#fileIn').click(); } });
+  $('#fileIn').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  addEventListener('dragleave', (e) => { if (!e.relatedTarget) drop.classList.remove('over'); });
+  addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+  addEventListener('paste', (e) => { const f = e.clipboardData && Array.from(e.clipboardData.files || []); if (f && f.length) { e.preventDefault(); addFiles(f); } });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && BE) closeBlur(); if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); } });
+  addEventListener('beforeunload', (e) => { if (S.dirty.size) { e.preventDefault(); e.returnValue = ''; } });
+  $('#save').addEventListener('click', save);
+  $('#reload').addEventListener('click', () => { if (!S.dirty.size || confirm('Abandonner les modifications non enregistrées ?')) load(S.root); });
+  $('#pick').addEventListener('click', async () => {
+    try { await load(await showDirectoryPicker({ id: 'nd-portfolio', mode: 'readwrite' })); }
+    catch (e) { if (e.name !== 'AbortError') toast(e.message, true); }
+  });
+
+  if (!window.showDirectoryPicker) { $('#pick').disabled = true; $('#unsupported').hidden = false; }
+  else recall().then((h) => {
+    if (!h) return; const b = $('#resume'); b.hidden = false; b.textContent = 'Reprendre « ' + h.name + ' »';
+    b.addEventListener('click', async () => { try { if ((await h.requestPermission({ mode: 'readwrite' })) === 'granted') await load(h); } catch (e) { toast(e.message, true); } });
+  });
+})();
+</script>
+</body>
+</html>

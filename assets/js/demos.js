@@ -145,258 +145,318 @@
     };
   };
 
-  /* ───────── Transdev: simulated USB-exfiltration dashboard with an hourly scheduled search ───────── */
+  /* ───────── Cyber internship: a simulated SOC console · EDR + proxy telemetry → NG-SIEM → hourly exfiltration search ───────── */
   PW.siem = function (canvas, o) {
     o = o || {}; const out = o.out || noop;
     const v = view(canvas, 540, 300);
     const USERS = ['user_014', 'user_027', 'user_033', 'user_041', 'user_058', 'user_062'];
+    const HOSTS = ['LAPTOP-3QK1', 'LAPTOP-7F2K', 'PC-LYO-221', 'LAPTOP-9ZD4', 'PC-LIL-073', 'PC-BDX-118'];
     const SITES = [['Paris', 2.35, 48.86], ['Lille', 3.06, 50.63], ['Rennes', -1.68, 48.11], ['Nantes', -1.55, 47.22], ['Bordeaux', -0.58, 44.84], ['Toulouse', 1.44, 43.6], ['Marseille', 5.37, 43.3], ['Nice', 7.26, 43.7], ['Lyon', 4.84, 45.76], ['Strasbourg', 7.75, 48.58]];
-    const HOME = [0, 8, 3, 6, 1, 4], EXT = ['.xlsx', '.pdf', '.docx', '.csv', '.pptx', '.zip'];
+    const HOME = [0, 8, 3, 6, 1, 4];
     const FR = [[-4.8, 48.4], [-3.0, 48.85], [-1.6, 48.7], [-1.3, 49.7], [0.2, 49.7], [1.6, 50.2], [2.5, 51.1], [4.2, 50.0], [5.9, 49.5], [8.2, 49.0], [7.6, 47.6], [6.9, 47.4], [6.0, 46.3], [7.0, 45.9], [6.7, 45.1], [7.0, 44.2], [7.6, 43.8], [6.2, 43.1], [4.6, 43.4], [3.1, 43.1], [3.0, 42.5], [1.7, 42.5], [-1.8, 43.4], [-1.2, 44.6], [-1.1, 46.2], [-2.2, 47.1], [-4.4, 47.9]];
-    const HOUR = 8, THR = 500; // 8 demo seconds = one hour of logs; alert above 500 MB/hour
-    const mx = (lon) => 392 + (lon + 5) * 10.4, my = (lat) => 70 + (51.3 - lat) * 15.2;
-    let t = 0, evs = [], next = 0, burst = null, runIn = HOUR, alert = null, pings = [], lastHits = 0, totals = USERS.map(() => 0);
-    function add(u, mb) { const e = { t, u, mb, ext: pick(EXT), site: HOME[u] }; evs.push(e); pings.push({ site: e.site, t0: t, big: mb > 60 }); if (pings.length > 30) pings.shift(); }
-    function run() {
-      const hits = USERS.map((_, u) => [u, totals[u]]).filter(([, mb]) => mb > THR).sort((a, b) => b[1] - a[1]);
-      lastHits = hits.length;
-      if (hits.length) { alert = { u: hits[0][0], mb: hits[0][1], t0: t }; out('note', '⚠ alert sent to the security team'); }
-      else if (alert && t - alert.t0 > HOUR) alert = null;
+    const NORMAL = [['EDR', 'process', ['excel.exe', 'outlook.exe', 'teams.exe', 'chrome.exe']], ['EDR', 'USB', ['report.pdf', 'notes.docx', 'kpi.xlsx']], ['PRX', 'upload', ['sharepoint', 'outlook', 'intranet']], ['EDR', 'file read', ['srv-files/RH', 'srv-files/Ops']]];
+    const HOUR = 8, THR = 500; // 8 demo seconds = 1 hour of logs; alert when a user moves > 500 MB out in an hour
+    const mx = (lon) => 222 + (lon + 5) * 10.2, my = (lat) => 70 + (51.3 - lat) * 14.2, HUB = [290, 212];
+    let t = 0, evs = [], feed = [], next = 0, burst = null, runIn = HOUR, incident = null, flows = [], totals = USERS.map(() => 0), epm = 1240, buckets = new Array(40).fill(0), bT = 0, runs = 0;
+    const clock = (tt) => { const m = 9 * 60 + Math.floor(tt * 7.5); return String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+    function add(u, src, kind, detail, mb, hot) {
+      const e = { t, u, src, kind, detail, mb, hot, site: HOME[u] }; if (mb) evs.push(e); feed.unshift(e); if (feed.length > 14) feed.pop();
+      buckets[buckets.length - 1] += mb || 0; flows.push({ site: e.site, t0: t, hot, src });
     }
-    for (let i = 0; i < 14; i++) { t = i * 0.5; add(Math.floor(Math.random() * USERS.length), 1 + Math.random() * 30); }
-    const clock = () => { const m = 9 * 60 + Math.floor(t * 7.5); return String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+    function normalEvent() {
+      const u = Math.floor(Math.random() * USERS.length), [src, kind, opts] = pick(NORMAL), d = pick(opts);
+      const mb = kind === 'USB' || kind === 'upload' ? 1 + Math.pow(Math.random(), 2) * 26 : 0;
+      add(u, src, kind, d, mb, false);
+    }
+    function runSearch() {
+      runs++;
+      const hits = USERS.map((_, u) => [u, totals[u]]).filter(([, mb]) => mb > THR).sort((a, b) => b[1] - a[1]);
+      if (hits.length) {
+        const u = hits[0][0], mine = evs.filter((e) => e.u === u && e.hot);
+        incident = { u, mb: hits[0][1], files: 180 + Math.floor(Math.random() * 90), usb: mine.some((e) => e.kind === 'USB'), cloud: mine.some((e) => e.kind === 'upload'), t0: t, at: clock(t) };
+        out('note', '⚠ incident opened · SOC team notified');
+      } else if (incident && t - incident.t0 > HOUR * 1.5) incident = null;
+    }
+    for (let i = 0; i < 12; i++) { t = i * 0.25; normalEvent(); }
+    function tile(c, x, label, value, sub, col) {
+      rr(c, x, 8, 126, 38, 8); c.fillStyle = K.card; c.fill(); c.strokeStyle = col === K.rose ? K.rose : K.line2; c.lineWidth = 1; c.stroke();
+      txt(c, label, x + 9, 20, { px: 7.5, w: 700, col: K.mute2 });
+      txt(c, value, x + 9, 38, { sans: true, px: 14, w: 800, col: col || '#fff' });
+      if (sub) txt(c, sub, x + 118, 38, { px: 8, col: K.mute, al: 'right' });
+    }
     function draw(c) {
-      // query bar
-      rr(c, 12, 10, 516, 26, 7); c.fillStyle = K.card; c.fill(); c.strokeStyle = K.line2; c.stroke();
-      c.font = '500 10px ' + MONO; c.textBaseline = 'middle'; c.textAlign = 'left';
-      let x = 22; [['event', K.sky], ['=UsbFileWrite ', K.tx3], ['| ', K.mute3], ['groupBy', K.violet], ['(user, sum(size_mb)) ', K.tx3], ['| ', K.mute3], ['sum > 500', K.amber]].forEach(([s, col]) => { c.fillStyle = col; c.fillText(s, x, 23.5); x += c.measureText(s).width; });
-      txt(c, 'simulated logs', 518, 23.5, { px: 9, col: K.mute2, al: 'right', bl: 'middle' });
-      // live feed
-      txt(c, 'LIVE EVENTS', 12, 56, { px: 9.5, w: 700, col: K.mute });
-      c.save(); c.beginPath(); c.rect(8, 62, 204, 230); c.clip();
-      evs.slice(-13).reverse().forEach((e, i) => {
-        const y = 76 + i * 17.5 + Math.max(0, 1 - (t - e.t) * 5) * -10, big = e.mb > 60, a = i === 0 ? clamp((t - e.t) * 5, 0, 1) : 1;
-        c.globalAlpha = a * (1 - i * 0.05);
-        const m = 9 * 60 + Math.floor(e.t * 7.5);
-        txt(c, String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'), 12, y, { px: 9.5, col: K.mute2 });
-        txt(c, USERS[e.u], 50, y, { px: 9.5, col: big ? K.rose : K.tx3, w: big ? 700 : 500 });
-        txt(c, e.ext, 110, y, { px: 9.5, col: K.mute });
-        txt(c, e.mb.toFixed(0) + ' MB', 206, y, { px: 9.5, col: big ? K.rose : K.tx3, al: 'right', w: 700 });
+      const alert = incident && t - incident.t0 < HOUR * 1.5, pulse = 0.6 + 0.4 * Math.sin(t * 7);
+      // KPIs
+      tile(c, 8, 'EVENTS / MIN', fmt(epm), 'NG-SIEM');
+      tile(c, 140, 'ENDPOINTS · FALCON EDR', '3,412', 'online');
+      tile(c, 272, 'WEB UPLOADS · NETSKOPE', fmt(evs.filter((e) => e.src === 'PRX').length * 37 + 180), '/ hour');
+      tile(c, 404, 'OPEN ALERTS', alert ? '1 · HIGH' : '0', alert ? '' : 'all clear', alert ? K.rose : K.green);
+      // telemetry feed
+      txt(c, 'LIVE TELEMETRY', 8, 62, { px: 8.5, w: 700, col: K.mute });
+      txt(c, 'simulated', 196, 62, { px: 7.5, col: K.mute3, al: 'right' });
+      c.save(); c.beginPath(); c.rect(6, 66, 194, 230); c.clip();
+      feed.forEach((e, i) => {
+        const y = 80 + i * 16.5 + Math.max(0, 1 - (t - e.t) * 6) * -8; c.globalAlpha = (i === 0 ? clamp((t - e.t) * 6, 0, 1) : 1) * (1 - i * 0.045);
+        rr(c, 8, y - 8.5, 26, 11, 3); c.fillStyle = e.src === 'EDR' ? 'rgba(251,113,133,.18)' : 'rgba(56,189,248,.18)'; c.fill();
+        txt(c, e.src === 'EDR' ? 'EDR' : 'PRX', 21, y, { px: 7, w: 700, col: e.src === 'EDR' ? K.rose : K.sky, al: 'center' });
+        txt(c, USERS[e.u].slice(5), 39, y, { px: 8.5, w: 700, col: e.hot ? K.rose : K.tx3 });
+        txt(c, e.kind + (e.mb ? ' ' + e.mb.toFixed(0) + ' MB' : ''), 62, y, { px: 8.5, col: e.hot ? '#fff' : K.mute });
+        txt(c, e.detail.length > 12 ? e.detail.slice(0, 11) + '…' : e.detail, 196, y, { px: 8, col: e.hot ? K.rose : K.mute2, al: 'right' });
       });
       c.restore(); c.globalAlpha = 1;
-      // totals per user
-      const BX = 224, BW = 144; txt(c, 'MB TO USB · LAST HOUR', BX, 56, { px: 9.5, w: 700, col: K.mute });
-      const scale = BW / Math.max(THR * 1.5, ...totals);
-      USERS.forEach((u, i) => {
-        const y = 70 + i * 26, w = totals[i] * scale, hot = totals[i] > THR;
-        txt(c, u, BX, y + 8, { px: 9, col: hot ? K.rose : K.mute });
-        rr(c, BX, y + 12, BW, 7, 3); c.fillStyle = K.line; c.fill();
-        rr(c, BX, y + 12, Math.max(2, Math.min(BW, w)), 7, 3); c.fillStyle = hot ? K.rose : K.sky; c.fill();
-        txt(c, fmt(totals[i]), BX + BW, y + 8, { px: 9, col: hot ? K.rose : K.tx3, al: 'right', w: 700 });
-      });
-      const tx = BX + THR * scale; c.setLineDash([3, 3]); c.strokeStyle = K.amber; c.beginPath(); c.moveTo(tx, 64); c.lineTo(tx, 226); c.stroke(); c.setLineDash([]);
-      txt(c, '500 MB', tx, 236, { px: 8.5, col: K.amber, al: 'center' });
-      // map
-      txt(c, 'EVENTS BY SITE', 392, 56, { px: 9.5, w: 700, col: K.mute });
+      // map: every site streams its logs to the SIEM
+      txt(c, 'SITES → NG-SIEM', 212, 62, { px: 8.5, w: 700, col: K.mute });
       c.beginPath(); FR.forEach(([lo, la], i) => (i ? c.lineTo(mx(lo), my(la)) : c.moveTo(mx(lo), my(la)))); c.closePath();
       c.fillStyle = K.card2; c.fill(); c.strokeStyle = K.line3; c.lineWidth = 1; c.stroke();
-      SITES.forEach(([, lo, la]) => { c.beginPath(); c.arc(mx(lo), my(la), 2.2, 0, 7); c.fillStyle = K.mute2; c.fill(); });
-      pings.forEach((p) => {
-        const a = (t - p.t0) / 1.4; if (a > 1) return; const [, lo, la] = SITES[p.site];
-        c.beginPath(); c.arc(mx(lo), my(la), 3 + a * (p.big ? 16 : 9), 0, 7); c.strokeStyle = p.big ? K.rose : K.sky; c.globalAlpha = 1 - a; c.lineWidth = 1.5; c.stroke(); c.globalAlpha = 1;
+      SITES.forEach(([, lo, la]) => { c.strokeStyle = 'rgba(63,68,87,.55)'; c.beginPath(); c.moveTo(mx(lo), my(la)); c.lineTo(HUB[0], HUB[1]); c.stroke(); });
+      flows = flows.filter((f) => t - f.t0 < 1.1);
+      flows.forEach((f) => { const [, lo, la] = SITES[f.site], k = ease((t - f.t0) / 1.1), x = lerp(mx(lo), HUB[0], k), y = lerp(my(la), HUB[1], k); c.beginPath(); c.arc(x, y, f.hot ? 2.6 : 1.8, 0, 7); c.fillStyle = f.hot ? K.rose : f.src === 'EDR' ? K.amber : K.sky; c.fill(); });
+      SITES.forEach(([, lo, la], i) => { const hot = alert && HOME[incident.u] === i; c.beginPath(); c.arc(mx(lo), my(la), hot ? 3.5 + pulse * 2 : 2.4, 0, 7); c.fillStyle = hot ? K.rose : K.tx3; c.fill(); });
+      rr(c, HUB[0] - 30, HUB[1] - 9, 60, 18, 5); c.fillStyle = alert ? 'rgba(251,113,133,.25)' : 'rgba(129,140,248,.2)'; c.fill(); c.strokeStyle = alert ? K.rose : K.indigo; c.stroke();
+      txt(c, 'NG-SIEM', HUB[0], HUB[1] + 3.5, { px: 8.5, w: 700, col: alert ? K.rose : K.indigo, al: 'center' });
+      // risk per user + volume timeline
+      const RX = 384, RW = 148; txt(c, 'DATA OUT · LAST HOUR', RX, 62, { px: 8.5, w: 700, col: K.mute });
+      const sc = RW / Math.max(THR * 1.4, ...totals);
+      USERS.forEach((u, i) => {
+        const y = 70 + i * 15, hot = totals[i] > THR;
+        txt(c, u.slice(5), RX, y + 8, { px: 8, col: hot ? K.rose : K.mute });
+        rr(c, RX + 22, y + 2, RW - 22, 7, 3); c.fillStyle = K.line; c.fill();
+        rr(c, RX + 22, y + 2, Math.max(2, Math.min(RW - 22, totals[i] * sc)), 7, 3); c.fillStyle = hot ? K.rose : K.sky; c.fill();
       });
-      // scheduled search status / alert
+      const tx = RX + 22 + THR * sc; c.setLineDash([2, 3]); c.strokeStyle = K.amber; c.beginPath(); c.moveTo(tx, 68); c.lineTo(tx, 160); c.stroke(); c.setLineDash([]);
+      txt(c, '500 MB', tx, 168, { px: 7.5, col: K.amber, al: 'center' });
+      txt(c, 'VOLUME · MB / 7 MIN', RX, 184, { px: 8.5, w: 700, col: K.mute });
+      const bmax = Math.max(60, ...buckets), bw = RW / buckets.length;
+      c.beginPath(); c.moveTo(RX, 222); buckets.forEach((b, i) => c.lineTo(RX + i * bw, 222 - (b / bmax) * 30)); c.lineTo(RX + RW, 222); c.closePath();
+      c.fillStyle = alert ? 'rgba(251,113,133,.25)' : 'rgba(56,189,248,.18)'; c.fill();
+      c.beginPath(); buckets.forEach((b, i) => { const x = RX + i * bw, y = 222 - (b / bmax) * 30; i ? c.lineTo(x, y) : c.moveTo(x, y); }); c.strokeStyle = alert ? K.rose : K.sky; c.lineWidth = 1.5; c.stroke();
+      c.fillStyle = K.line; c.fillRect(RX, 222, RW, 1);
+      // scheduled search status / incident card
       if (alert) {
-        const pulse = 0.75 + 0.25 * Math.sin(t * 6);
-        rr(c, 224, 250, 304, 38, 9); c.fillStyle = 'rgba(251,113,133,' + (0.16 * pulse).toFixed(3) + ')'; c.fill(); c.strokeStyle = K.rose; c.stroke();
-        txt(c, '⚠ SCHEDULED SEARCH FIRED', 236, 265, { px: 9.5, w: 700, col: K.rose });
-        txt(c, USERS[alert.u] + ' wrote ' + (alert.mb / 1000).toFixed(1) + ' GB to USB in 1 h', 236, 280, { px: 9.5, col: '#fff' });
+        const a = clamp((t - incident.t0) * 4, 0, 1), y0 = 230 + (1 - a) * 20; c.globalAlpha = a;
+        rr(c, 206, y0, 326, 64, 9); c.fillStyle = 'rgba(28,14,20,.96)'; c.fill(); c.strokeStyle = K.rose; c.lineWidth = 1.2; c.stroke();
+        rr(c, 216, y0 + 8, 40, 13, 4); c.fillStyle = K.rose; c.fill(); txt(c, 'HIGH', 236, y0 + 17.5, { px: 8, w: 800, col: '#0c0d12', al: 'center' });
+        txt(c, 'Possible mass exfiltration', 262, y0 + 18, { sans: true, px: 11.5, w: 800, col: '#fff' });
+        txt(c, incident.at, 514, y0 + 18, { px: 8, col: K.mute, al: 'right' });
+        txt(c, USERS[incident.u] + ' · ' + HOSTS[incident.u] + ' · ' + SITES[HOME[incident.u]][0], 216, y0 + 34, { px: 8.5, col: K.tx3 });
+        txt(c, (incident.mb / 1000).toFixed(1) + ' GB · ' + incident.files + ' files → ' + [incident.usb ? 'USB drive (E:)' : '', incident.cloud ? 'personal cloud' : ''].filter(Boolean).join(' + '), 216, y0 + 46, { px: 8.5, w: 700, col: K.rose });
+        txt(c, 'MITRE ATT&CK ' + [incident.usb ? 'T1052' : '', incident.cloud ? 'T1567' : ''].filter(Boolean).join(' · ') + ' · exfiltration · SOC team notified', 216, y0 + 58, { px: 7.5, col: K.mute });
+        c.globalAlpha = 1;
       } else {
-        rr(c, 224, 250, 304, 38, 9); c.fillStyle = K.card; c.fill(); c.strokeStyle = K.line; c.stroke();
-        txt(c, 'HOURLY SCHEDULED SEARCH · ' + clock(), 236, 265, { px: 9.5, w: 700, col: K.mute });
-        txt(c, 'next run in ' + Math.ceil(runIn) + ' s · last run: ' + lastHits + ' hit' + (lastHits === 1 ? '' : 's'), 236, 280, { px: 9.5, col: K.green });
+        rr(c, 206, 250, 172, 38, 8); c.fillStyle = K.card; c.fill(); c.strokeStyle = K.line; c.stroke();
+        txt(c, 'HOURLY SCHEDULED SEARCH', 216, 264, { px: 7.5, w: 700, col: K.mute });
+        txt(c, 'next run in ' + Math.ceil(runIn) + ' s · ' + runs + ' run' + (runs === 1 ? '' : 's') + ', 0 hit', 216, 279, { px: 8.5, col: K.green });
       }
     }
     const stop = loop(canvas, (dt) => {
       t += dt; next -= dt;
-      if (next <= 0) { next = 0.3 + Math.random() * 0.5; add(Math.floor(Math.random() * USERS.length), 1 + Math.pow(Math.random(), 2) * 34); }
-      if (burst) { burst.next -= dt; if (burst.next <= 0) { burst.next = 0.2; burst.left--; add(burst.u, 70 + Math.random() * 90); if (!burst.left) burst = null; } }
+      if (next <= 0) { next = 0.22 + Math.random() * 0.35; normalEvent(); }
+      if (burst) {
+        burst.next -= dt;
+        if (burst.next <= 0) {
+          burst.next = 0.18; burst.left--;
+          const usb = burst.left % 3 !== 0;
+          add(burst.u, usb ? 'EDR' : 'PRX', usb ? 'USB' : 'upload', usb ? pick(['clients.xlsx', 'contrats.zip', 'paie.csv', 'plans.pdf']) : pick(['gdrive', 'wetransfer', 'dropbox']), 60 + Math.random() * 110, true);
+          if (!burst.left) burst = null;
+        }
+      }
       evs = evs.filter((e) => t - e.t < HOUR);
       const tgt = USERS.map(() => 0); evs.forEach((e) => { tgt[e.u] += e.mb; });
       totals = totals.map((x, i) => lerp(x, tgt[i], Math.min(1, dt * 6)));
-      runIn -= dt; if (runIn <= 0) { runIn = HOUR; run(); }
+      epm = lerp(epm, 1180 + Math.random() * 140 + (burst ? 420 : 0), Math.min(1, dt * 3));
+      bT += dt; if (bT > 0.2) { bT = 0; buckets.shift(); buckets.push(0); }
+      runIn -= dt; if (runIn <= 0) { runIn = HOUR; runSearch(); }
       draw(v.begin());
     });
     return {
-      exfil() { if (burst) return; const u = Math.floor(Math.random() * USERS.length); burst = { u, left: 12, next: 0 }; out('note', USERS[u] + ' is copying files to a USB key…'); },
+      exfil() { if (burst) return; const u = Math.floor(Math.random() * USERS.length); burst = { u, left: 14, next: 0 }; runIn = Math.min(runIn, 4.5); out('note', USERS[u] + ' is copying files out…'); },
       destroy() { stop(); v.s.off(); }
     };
   };
 
-  /* ───────── Ultimate Tic-Tac-Toe: JS port of ultimate_tictactoe.py (alpha-beta, iterative deepening, TT, killer + history) ───────── */
+  /* ───────── Ultimate Tic-Tac-Toe: alpha-beta engine, reworked from ultimate_tictactoe.py ─────────
+     Same ideas as the Python file (iterative deepening, transposition table, killer + history ordering, line-based
+     evaluation), with its bugs fixed: TT bounds use the original alpha/beta, no aspiration-window loop, the root
+     always returns a move, Zobrist hashing + make/unmake instead of copying the board at every node. */
   const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-  class UBoard { // cell i = row*9 + col; small board s = (row/3)*3 + col/3
-    constructor() { this.b = Array(81).fill(' '); this.w = Array(9).fill(' '); this.next = -1; }
-    idx(s, k) { return ((s / 3 | 0) * 3 + (k / 3 | 0)) * 9 + (s % 3) * 3 + (k % 3); }
-    cell(s, k) { return this.b[this.idx(s, k)]; }
+  const CELL = [], SB = new Int8Array(81), POS = new Int8Array(81); // CELL[s][k]: board index · SB[i]: small board · POS[i]: place inside it
+  for (let s = 0; s < 9; s++) { CELL.push([]); for (let k = 0; k < 9; k++) { const i = ((s / 3 | 0) * 3 + (k / 3 | 0)) * 9 + (s % 3) * 3 + (k % 3); CELL[s].push(i); SB[i] = s; POS[i] = k; } }
+  const r32 = () => (Math.random() * 4294967296) | 0, zt = (n) => Array.from({ length: n }, r32);
+  const ZK = [null, zt(81), zt(81)], ZC = [null, zt(81), zt(81)], ZNK = zt(10), ZNC = zt(10), ZSK = r32(), ZSC = r32();
+  const UWIN = 100000, UINF = 1e9, BW = [1.2, 1, 1.2, 1, 1.5, 1, 1.2, 1, 1.2];
+  class UBoard { // cells: 0 empty, 1 X, 2 O · small boards w: 0 open, 1/2 won, 3 full with no winner
+    constructor() { this.b = new Int8Array(81); this.w = new Int8Array(9); this.next = -1; this.turn = 1; this.k = ZNK[0]; this.c = ZNC[0]; this.hist = []; }
     legal() {
-      const m = [], add = (s) => { for (let k = 0; k < 9; k++) { const i = this.idx(s, k); if (this.b[i] === ' ') m.push(i); } };
-      if (this.next < 0) { for (let s = 0; s < 9; s++) if (this.w[s] === ' ') add(s); } else add(this.next);
-      return m.sort((a, b) => a - b);
+      const m = [], add = (s) => { const C = CELL[s]; for (let q = 0; q < 9; q++) if (!this.b[C[q]]) m.push(C[q]); };
+      if (this.next >= 0) add(this.next); else for (let s = 0; s < 9; s++) if (!this.w[s]) add(s);
+      return m;
     }
-    play(i, sym) {
-      this.b[i] = sym; const r = i / 9 | 0, c = i % 9, s = (r / 3 | 0) * 3 + (c / 3 | 0);
-      if (LINES.some((L) => L.every((k) => this.cell(s, k) === sym))) this.w[s] = sym;
-      const n = (r % 3) * 3 + (c % 3);
-      this.next = this.w[n] !== ' ' || this.full(n) ? -1 : n;
+    lineWin(s, p) { const C = CELL[s], b = this.b; for (const L of LINES) if (b[C[L[0]]] === p && b[C[L[1]]] === p && b[C[L[2]]] === p) return true; return false; }
+    full(s) { const C = CELL[s]; for (let q = 0; q < 9; q++) if (!this.b[C[q]]) return false; return true; }
+    play(i) {
+      const p = this.turn, s = SB[i];
+      this.hist.push(i, this.next, this.w[s]);
+      this.b[i] = p; this.k ^= ZK[p][i]; this.c ^= ZC[p][i];
+      if (this.lineWin(s, p)) this.w[s] = p; else if (this.full(s)) this.w[s] = 3;
+      this.k ^= ZNK[this.next + 1]; this.c ^= ZNC[this.next + 1];
+      const n = POS[i]; this.next = this.w[n] ? -1 : n; // sent to a finished board → free move
+      this.k ^= ZNK[this.next + 1] ^ ZSK; this.c ^= ZNC[this.next + 1] ^ ZSC; this.turn = 3 - p;
     }
-    full(s) { for (let k = 0; k < 9; k++) if (this.cell(s, k) === ' ') return false; return true; }
-    winner() {
-      for (const sym of ['X', 'O']) if (LINES.some((L) => L.every((k) => this.w[k] === sym))) return sym;
-      return this.legal().length ? null : 'Draw';
+    undo() {
+      const ws = this.hist.pop(), prev = this.hist.pop(), i = this.hist.pop(), p = this.b[i];
+      this.k ^= ZNK[this.next + 1] ^ ZSK; this.c ^= ZNC[this.next + 1] ^ ZSC;
+      this.next = prev; this.k ^= ZNK[prev + 1]; this.c ^= ZNC[prev + 1];
+      this.w[SB[i]] = ws; this.b[i] = 0; this.k ^= ZK[p][i]; this.c ^= ZC[p][i]; this.turn = p;
     }
-    copy() { const n = new UBoard(); n.b = this.b.slice(); n.w = this.w.slice(); n.next = this.next; return n; }
-    key(maxi) { return this.b.join('') + this.w.join('') + this.next + (maxi ? '+' : '-'); }
+    winner() { // 0 ongoing · 1/2 winner · 3 draw
+      const w = this.w; for (const L of LINES) { const a = w[L[0]]; if ((a === 1 || a === 2) && a === w[L[1]] && a === w[L[2]]) return a; }
+      for (let s = 0; s < 9; s++) if (!w[s]) return 0; return 3;
+    }
+  }
+  function uEval(bd) { // from X's point of view
+    const b = bd.b, w = bd.w; let s = 0;
+    for (let sb = 0; sb < 9; sb++) {
+      const o = w[sb];
+      if (o === 1) s += 100 * BW[sb]; else if (o === 2) s -= 100 * BW[sb];
+      else if (o === 0) {
+        const C = CELL[sb]; let loc = 0;
+        for (const L of LINES) {
+          let x = 0, y = 0; for (let q = 0; q < 3; q++) { const v = b[C[L[q]]]; if (v === 1) x++; else if (v === 2) y++; }
+          if (!y) loc += x === 2 ? 10 : x; else if (!x) loc -= y === 2 ? 10 : y;
+        }
+        s += loc * BW[sb];
+      }
+    }
+    for (const L of LINES) { // big-board lines: dead as soon as both sides (or a drawn board) sit on them
+      let x = 0, y = 0, d = 0; for (let q = 0; q < 3; q++) { const v = w[L[q]]; if (v === 1) x++; else if (v === 2) y++; else if (v === 3) d++; }
+      if (d || (x && y)) continue;
+      s += x === 2 ? 350 : x === 1 ? 30 : 0; s -= y === 2 ? 350 : y === 1 ? 30 : 0;
+    }
+    return s;
   }
   class UAI {
-    constructor(sym, limitMs) {
-      this.sym = sym; this.opp = sym === 'X' ? 'O' : 'X'; this.limit = limitMs;
-      this.tt = new Map(); this.killer = {}; this.hist = new Map(); this.nodes = 0; this.stats = null;
-    }
-    over(t0) { return performance.now() - t0 > this.limit; }
+    constructor(ms) { this.ms = ms; this.tt = new Map(); this.stats = null; }
     move(bd) {
-      const t0 = performance.now(), legal = bd.legal(); if (!legal.length) return null;
-      this.killer = {}; this.hist.clear(); this.nodes = 0;
-      let best = legal[0], bestScore = 0, depth = 1, alpha = -Infinity, beta = Infinity, reached = 0;
-      for (;;) {
-        if (this.over(t0)) break;
-        const [score, mv] = this.search(bd, depth, alpha, beta, true, t0);
-        if (this.over(t0)) break;
-        if (mv != null) { best = mv; bestScore = score; reached = depth; }
-        if (score <= alpha) { alpha = -Infinity; beta = score; continue; } // aspiration window failed: widen and re-search
-        else if (score >= beta) { alpha = score; beta = Infinity; continue; }
-        alpha = score - 50; beta = score + 50;
-        if (++depth > 20) break;
+      const legal = bd.legal(); this.nodes = 0;
+      if (legal.length <= 1) { this.stats = { depth: 0, nodes: 0, score: 0, ms: 0, tt: this.tt.size }; return legal.length ? legal[0] : null; }
+      if (this.tt.size > 1500000) this.tt.clear();
+      this.t0 = performance.now(); this.stop = false; this.killers = []; this.hh = new Int32Array(162);
+      let best = legal[0], score = 0, reached = 0;
+      for (let d = 1; d <= 40; d++) { // iterative deepening: keep the best move of the last completed depth
+        let alpha = -UINF, bm = best;
+        for (const m of [best].concat(legal.filter((x) => x !== best))) {
+          bd.play(m); const v = -this.search(bd, d - 1, -UINF, -alpha, 1); bd.undo();
+          if (this.stop) break; if (v > alpha) { alpha = v; bm = m; }
+        }
+        if (this.stop) break;
+        best = bm; score = alpha; reached = d;
+        if (Math.abs(score) > UWIN - 100) break; // forced win / loss found
       }
-      this.stats = { depth: reached, nodes: this.nodes, score: bestScore, ms: performance.now() - t0, tt: this.tt.size };
+      this.stats = { depth: reached, nodes: this.nodes, score, ms: performance.now() - this.t0, tt: this.tt.size };
       return best;
     }
-    search(bd, depth, alpha, beta, maxi, t0) {
-      this.nodes++;
-      if (this.over(t0)) return [this.heur(bd), null];
-      const key = bd.key(maxi), e = this.tt.get(key);
-      if (e && e[0] >= depth) {
-        if (e[2] === 0) return [e[1], null];
-        if (e[2] === 1) alpha = Math.max(alpha, e[1]); else beta = Math.min(beta, e[1]);
-        if (alpha >= beta) return [e[1], null];
+    search(bd, depth, alpha, beta, ply) {
+      if ((++this.nodes & 2047) === 0 && performance.now() - this.t0 > this.ms) this.stop = true;
+      if (this.stop) return 0;
+      const wn = bd.winner(); if (wn === 3) return 0; if (wn) return -(UWIN - ply); // the previous player just won
+      if (depth <= 0) return (bd.turn === 1 ? 1 : -1) * uEval(bd) + (bd.next < 0 ? 25 : 0);
+      const e = this.tt.get(bd.k); let ttm = -1;
+      if (e && e.c === bd.c) { ttm = e.m; if (e.d >= depth && (e.f === 0 || (e.f === 1 && e.v >= beta) || (e.f === 2 && e.v <= alpha))) return e.v; }
+      const moves = bd.legal(), p = bd.turn, n = moves.length, sc = new Float64Array(n), kl = this.killers[ply];
+      for (let j = 0; j < n; j++) { // ordering: TT move, killers, board-winning moves, history; free moves for the opponent last
+        const m = moves[j]; let s = this.hh[(p - 1) * 81 + m];
+        if (m === ttm) s += 1e8; else if (kl && (m === kl[0] || m === kl[1])) s += 1e6;
+        bd.b[m] = p; if (bd.lineWin(SB[m], p)) s += 5e5; bd.b[m] = 0;
+        if (bd.w[POS[m]] && POS[m] !== SB[m]) s -= 2e5;
+        sc[j] = s;
       }
-      const w = bd.winner(); if (w) return [w === this.sym ? 100000 : w === this.opp ? -100000 : 0, null];
-      if (depth === 0) return [this.heur(bd), null];
-      const moves = this.order(bd.legal(), depth, maxi); if (!moves.length) return [this.heur(bd), null];
-      let bestMove = null, best = maxi ? -Infinity : Infinity;
-      for (const m of moves) {
-        const nb = bd.copy(); nb.play(m, maxi ? this.sym : this.opp);
-        const [s] = this.search(nb, depth - 1, alpha, beta, !maxi, t0);
-        if (maxi ? s > best : s < best) { best = s; bestMove = m; }
-        if (maxi) alpha = Math.max(alpha, s); else beta = Math.min(beta, s);
-        if (beta <= alpha) { this.killer[depth] = m; const k = m + (maxi ? this.sym : this.opp); this.hist.set(k, (this.hist.get(k) || 0) + depth * depth); break; }
+      let best = -UINF, bm = -1; const a0 = alpha;
+      for (let j = 0; j < n; j++) {
+        let bi = j; for (let q = j + 1; q < n; q++) if (sc[q] > sc[bi]) bi = q;
+        const m = moves[bi]; moves[bi] = moves[j]; moves[j] = m; sc[bi] = sc[j];
+        bd.play(m); const v = -this.search(bd, depth - 1, -beta, -alpha, ply + 1); bd.undo();
+        if (this.stop) return 0;
+        if (v > best) { best = v; bm = m; }
+        if (v > alpha) alpha = v;
+        if (alpha >= beta) { if (!kl || kl[0] !== m) this.killers[ply] = [m, kl ? kl[0] : -1]; this.hh[(p - 1) * 81 + m] += depth * depth; break; }
       }
-      this.tt.set(key, [depth, best, best <= alpha ? 2 : best >= beta ? 1 : 0]);
-      return [best, bestMove];
-    }
-    line(sy, two, one) {
-      let a = 0, b = 0, e = 0; for (const x of sy) { if (x === this.sym) a++; else if (x === this.opp) b++; else if (x === ' ') e++; }
-      if (a === 2 && e === 1) return two; if (b === 2 && e === 1) return -two;
-      if (a === 1 && e === 2) return one; if (b === 1 && e === 2) return -one; return 0;
-    }
-    heur(bd) { // weights from the Python file: macro 140/18, micro 16/2, owned board 50, centre +38
-      let s = 0; for (const L of LINES) s += this.line(L.map((k) => bd.w[k]), 140, 18);
-      for (let sb = 0; sb < 9; sb++) {
-        const o = bd.w[sb];
-        if (o === ' ') { for (const L of LINES) s += this.line(L.map((k) => bd.cell(sb, k)), 16, 2); }
-        else if (o === this.sym) s += 50 + (sb === 4 ? 38 : 0);
-        else if (o === this.opp) s -= 50 + (sb === 4 ? 38 : 0);
-      }
-      return s;
-    }
-    order(moves, depth, maxi) {
-      const p = maxi ? this.sym : this.opp;
-      return moves.map((m) => {
-        let s = (this.killer[depth] === m ? 45000 : 0) + (this.hist.get(m + p) || 0);
-        const r = (m / 9 | 0) % 3, c = m % 3; if (r === 1 && c === 1) s += 50; else if (r !== 1 && c !== 1) s += 20;
-        return [s, m];
-      }).sort((a, b) => b[0] - a[0]).map((x) => x[1]);
+      this.tt.set(bd.k, { c: bd.c, d: depth, v: best, f: best <= a0 ? 2 : best >= beta ? 1 : 0, m: bm }); // bounds vs the ORIGINAL window
+      return best;
     }
   }
   PW.uttt = function (canvas, o) {
     o = o || {}; const out = o.out || noop;
     const v = view(canvas, 540, 300), BX = 14, BY = 14, BS = 272, CS = BS / 9;
-    const COL = { X: K.yellow, O: K.violet };
-    let bd, aiO, aiX, over, last, thinking, auto = false, hover = -1, stats, t = 0, endT = 0, timer = 0;
+    const SYM = ['', 'X', 'O'], COL = ['', K.yellow, K.violet];
+    let bd, ai = {}, over = 0, last = -1, thinking = false, auto = false, hover = -1, stats = null, t = 0, endT = 0, timer = 0;
     function reset(preset) {
-      bd = new UBoard(); aiO = new UAI('O', 450); aiX = new UAI('X', 450); over = null; last = -1; thinking = false; stats = null; clearTimeout(timer);
-      if (preset) [40, 30, 10, 50, 70, 39].forEach((m, i) => { bd.play(m, i % 2 ? 'O' : 'X'); last = m; });
+      bd = new UBoard(); ai = { 1: new UAI(450), 2: new UAI(450) }; over = 0; last = -1; thinking = false; stats = null; clearTimeout(timer);
+      if (preset) [40, 30, 10, 50, 70, 39].forEach((m) => { bd.play(m); last = m; });
       if (auto) schedule(700);
     }
-    const turn = () => (bd.b.filter((x) => x !== ' ').length % 2 ? 'O' : 'X');
     function aiPlay() {
       if (over) return; if (paused(canvas)) { schedule(300); return; }
-      const who = turn(), ai = who === 'O' ? aiO : aiX, m = ai.move(bd);
+      const who = bd.turn, m = ai[who].move(bd);
       thinking = false; if (m == null) return;
-      bd.play(m, who); last = m; stats = Object.assign({ who }, ai.stats); over = bd.winner();
-      if (over) { endT = t; if (auto) schedule(2600, true); return; }
+      bd.play(m); last = m; stats = Object.assign({ who }, ai[who].stats); over = bd.winner();
+      if (over) { endT = t; if (auto) schedule(2600, true); else out('note', over === 1 ? 'you beat the AI!' : over === 3 ? 'draw' : 'the AI wins'); return; }
       if (auto) schedule(650);
     }
     function schedule(ms, restart) { clearTimeout(timer); timer = setTimeout(() => { if (restart) { reset(false); return; } thinking = true; setTimeout(aiPlay, 40); }, ms); }
     function cellAt(e) { const [x, y] = v.at(e), c = Math.floor((x - BX) / CS), r = Math.floor((y - BY) / CS); return c >= 0 && c < 9 && r >= 0 && r < 9 ? r * 9 + c : -1; }
+    const humanTurn = () => !auto && !over && !thinking && bd.turn === 1;
     const off = listen(canvas, {
-      pointermove: (e) => { const i = cellAt(e); hover = !auto && !over && !thinking && turn() === 'X' && bd.legal().includes(i) ? i : -1; canvas.style.cursor = hover >= 0 ? 'pointer' : 'default'; },
+      pointermove: (e) => { const i = cellAt(e); hover = humanTurn() && bd.legal().includes(i) ? i : -1; canvas.style.cursor = hover >= 0 ? 'pointer' : 'default'; },
       pointerleave: () => { hover = -1; },
       click: (e) => {
-        const i = cellAt(e); if (auto || over || thinking || turn() !== 'X' || !bd.legal().includes(i)) return;
-        bd.play(i, 'X'); last = i; hover = -1; over = bd.winner();
-        if (over) { endT = t; out('note', over === 'X' ? 'you beat the AI!' : over === 'Draw' ? 'draw' : 'the AI wins'); return; }
+        const i = cellAt(e); if (!humanTurn() || !bd.legal().includes(i)) return;
+        bd.play(i); last = i; hover = -1; over = bd.winner();
+        if (over) { endT = t; out('note', over === 1 ? 'you beat the AI!' : over === 3 ? 'draw' : 'the AI wins'); return; }
         thinking = true; setTimeout(aiPlay, 40);
       }
     });
-    function sym(c, s, x, y, r, col, lw) {
+    function sym(c, p, x, y, r, col, lw) {
       c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round';
-      if (s === 'X') { c.beginPath(); c.moveTo(x - r, y - r); c.lineTo(x + r, y + r); c.moveTo(x + r, y - r); c.lineTo(x - r, y + r); c.stroke(); }
+      if (p === 1) { c.beginPath(); c.moveTo(x - r, y - r); c.lineTo(x + r, y + r); c.moveTo(x + r, y - r); c.lineTo(x - r, y + r); c.stroke(); }
       else { c.beginPath(); c.arc(x, y, r, 0, 7); c.stroke(); }
     }
     function draw(c) {
       rr(c, BX - 6, BY - 6, BS + 12, BS + 12, 10); c.fillStyle = K.card; c.fill();
-      const legal = over || thinking ? [] : bd.legal(), allowed = new Set(legal.map((i) => ((i / 9 | 0) / 3 | 0) * 3 + ((i % 9) / 3 | 0)));
+      const legal = over || thinking ? [] : bd.legal(), allowed = new Set(legal.map((i) => SB[i])), tc = bd.turn === 1 ? '255,204,0' : '167,139,250';
       for (let s = 0; s < 9; s++) {
         const x = BX + (s % 3) * CS * 3, y = BY + (s / 3 | 0) * CS * 3;
-        if (allowed.has(s) && !over) { rr(c, x + 2, y + 2, CS * 3 - 4, CS * 3 - 4, 6); c.fillStyle = turn() === 'X' ? 'rgba(255,204,0,.07)' : 'rgba(167,139,250,.07)'; c.fill(); c.strokeStyle = turn() === 'X' ? 'rgba(255,204,0,.45)' : 'rgba(167,139,250,.45)'; c.lineWidth = 1; c.stroke(); }
+        if (allowed.has(s)) { rr(c, x + 2, y + 2, CS * 3 - 4, CS * 3 - 4, 6); c.fillStyle = 'rgba(' + tc + ',.07)'; c.fill(); c.strokeStyle = 'rgba(' + tc + ',.45)'; c.lineWidth = 1; c.stroke(); }
       }
       c.strokeStyle = K.line2; c.lineWidth = 1;
       for (let k = 1; k < 9; k++) { if (k % 3 === 0) continue; c.beginPath(); c.moveTo(BX + k * CS, BY + 3); c.lineTo(BX + k * CS, BY + BS - 3); c.moveTo(BX + 3, BY + k * CS); c.lineTo(BX + BS - 3, BY + k * CS); c.stroke(); }
       c.strokeStyle = K.mute2; c.lineWidth = 2;
       [3, 6].forEach((k) => { c.beginPath(); c.moveTo(BX + k * CS, BY); c.lineTo(BX + k * CS, BY + BS); c.moveTo(BX, BY + k * CS); c.lineTo(BX + BS, BY + k * CS); c.stroke(); });
       for (let i = 0; i < 81; i++) {
-        const s = bd.b[i], x = BX + (i % 9 + 0.5) * CS, y = BY + ((i / 9 | 0) + 0.5) * CS, sb = ((i / 9 | 0) / 3 | 0) * 3 + ((i % 9) / 3 | 0);
-        if (s !== ' ') { c.globalAlpha = bd.w[sb] !== ' ' ? 0.25 : 1; sym(c, s, x, y, CS * 0.26, COL[s], 2.2); c.globalAlpha = 1; }
+        const p = bd.b[i], x = BX + (i % 9 + 0.5) * CS, y = BY + ((i / 9 | 0) + 0.5) * CS;
+        if (p) { c.globalAlpha = bd.w[SB[i]] ? 0.25 : 1; sym(c, p, x, y, CS * 0.26, COL[p], 2.2); c.globalAlpha = 1; }
         if (i === last) { c.strokeStyle = '#fff'; c.lineWidth = 1; c.setLineDash([2, 2]); c.strokeRect(x - CS / 2 + 3, y - CS / 2 + 3, CS - 6, CS - 6); c.setLineDash([]); }
-        if (i === hover) { c.globalAlpha = 0.4; sym(c, 'X', x, y, CS * 0.26, K.yellow, 2.2); c.globalAlpha = 1; }
+        if (i === hover) { c.globalAlpha = 0.4; sym(c, 1, x, y, CS * 0.26, K.yellow, 2.2); c.globalAlpha = 1; }
       }
-      for (let s = 0; s < 9; s++) if (bd.w[s] !== ' ') sym(c, bd.w[s], BX + ((s % 3) + 0.5) * CS * 3, BY + ((s / 3 | 0) + 0.5) * CS * 3, CS * 1.05, COL[bd.w[s]], 5);
+      for (let s = 0; s < 9; s++) {
+        const cx = BX + ((s % 3) + 0.5) * CS * 3, cy = BY + ((s / 3 | 0) + 0.5) * CS * 3;
+        if (bd.w[s] === 1 || bd.w[s] === 2) sym(c, bd.w[s], cx, cy, CS * 1.05, COL[bd.w[s]], 5);
+        else if (bd.w[s] === 3) { c.fillStyle = 'rgba(12,13,18,.55)'; c.fillRect(cx - CS * 1.5 + 3, cy - CS * 1.5 + 3, CS * 3 - 6, CS * 3 - 6); }
+      }
       // side panel
       const RX = 306; panel(c, RX, 14, 222, 272);
       txt(c, auto ? 'AI VS AI' : 'YOU (X) VS AI (O)', RX + 14, 38, { px: 10, w: 700, col: K.mute });
-      let status = thinking ? 'AI is thinking…' : turn() === 'X' && !auto ? 'Your move' : (turn() === 'X' ? 'X' : 'O') + ' to play';
-      let col = thinking ? K.violet : K.yellow;
-      if (over) { status = over === 'Draw' ? 'Draw' : auto ? over + ' wins' : over === 'X' ? 'You win!' : 'The AI wins'; col = over === 'O' ? K.violet : over === 'X' ? K.yellow : K.tx; }
-      txt(c, status + (thinking ? '' : ''), RX + 14, 64, { sans: true, px: 19, w: 800, col });
+      let status = thinking ? 'AI is thinking…' : bd.turn === 1 && !auto ? 'Your move' : SYM[bd.turn] + ' to play', col = thinking ? K.violet : K.yellow;
+      if (over) { status = over === 3 ? 'Draw' : auto ? SYM[over] + ' wins' : over === 1 ? 'You win!' : 'The AI wins'; col = over === 2 ? K.violet : over === 1 ? K.yellow : K.tx; }
+      txt(c, status, RX + 14, 64, { sans: true, px: 19, w: 800, col });
       txt(c, over ? 'press New game to play again' : bd.next < 0 ? 'play in any open board' : 'play in the highlighted board', RX + 14, 82, { px: 9.5, col: K.mute2 });
       c.fillStyle = K.line; c.fillRect(RX + 14, 96, 194, 1);
       txt(c, 'LAST AI SEARCH', RX + 14, 116, { px: 9.5, w: 700, col: K.mute });
-      const rows = stats ? [['search depth', stats.depth + ' plies'], ['positions', fmt(stats.nodes)], ['evaluation', (stats.score > 0 ? '+' : '') + fmt(stats.score)], ['time', fmt(stats.ms) + ' ms'], ['cache (TT)', fmt(stats.tt) + ' entries']] : [['search depth', '–'], ['positions', '–'], ['evaluation', '–'], ['time', '–'], ['cache (TT)', '–']];
+      const ev = stats ? (Math.abs(stats.score) > UWIN - 100 ? (stats.score > 0 ? 'forced win' : 'forced loss') : (stats.score > 0 ? '+' : '') + fmt(stats.score)) : '–';
+      const rows = stats ? [['search depth', stats.depth + ' plies'], ['positions', fmt(stats.nodes)], ['evaluation', ev], ['time', fmt(stats.ms) + ' ms'], ['cache (TT)', fmt(stats.tt) + ' entries']] : [['search depth', '–'], ['positions', '–'], ['evaluation', '–'], ['time', '–'], ['cache (TT)', '–']];
       rows.forEach(([k, val], i) => { const y = 138 + i * 21; txt(c, k, RX + 14, y, { px: 10.5, col: K.mute }); txt(c, val, RX + 208, y, { px: 10.5, w: 700, col: '#fff', al: 'right' }); });
       txt(c, 'alpha-beta · iterative deepening', RX + 14, 258, { px: 9, col: K.mute2 });
-      txt(c, 'killer moves · history heuristic', RX + 14, 272, { px: 9, col: K.mute2 });
-      if (over && !auto) { const a = clamp((t - endT) * 3, 0, 1); c.globalAlpha = a * 0.9; rr(c, BX + BS / 2 - 70, BY + BS / 2 - 18, 140, 36, 18); c.fillStyle = over === 'O' ? K.violet : K.yellow; c.fill(); c.globalAlpha = a; txt(c, over === 'Draw' ? 'DRAW' : over === 'X' ? 'YOU WIN' : 'AI WINS', BX + BS / 2, BY + BS / 2 + 5, { al: 'center', w: 800, px: 14, col: '#0c0d12', sans: true }); c.globalAlpha = 1; }
+      txt(c, 'Zobrist cache · killer/history', RX + 14, 272, { px: 9, col: K.mute2 });
+      if (over && !auto) { const a = clamp((t - endT) * 3, 0, 1); c.globalAlpha = a * 0.9; rr(c, BX + BS / 2 - 70, BY + BS / 2 - 18, 140, 36, 18); c.fillStyle = over === 2 ? K.violet : K.yellow; c.fill(); c.globalAlpha = a; txt(c, over === 3 ? 'DRAW' : over === 1 ? 'YOU WIN' : 'AI WINS', BX + BS / 2, BY + BS / 2 + 5, { al: 'center', w: 800, px: 14, col: '#0c0d12', sans: true }); c.globalAlpha = 1; }
     }
     reset(true);
     const stop = loop(canvas, (dt) => { t += dt; draw(v.begin()); });
@@ -408,104 +468,150 @@
     };
   };
 
-  /* ───────── La Fabrique: will this pattern fit on this garment? (1 cm grid packing) + circular passport ───────── */
-  // Rough impact factors per kg of fabric reused (conventional cotton production). Replace with the app's own figures.
-  const IMPACT = { waterPerKg: 10000, co2PerKg: 15 };
-  const GARMENTS = [
-    { name: 'T-shirt', mat: 'Cotton jersey', gsm: 160, base: '#e4e4e7', ink: '#818cf8', kind: 'stripes', poly: [[22, 0], [33, 0], [40, 4], [47, 0], [58, 0], [80, 15], [72, 28], [65, 22], [65, 76], [15, 76], [15, 22], [8, 28], [0, 15]] },
-    { name: 'Shirt', mat: 'Cotton poplin', gsm: 120, base: '#cfe8f7', ink: '#38bdf8', kind: 'check', poly: [[26, 0], [38, 0], [50, 5], [62, 0], [74, 0], [88, 10], [100, 60], [90, 63], [78, 24], [78, 90], [22, 90], [22, 24], [10, 63], [0, 60], [12, 10]] },
-    { name: 'Jeans', mat: 'Denim', gsm: 400, base: '#3d5a94', ink: '#9db4e6', kind: 'twill', poly: [[2, 0], [54, 0], [56, 100], [34, 100], [29, 32], [27, 32], [22, 100], [0, 100]] }
+  /* ───────── La Fabrique: a simplified, click-through demo of the real app (scan → patterns → feasibility → passport) ─────────
+     Styled after the real Django app; data taken from it (patterns, surfaces, accepted fabrics, tote-bag pieces,
+     water / CO₂ / grammage factors from views.py). A DOM mini-app, scaled to fit the card like the canvas demos. */
+  const LF_URL = 'https://la-fabrique.onrender.com/';
+  const LF_EAU = { denim: 15000, coton: 15000, viscose: 5000 }, LF_CO2 = { denim: 5.5, coton: 5.5, viscose: 5.0 }, LF_GSM = { jean: 380, tshirt: 170, robe: 130 };
+  const LF_GARMENTS = [ // one face in cm; the app scans every face, so usable surface = 2 faces − defects
+    { name: 'Old faded jeans', short: 'Jeans', icon: 'pants', type: 'jean', mat: 'denim', fab: 'jean', matLabel: 'Denim 98 %', color: '#6f8fc4', ink: '#3b5b94', q: 4,
+      poly: [[5, 0], [53, 0], [55, 20], [57, 100], [35, 100], [30.5, 38], [27.5, 38], [23, 100], [1, 100], [3, 20]], defects: [[44, 72, 3.2]] },
+    { name: 'Worn white T-shirt', short: 'T-shirt', icon: 'shirt', type: 'tshirt', mat: 'coton', fab: 'coton', matLabel: 'Cotton 100 %', color: '#efece3', ink: '#c9c3b3', q: 3,
+      poly: [[22, 0], [33, 0], [40, 5], [47, 0], [58, 0], [80, 15], [72, 28], [65, 22], [65, 74], [15, 74], [15, 22], [8, 28], [0, 15]], defects: [[33, 52, 2.6]] },
+    { name: 'Summer floral dress', short: 'Dress', icon: 'dress', type: 'robe', mat: 'viscose', fab: 'viscose', matLabel: 'Viscose 100 %', color: '#eea3b3', ink: '#c9677e', q: 5,
+      poly: [[18, 0], [27, 0], [33, 6], [39, 0], [48, 0], [48, 24], [64, 100], [2, 100], [18, 24]], defects: [] }
   ];
-  const PATTERNS = [
-    { name: 'Tote bag', pieces: [['body', 36, 34, 2], ['strap', 6, 50, 2]] },
-    { name: 'Zip pouch', pieces: [['side', 22, 16, 2], ['tab', 5, 8, 1]] },
-    { name: 'Cushion cover', pieces: [['front', 40, 40, 1], ['back', 40, 26, 2]] },
-    { name: 'Scrunchie', pieces: [['tube', 52, 10, 1]] }
+  const LF_PATTERNS = [ // from the app's seed data
+    { t: 'Tote bag XXL', kind: 'Bag', min: 0.5, mats: ['coton', 'lin', 'jean', 'toile'], time: '2h', glyph: 'bag', pieces: [['Front panel', 20, 24], ['Back panel', 20, 24], ['Handle', 4, 28], ['Handle', 4, 28], ['Pocket', 12, 12]] },
+    { t: 'Zipped pouch', kind: 'Pouch', min: 0.15, mats: [], time: '1h', glyph: 'pouch', pieces: [['Front', 22, 16], ['Back', 22, 16], ['Zip tab', 5, 8]] },
+    { t: 'Reversible cushion cover', kind: 'Cushion', min: 0.3, mats: [], time: '45 min', glyph: 'cushion', pieces: [['Front', 36, 36], ['Back flap', 36, 24], ['Back flap', 36, 24]] },
+    { t: 'Kitchen apron', kind: 'Apron', min: 0.6, mats: ['coton', 'lin', 'toile', 'jean'], time: '2h', glyph: 'apron', pieces: [['Bib', 26, 24], ['Skirt', 44, 34], ['Strap', 4, 50], ['Strap', 4, 50]] },
+    { t: 'Urban backpack', kind: 'Bag', min: 1.0, mats: ['jean', 'toile'], time: '6h', glyph: 'backpack', pieces: [] },
+    { t: 'Headband & scent sachet', kind: 'Accessory', min: 0.05, mats: [], time: '30 min', glyph: 'band', pieces: [['Headband', 50, 10], ['Sachet', 12, 12], ['Sachet', 12, 12]] }
   ];
-  function inPoly(x, y, P) { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; }
-  PW.fitPieces = function (g, p) { // first-fit on a 1 cm grid with a 1 cm gap; tries every rotation combo and keeps the best
-    const W = Math.max(...g.poly.map((q) => q[0])) + 1, H = Math.max(...g.poly.map((q) => q[1])) + 1, ok = [];
-    let area = 0;
-    for (let y = 0; y < H; y++) { ok.push([]); for (let x = 0; x < W; x++) { const v = inPoly(x + 0.5, y + 0.5, g.poly); ok[y].push(v); if (v) area++; } }
-    const pcs = []; p.pieces.forEach(([n, w, h, q]) => { for (let i = 0; i < q; i++) pcs.push({ n, w, h }); });
-    pcs.sort((a, b) => b.w * b.h - a.w * a.h);
-    function attempt(rot) {
-      const used = ok.map((r) => r.map(() => false)), placed = [], missing = [];
-      const free = (x, y, w, h) => { if (x + w > W || y + h > H) return false; for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) if (!ok[j][i] || used[j][i]) return false; return true; };
-      pcs.forEach((pc, k) => {
-        const w = rot & (1 << k) ? pc.h : pc.w, h = rot & (1 << k) ? pc.w : pc.h; let spot = null;
-        for (let y = 0; y < H && !spot; y++) for (let x = 0; x < W && !spot; x++) if (free(x, y, w, h)) spot = [x, y];
-        if (!spot) { missing.push(pc); return; }
-        const [x, y] = spot; placed.push({ n: pc.n, x, y, w, h });
-        for (let j = Math.max(0, y - 1); j < Math.min(H, y + h + 1); j++) for (let i = Math.max(0, x - 1); i < Math.min(W, x + w + 1); i++) used[j][i] = true;
-      });
-      return { placed, missing, area, used: placed.reduce((a, q) => a + q.w * q.h, 0) };
-    }
-    let best = null;
-    for (let rot = 0; rot < 1 << pcs.length; rot++) {
-      if (pcs.some((pc, k) => rot & (1 << k) && pc.w === pc.h)) continue; // rotating a square changes nothing
-      const r = attempt(rot); if (!best || r.used > best.used) best = r; if (!r.missing.length) break;
-    }
-    return best;
+  const LF_GLYPH = {
+    bag: '<path d="M7 9h10l1 11H6z"/><path d="M9.5 9V7a2.5 2.5 0 0 1 5 0v2"/>', pouch: '<rect x="4" y="8" width="16" height="11" rx="2"/><path d="M4 11h16M16 11v2"/>',
+    cushion: '<path d="M5 6q7 2 14 0q-2 6 0 12q-7-2-14 0q2-6 0-12z"/>', apron: '<path d="M8 4h8v5l3 11H5l3-11z"/><path d="M8 4 6 2M16 4l2-2"/>',
+    backpack: '<rect x="6" y="6" width="12" height="15" rx="4"/><path d="M9 6V4h6v2M9 14h6"/>', band: '<ellipse cx="12" cy="12" rx="8" ry="5"/><ellipse cx="12" cy="12" rx="5" ry="2.5"/>'
   };
+  const shoelace = (P) => { let a = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) a += P[j][0] * P[i][1] - P[i][0] * P[j][1]; return Math.abs(a) / 2; };
+  function inPoly(x, y, P) { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; }
+  const lfSurface = (g) => (2 * shoelace(g.poly) - g.defects.reduce((s, d) => s + Math.PI * d[2] * d[2], 0)) / 10000; // m²
   PW.fabric = function (canvas, o) {
     o = o || {}; const out = o.out || noop;
-    const v = view(canvas, 540, 300), SC = 2.55;
-    let gi = 0, pi = 0, res = null, t = 0, t0 = 0, qr = [];
-    function compute() {
-      res = PW.fitPieces(GARMENTS[gi], PATTERNS[pi]); t0 = t;
-      qr = Array.from({ length: 49 }, () => Math.random() < 0.5);
-      out('garment', GARMENTS[gi].name); out('pattern', PATTERNS[pi].name);
-      out('note', res.missing.length ? 'not enough fabric: try another garment' : 'fits: ' + res.placed.length + ' pieces placed');
+    const host = canvas.parentElement, W = 600, H = 318;
+    canvas.style.display = 'none';
+    const root = document.createElement('div'); root.className = 'lfd'; host.appendChild(root);
+    const fit = () => { const r = host.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H) || 1; root.style.transform = 'translate(' + (r.width - W * k) / 2 + 'px,' + (r.height - H * k) / 2 + 'px) scale(' + k + ')'; };
+    const ro = new ResizeObserver(fit); ro.observe(host);
+    let step = 0, g = null, pat = null, placed = [];
+    const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    const icon = (n) => '<img src="assets/img/fabrique/' + n + '.svg" alt="">';
+    const glyph = (n) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">' + LF_GLYPH[n] + '</svg>';
+    const doable = (p) => (g ? (lfSurface(g) < p.min ? 'needs ' + String(p.min).replace('.', ',') + ' m²' : p.mats.length && !p.mats.includes(g.fab) ? 'not for ' + g.mat : '') : '');
+    const fmtM2 = (x) => x.toFixed(2).replace('.', ',') + ' m²';
+    function garmentSvg(gg, cls, extra) {
+      const xs = gg.poly.map((p) => p[0]), ys = gg.poly.map((p) => p[1]), w = Math.max(...xs), h = Math.max(...ys);
+      return '<svg class="' + cls + '" viewBox="-4 -4 ' + (w + 8) + ' ' + (h + 8) + '"><defs><pattern id="lfTex' + gg.type + '" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="3" fill="' + gg.color + '"/><rect width="1" height="3" fill="' + gg.ink + '" opacity=".35"/></pattern></defs>' +
+        '<polygon points="' + gg.poly.map((p) => p.join(',')).join(' ') + '" fill="url(#lfTex' + gg.type + ')" stroke="' + gg.ink + '" stroke-width=".6"/>' + (extra || '') + '</svg>';
     }
-    function fabric(c, g) {
-      c.fillStyle = g.base; c.fill(); c.save(); c.clip(); c.strokeStyle = g.ink; c.globalAlpha = 0.55;
-      if (g.kind === 'stripes') { c.lineWidth = 3.5; for (let y = 6; y < 300; y += 11) { c.beginPath(); c.moveTo(0, y); c.lineTo(540, y); c.stroke(); } }
-      else if (g.kind === 'check') { c.lineWidth = 1.2; for (let k = 0; k < 540; k += 9) { c.beginPath(); c.moveTo(k, 0); c.lineTo(k, 300); c.moveTo(0, k); c.lineTo(540, k); c.stroke(); } }
-      else { c.lineWidth = 1; c.globalAlpha = 0.35; for (let k = -300; k < 540; k += 4) { c.beginPath(); c.moveTo(k, 0); c.lineTo(k + 300, 300); c.stroke(); } }
-      c.restore(); c.globalAlpha = 1;
+    const bar = () => '<div class="lfd-top"><span class="lfd-logo">La Fabri<b>q</b>ue</span><span class="lfd-demo">Demo</span>' +
+      '<div class="lfd-steps">' + ['Scan', 'Patterns', 'Fit', 'Passport'].map((s, i) => '<span class="' + (i === step ? 'on' : i < step ? 'done' : '') + '">' + (i + 1) + ' ' + s + '</span>').join('') + '</div>' +
+      '<a class="lfd-real" href="' + LF_URL + '" target="_blank" rel="noopener">Real app ↗</a></div>';
+    function screenScan() {
+      const s = g ? lfSurface(g) : 0;
+      const outline = g ? '<polygon class="lfd-cut" points="' + g.poly.map((p) => p.join(',')).join(' ') + '" pathLength="1"/>' + g.defects.map((d) => '<circle class="lfd-defect" cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '"/>').join('') + '<rect class="lfd-scanline" x="-4" width="80" height="2"/>' : '';
+      return '<div class="lfd-body lfd-scan"><div class="lfd-col"><span class="lfd-eyebrow">NEW GARMENT</span><h3>Put your old clothes<br>under the X-ray</h3><p>Pick an example to scan. The app cuts out the garment, measures each face and spots the defects.</p>' +
+        '<div class="lfd-pick">' + LF_GARMENTS.map((x, i) => '<button type="button" data-g="' + i + '" class="' + (g === x ? 'on' : '') + '">' + icon(x.icon) + '<b>' + x.short + '</b><small>' + x.mat + '</small></button>').join('') + '</div></div>' +
+        '<div class="lfd-photo">' + (g ? garmentSvg(g, 'lfd-gsvg', outline) +
+          '<div class="lfd-res"><div><small>Material</small><b>' + g.matLabel + '</b></div><div><small>Usable surface · 2 faces</small><b class="g">' + fmtM2(s) + '</b></div><div><small>Quality</small><b>' + '★'.repeat(g.q) + '<i>' + '★'.repeat(5 - g.q) + '</i></b></div><div><small>Defects</small><b>' + (g.defects.length ? g.defects.length + ' ' + (g.type === 'tshirt' ? 'hole' : 'stain') : 'none') + '</b></div>' +
+          '<p class="lfd-formula">surface = ½ |Σ (xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ)| on the cut-out outline (shoelace), minus defects</p>' +
+          '<button type="button" class="lfd-cta" data-go="1">See matching patterns →</button></div>'
+          : '<div class="lfd-empty"><span>' + icon('shirt') + '</span>Choose a garment to scan</div>') + '</div></div>';
     }
-    function draw(c) {
-      const g = GARMENTS[gi], xs = g.poly.map((q) => q[0]), ys = g.poly.map((q) => q[1]);
-      const gw = (Math.max(...xs) - Math.min(...xs)) * SC, gh = (Math.max(...ys) - Math.min(...ys)) * SC, ox = 166 - gw / 2, oy = 152 - gh / 2;
-      txt(c, 'FEASIBILITY CHECK · 1 cm GRID', 14, 24, { px: 9.5, w: 700, col: K.mute });
-      c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 18; c.shadowOffsetY = 6;
-      c.beginPath(); g.poly.forEach(([x, y], i) => (i ? c.lineTo(ox + x * SC, oy + y * SC) : c.moveTo(ox + x * SC, oy + y * SC))); c.closePath();
-      c.fillStyle = g.base; c.fill(); c.restore();
-      c.beginPath(); g.poly.forEach(([x, y], i) => (i ? c.lineTo(ox + x * SC, oy + y * SC) : c.moveTo(ox + x * SC, oy + y * SC))); c.closePath();
-      fabric(c, g);
-      res.placed.forEach((p, i) => {
-        const a = clamp((t - t0 - i * 0.22) / 0.35, 0, 1); if (!a) return; const e = ease(a), s = 1 + (1 - e) * 0.25;
-        const cx = ox + (p.x + p.w / 2) * SC, cy = oy + (p.y + p.h / 2) * SC, w = p.w * SC * s, h = p.h * SC * s;
-        c.globalAlpha = e; rr(c, cx - w / 2, cy - h / 2, w, h, 3); c.fillStyle = 'rgba(19,21,29,.72)'; c.fill(); c.lineWidth = 1.6; c.strokeStyle = K.indigo; c.stroke();
-        c.setLineDash([4, 3]); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; c.strokeRect(cx - w / 2 + 4, cy - h / 2 + 4, w - 8, h - 8); c.setLineDash([]);
-        if (w > 30 && h > 16) txt(c, p.n, cx, cy + 3, { px: 8.5, al: 'center', col: '#fff', w: 700 });
-        c.globalAlpha = 1;
+    function screenPatterns() {
+      const s = lfSurface(g), ok = LF_PATTERNS.filter((p) => !doable(p)).length;
+      return '<div class="lfd-body lfd-pats"><div class="lfd-violet"><div><b>' + ok + ' / ' + LF_PATTERNS.length + '</b> doable with your ' + fmtM2(s) + ' of ' + g.short.toLowerCase() + '</div><button type="button" data-go="0">← change garment</button></div>' +
+        '<div class="lfd-grid">' + LF_PATTERNS.map((p, i) => { const why = doable(p); return '<button type="button" class="lfd-pat' + (why ? ' no' : '') + '" data-p="' + i + '"' + (why ? ' disabled' : '') + '><span class="lfd-glyph">' + glyph(p.glyph) + '</span><b>' + p.t + '</b><small>' + String(p.min).replace('.', ',') + ' m² min · ' + p.time + '</small><em>' + (why ? why : 'Doable ✓') + '</em></button>'; }).join('') + '</div></div>';
+    }
+    // feasibility: pieces on the front face, in cm; a piece is red if it leaves the fabric, overlaps another or covers a defect
+    const gb = () => { const xs = g.poly.map((p) => p[0]); return { w: Math.max(...xs), h: Math.max(...g.poly.map((p) => p[1])) }; };
+    function valid(p, list) {
+      for (let y = p.y; y <= p.y + p.h + 0.01; y += Math.min(2, p.h)) for (let x = p.x; x <= p.x + p.w + 0.01; x += Math.min(2, p.w)) if (!inPoly(Math.min(x, p.x + p.w - 0.05), Math.min(y, p.y + p.h - 0.05), g.poly)) return 'overflows';
+      for (const q of list) if (q !== p && q.on && p.x < q.x + q.w && p.x + p.w > q.x && p.y < q.y + q.h && p.y + p.h > q.y) return 'overlaps';
+      for (const [dx, dy, r] of g.defects) { const cx = clamp(dx, p.x, p.x + p.w), cy = clamp(dy, p.y, p.y + p.h); if (Math.hypot(dx - cx, dy - cy) < r) return 'covers a defect'; }
+      return '';
+    }
+    function resetPieces() {
+      const { w } = gb(); let y = 0;
+      placed = pat.pieces.map(([n, pw, ph]) => { const p = { n, w: pw, h: ph, x: w + 8, y, on: false }; y += ph + 3; return p; });
+      const scale = Math.min(1, (gb().h + 4) / Math.max(1, y)); if (scale < 1) { y = 0; placed.forEach((p) => { p.y = y; y += p.h * scale + 2; }); }
+    }
+    function autoPlace() {
+      placed.forEach((p) => { p.on = false; });
+      const { w, h } = gb();
+      [...placed].sort((a, b) => b.w * b.h - a.w * a.h).forEach((p) => {
+        for (let y = 0; y <= h; y += 1) for (let x = 0; x <= w; x += 1) for (const rot of [false, true]) {
+          if (p.on) return; const c = { ...p, x, y, w: rot ? p.h : p.w, h: rot ? p.w : p.h, on: true };
+          if (!valid(c, placed)) { Object.assign(p, c); return; }
+        }
       });
-      // passport
-      const RX = 330, done = t - t0 > res.placed.length * 0.22 + 0.3; panel(c, RX, 14, 198, 272);
-      txt(c, 'CIRCULAR PASSPORT', RX + 14, 38, { px: 9.5, w: 700, col: K.mute });
-      qr.forEach((on, k) => { if (on || k === 0 || k === 6 || k === 42) { c.fillStyle = K.tx3; c.fillRect(RX + 160 + (k % 7) * 3.6, 26 + (k / 7 | 0) * 3.6, 3.2, 3.2); } });
-      const m2 = res.used / 10000, kg = m2 * g.gsm / 1000;
-      [['garment', g.name], ['material', g.mat], ['usable fabric', (res.area / 10000).toFixed(2) + ' m²'], ['pattern', PATTERNS[pi].name], ['pieces placed', res.placed.length + ' / ' + (res.placed.length + res.missing.length)]].forEach(([k, val], i) => {
-        const y = 66 + i * 20; txt(c, k, RX + 14, y, { px: 10, col: K.mute }); txt(c, val, RX + 184, y, { px: 10, col: '#fff', w: 700, al: 'right' });
-      });
-      c.fillStyle = K.line; c.fillRect(RX + 14, 162, 170, 1);
-      if (!done) txt(c, 'placing pieces…', RX + 14, 190, { px: 13, sans: true, w: 700, col: K.mute });
-      else if (res.missing.length) { txt(c, '✗ Not enough fabric', RX + 14, 190, { px: 15, sans: true, w: 800, col: K.rose }); txt(c, res.missing.length + ' piece' + (res.missing.length > 1 ? 's' : '') + ' left over (' + res.missing[0].n + ')', RX + 14, 208, { px: 9.5, col: K.mute }); }
-      else {
-        txt(c, '✓ Feasible', RX + 14, 190, { px: 15, sans: true, w: 800, col: K.green });
-        txt(c, 'saved vs new fabric (est.)', RX + 14, 214, { px: 9, col: K.mute2 });
-        txt(c, fmt(kg * IMPACT.waterPerKg) + ' L', RX + 14, 244, { px: 18, sans: true, w: 800, col: K.sky }); txt(c, 'water', RX + 14, 260, { px: 9, col: K.mute });
-        txt(c, (kg * IMPACT.co2PerKg).toFixed(1) + ' kg', RX + 104, 244, { px: 18, sans: true, w: 800, col: K.green }); txt(c, 'CO₂', RX + 104, 260, { px: 9, col: K.mute });
-      }
+      paintFeas();
     }
-    compute();
-    const stop = loop(canvas, (dt) => { t += dt; draw(v.begin()); });
+    function screenFeas() {
+      const { w, h } = gb(), railW = Math.max(...pat.pieces.map((q) => Math.max(q[1], q[2]))) + 10;
+      return '<div class="lfd-body lfd-feas"><div class="lfd-board"><svg class="lfd-fsvg" viewBox="-4 -4 ' + (w + railW + 12) + ' ' + (h + 8) + '">' +
+        '<polygon points="' + g.poly.map((p) => p.join(',')).join(' ') + '" fill="' + g.color + '" opacity=".92" stroke="' + g.ink + '" stroke-width=".6"/>' +
+        g.defects.map((d) => '<circle class="lfd-defect" cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '"/>').join('') +
+        '<text x="' + (w + 8) + '" y="-0.8" class="lfd-rail">pieces to place</text><g class="lfd-pieces"></g></svg></div>' +
+        '<div class="lfd-side"><span class="lfd-eyebrow">FEASIBILITY · FRONT FACE</span><h3>' + pat.t + '</h3><p>Drag the pieces onto the fabric (double-click rotates). A piece turns <b class="r">red</b> if it leaves the fabric, overlaps another piece or covers a defect.</p>' +
+        '<div class="lfd-count"></div><div class="lfd-btns"><button type="button" class="lfd-ghost" data-auto>Auto-place</button><button type="button" class="lfd-cta" data-go="3" disabled>Validate → passport</button></div></div></div>';
+    }
+    function paintFeas() {
+      const gEl = root.querySelector('.lfd-pieces'); if (!gEl) return;
+      let okN = 0;
+      gEl.innerHTML = placed.map((p, i) => { const bad = p.on ? valid(p, placed) : ''; if (p.on && !bad) okN++; return '<g data-i="' + i + '" class="lfd-pc ' + (!p.on ? 'idle' : bad ? 'bad' : 'ok') + '"><rect x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx=".8"/><text x="' + (p.x + p.w / 2) + '" y="' + (p.y + p.h / 2 + 1.1) + '">' + (p.w > 9 && p.h > 5 ? esc(p.n) : '') + '</text></g>'; }).join('');
+      const all = okN === placed.length;
+      root.querySelector('.lfd-count').innerHTML = '<b>' + okN + ' / ' + placed.length + '</b> pieces placed correctly' + (all ? ' <i>✓ feasible</i>' : '');
+      root.querySelector('[data-go="3"]').disabled = !all;
+    }
+    function screenPass() {
+      const kg = pat.min * LF_GSM[g.type] / 1000, water = Math.round(kg * LF_EAU[g.mat]), co2 = kg * LF_CO2[g.mat];
+      const qr = Array.from({ length: 81 }, (_, i) => ((i * 7919) % 13 < 6 || [0, 8, 72].includes(i)) ? '<i></i>' : '<span></span>').join('');
+      return '<div class="lfd-body lfd-pass"><div class="lfd-ticket"><div class="lfd-tk-top"><span>CIRCULAR PASSPORT</span><span>N° TX-2026-0453</span></div>' +
+        '<h3>' + pat.t + '</h3><p>made from <b>' + g.name.toLowerCase() + '</b> · ' + g.matLabel + '</p>' +
+        '<div class="lfd-impact"><div><small>Water saved</small><b>' + fmt(water) + ' L</b></div><div><small>CO₂ avoided</small><b>' + co2.toFixed(1).replace('.', ',') + ' kg</b></div><div><small>Reward</small><b>+20 coins</b></div></div>' +
+        '<p class="lfd-formula">fabric mass = ' + String(pat.min).replace('.', ',') + ' m² × ' + LF_GSM[g.type] + ' g/m² · then × ' + fmt(LF_EAU[g.mat]) + ' L/kg and × ' + LF_CO2[g.mat] + ' kg CO₂/kg (' + g.mat + ', factors from the app)</p></div>' +
+        '<div class="lfd-side"><div class="lfd-qr">' + qr + '</div><p>Scanning the QR code opens this item\'s public passport: where the fabric came from and what it became.</p><button type="button" class="lfd-cta" data-go="0">Scan another garment ↺</button><a class="lfd-real big" href="' + LF_URL + '" target="_blank" rel="noopener">Try the real app ↗</a><small class="lfd-wake">free hosting: may take ~30 s to wake up</small></div></div>';
+    }
+    function render() {
+      root.innerHTML = bar() + [screenScan, screenPatterns, screenFeas, screenPass][step]();
+      if (step === 2) paintFeas();
+      out('note', ['simplified demo · pick a garment', 'patterns filtered by surface and fabric', 'drag the pieces onto the fabric', 'impact computed with the app\'s own factors'][step]);
+    }
+    let drag = null;
+    const svgPt = (e) => { const svg = root.querySelector('.lfd-fsvg'), m = svg.getScreenCTM().inverse(), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(m); };
+    const onDown = (e) => {
+      const pc = e.target.closest('.lfd-pc'); if (!pc) return;
+      const p = placed[+pc.getAttribute('data-i')], q = svgPt(e); drag = { p, dx: q.x - p.x, dy: q.y - p.y, moved: false };
+      root.setPointerCapture && root.setPointerCapture(e.pointerId); e.preventDefault();
+    };
+    const onMove = (e) => { if (!drag) return; const q = svgPt(e); drag.p.x = q.x - drag.dx; drag.p.y = q.y - drag.dy; drag.moved = true; drag.p.on = drag.p.x < gb().w + 2; paintFeas(); };
+    const onUp = () => { if (!drag) return; drag.p.x = Math.round(drag.p.x); drag.p.y = Math.round(drag.p.y); drag = null; paintFeas(); };
+    const onDbl = (e) => { const pc = e.target.closest('.lfd-pc'); if (!pc) return; const p = placed[+pc.getAttribute('data-i')]; [p.w, p.h] = [p.h, p.w]; paintFeas(); };
+    const onClick = (e) => {
+      const b = e.target.closest('[data-g],[data-go],[data-p],[data-auto]'); if (!b || b.disabled) return;
+      if (b.hasAttribute('data-g')) { g = LF_GARMENTS[+b.getAttribute('data-g')]; render(); return; }
+      if (b.hasAttribute('data-auto')) { autoPlace(); return; }
+      if (b.hasAttribute('data-p')) { pat = LF_PATTERNS[+b.getAttribute('data-p')]; resetPieces(); step = 2; render(); return; }
+      const to = +b.getAttribute('data-go'); if (to === 0) { g = null; pat = null; } step = to; render();
+    };
+    root.addEventListener('pointerdown', onDown); root.addEventListener('pointermove', onMove); root.addEventListener('pointerup', onUp); root.addEventListener('pointercancel', onUp);
+    root.addEventListener('dblclick', onDbl); root.addEventListener('click', onClick);
+    g = LF_GARMENTS[0]; render(); // the preview shows a scanned example
     return {
-      garment() { gi = (gi + 1) % GARMENTS.length; compute(); },
-      pattern() { pi = (pi + 1) % PATTERNS.length; compute(); },
-      destroy() { stop(); v.s.off(); }
+      restart() { step = 0; g = null; pat = null; render(); },
+      destroy() { ro.disconnect(); root.remove(); canvas.style.display = ''; }
     };
   };
 
@@ -903,68 +1009,105 @@
     return { destroy() { stop(); v.s.off(); if (menuEl) menuEl.removeEventListener('click', onMenu); } };
   };
 
-  /* ───────── MIT: random linear network coding over an erasure channel, measured vs theoretical delay ───────── */
+  /* ───────── MIT: random linear network coding, told step by step · plus the research result (delay vs loss) ─────────
+     Same set-up as the internship code: 5 packets, 10 (or 7) coded packets with coefficients 0–31, whole packets
+     erased by the channel, the generation resent with new coefficients when fewer than 5 arrive. */
   PW.rlnc = function (canvas, o) {
     o = o || {}; const out = o.out || noop;
-    const v = view(canvas, 540, 300), M = 5, PS = [0.1, 0.2, 0.3, 0.4], COLS = [K.indigo, K.sky, K.teal, K.amber, K.pink];
-    let n = 10, pi = 1, t = 0, gen = null, genNo = 0; const stats = {};
-    const key = () => n + '_' + PS[pi], st = () => (stats[key()] = stats[key()] || { gens: 0, tx: 0 });
+    const v = view(canvas, 540, 300), M = 5, PS = [0.1, 0.2, 0.3, 0.4, 0.5], COLS = [K.indigo, K.sky, K.teal, K.amber, K.pink];
+    let mode = 'story', pi = 1, t = 0, t0m = 0, gen = null, msgNo = 0, done = 0, txDone = 0;
+    const stats = {}; // key "n_p" → { gens, tx } for the research chart
     const binom = (a, k) => { let r = 1; for (let i = 1; i <= k; i++) r = (r * (a - k + i)) / i; return r; };
-    const pfail = (nn, p) => { let s = 0; for (let j = 0; j < M; j++) s += binom(nn, j) * Math.pow(1 - p, j) * Math.pow(p, nn - j); return s; }; // P[k < m], k ~ Binomial(n, 1−p)
-    const delay = (nn, p) => 1 / (1 - pfail(nn, p)); // Σ i·P_fail^(i−1)·(1−P_fail)
+    const pfail = (nn, p) => { let s = 0; for (let j = 0; j < M; j++) s += binom(nn, j) * Math.pow(1 - p, j) * Math.pow(p, nn - j); return s; }; // P[received < 5]
+    const delay = (nn, p) => 1 / (1 - pfail(nn, p)); // expected sends per message = Σ i·P_fail^(i−1)·(1−P_fail)
+    const N = 10, P1 = 1.5, P2 = 1.9, P3 = 2.1, P4 = 2.4; // story: 10 mixes; phase lengths (s)
     function send(attempt) {
-      const p = PS[pi], erased = Array.from({ length: n }, () => Math.random() < p);
-      gen = { t0: t, n, attempt, erased, got: erased.filter((e) => !e).length, coef: Array.from({ length: n }, () => Array.from({ length: M }, () => Math.floor(Math.random() * 32))) };
-      if (attempt === 1) genNo++;
+      const erased = Array.from({ length: N }, () => Math.random() < PS[pi]);
+      gen = { t0: t, attempt, erased, got: erased.filter((e) => !e).length, skip: attempt > 1 ? P1 : 0, coef: Array.from({ length: N }, () => Array.from({ length: M }, () => 1 + Math.floor(Math.random() * 31))) };
+      if (attempt === 1) msgNo++;
     }
-    function settle() { if (gen.got >= M) { const s = st(); s.gens++; s.tx += gen.attempt; send(1); } else send(gen.attempt + 1); }
-    function batch(k) { const p = PS[pi], s = st(); for (let g = 0; g < k; g++) { let a = 1; for (;;) { let got = 0; for (let i = 0; i < n; i++) if (Math.random() >= p) got++; if (got >= M) break; a++; } s.gens++; s.tx += a; } }
-    const X0 = 344, X1 = 516, Y0 = 56, Y1 = 214, px = (p) => X0 + (p / 0.42) * (X1 - X0), py = (d) => Y1 - ((d - 1) / 1.8) * (Y1 - Y0);
-    function draw(c) {
-      const e = t - gen.t0, N = gen.n, rowH = Math.min(21, 196 / N), cy = (k) => 64 + k * rowH + (196 - N * rowH) / 2;
-      txt(c, 'GENERATION #' + genNo + (gen.attempt > 1 ? ' · RESENT ×' + (gen.attempt - 1) : ''), 14, 26, { px: 10, w: 700, col: gen.attempt > 1 ? K.amber : K.tx });
-      [['SOURCE', 16], ['CODED', 92], ['CHANNEL', 164], ['RECEIVER', 232]].forEach(([s, x]) => txt(c, s, x, 46, { px: 8.5, w: 700, col: K.mute2 }));
-      rr(c, 164, 54, 52, 214, 8); c.fillStyle = 'rgba(251,113,133,.05)'; c.fill(); c.setLineDash([3, 4]); c.strokeStyle = 'rgba(251,113,133,.35)'; c.stroke(); c.setLineDash([]);
-      txt(c, 'p = ' + Math.round(PS[pi] * 100) + '%', 190, 282, { px: 9, w: 700, col: K.rose, al: 'center' });
-      for (let i = 0; i < M; i++) { const y = 74 + i * 40; rr(c, 14, y, 46, 18, 4); c.fillStyle = COLS[i]; c.fill(); txt(c, 'P' + (i + 1), 37, y + 12.5, { px: 9, w: 700, col: '#0c0d12', al: 'center' }); }
-      const enc = clamp(e / 0.5, 0, 1);
-      if (enc < 1) { c.globalAlpha = 0.18 * (1 - enc); for (let k = 0; k < N; k++) for (let i = 0; i < M; i++) { c.strokeStyle = COLS[i]; c.beginPath(); c.moveTo(60, 83 + i * 40); c.lineTo(92, cy(k) + 6); c.stroke(); } c.globalAlpha = 1; }
-      for (let k = 0; k < N; k++) {
-        const y = cy(k), a = clamp((e - k * 0.03) / 0.3, 0, 1), mv = ease(clamp((e - 0.6 - k * 0.04) / 0.8, 0, 1)), x = lerp(92, 232, mv), gone = gen.erased[k] && mv > 0.5;
-        if (!a) continue; c.globalAlpha = a * (gone ? Math.max(0.15, 1 - (mv - 0.5) * 2) : 1);
-        if (gone) { rr(c, x, y, 52, rowH - 5, 3); c.strokeStyle = K.rose; c.stroke(); txt(c, '#', x + 26, y + rowH / 2 + 1, { px: 10, w: 700, col: K.rose, al: 'center' }); }
-        else { const sum = gen.coef[k].reduce((s, q) => s + q, 0) || 1; let xx = x; gen.coef[k].forEach((q, i) => { const w = (q / sum) * 52; c.fillStyle = COLS[i]; c.fillRect(xx, y, w, rowH - 5); xx += w; }); }
-        c.globalAlpha = 1;
+    function batch(nn, p, k) { const key = nn + '_' + p, s = (stats[key] = stats[key] || { gens: 0, tx: 0 }); for (let g = 0; g < k; g++) { let a = 1; for (;;) { let got = 0; for (let i = 0; i < nn; i++) if (Math.random() >= p) got++; if (got >= M) break; a++; } s.gens++; s.tx += a; } }
+    const pct = () => Math.round(PS[pi] * 100) + '%';
+    function caption(c, step, title, sub, col) {
+      rr(c, 12, 10, 58, 20, 10); c.fillStyle = col; c.fill();
+      txt(c, 'STEP ' + step + '/4', 41, 23.5, { px: 9, w: 700, col: '#0c0d12', al: 'center' });
+      txt(c, title, 80, 25, { sans: true, px: 14.5, w: 800, col: '#fff' });
+      txt(c, sub, 12, 46, { px: 9.5, col: K.mute });
+    }
+    function packet(c, x, y, w, h, i, a) { c.globalAlpha = a; rr(c, x, y, w, h, 4); c.fillStyle = COLS[i]; c.fill(); txt(c, 'P' + (i + 1), x + w / 2, y + h / 2 + 3.5, { px: 9.5, w: 800, col: '#0c0d12', al: 'center' }); c.globalAlpha = 1; }
+    function mix(c, x, y, w, h, coef, a) { // a coded packet: stripes sized by its coefficients
+      c.globalAlpha = a; c.save(); rr(c, x, y, w, h, 3); c.clip(); const sum = coef.reduce((s, q) => s + q, 0); let xx = x;
+      coef.forEach((q, i) => { const ww = (q / sum) * w; c.fillStyle = COLS[i]; c.fillRect(xx, y, ww + 0.5, h); xx += ww; }); c.restore(); c.globalAlpha = 1;
+    }
+    function drawStory(c) {
+      const e = t - gen.t0 + gen.skip, ok = gen.got >= M, lost = N - gen.got;
+      const ph = e < P1 ? 1 : e < P1 + P2 ? 2 : e < P1 + P2 + P3 ? 3 : 4;
+      if (ph === 1) caption(c, 1, 'The message is cut into 5 packets', 'message #' + msgNo + ': the source splits the data into packets P1 … P5', K.indigo);
+      else if (ph === 2) caption(c, 2, gen.attempt > 1 ? 'The source sends 10 NEW mixes' : 'The source sends 10 mixes, not the packets', 'each mix = a random blend of all 5, e.g. E1 = ' + gen.coef[0].map((q, i) => q + '·P' + (i + 1)).join(' + '), K.sky);
+      else if (ph === 3) caption(c, 3, 'The network loses some of them', 'each mix is lost with probability p = ' + pct() + ': this time ' + lost + ' lost, ' + gen.got + ' arrive', K.rose);
+      else caption(c, 4, ok ? 'Any 5 mixes are enough ✓' : 'Only ' + gen.got + ' arrived: not enough', ok ? 'with 5 mixes = 5 equations, inverting the 5×5 matrix gives back P1 … P5' : 'fewer than 5 equations cannot be solved → the source sends a new round', ok ? K.green : K.amber);
+      // columns
+      [['MESSAGE', 16], ['10 MIXES', 146], ['NETWORK', 272], ['RECEIVER', 378]].forEach(([s, x]) => txt(c, s, x, 68, { px: 8.5, w: 700, col: K.mute2 }));
+      rr(c, 262, 74, 96, 214, 10); c.fillStyle = 'rgba(251,113,133,.05)'; c.fill(); c.setLineDash([3, 4]); c.strokeStyle = 'rgba(251,113,133,.35)'; c.lineWidth = 1; c.stroke(); c.setLineDash([]);
+      txt(c, 'loses ' + pct(), 310, 283, { px: 8.5, w: 700, col: K.rose, al: 'center' });
+      const a1 = gen.attempt > 1 ? 1 : ease(clamp(e / 0.8, 0, 1));
+      for (let i = 0; i < M; i++) packet(c, 16, 82 + i * 40, 76, 22, i, clamp(a1 * 5 - i, 0, 1));
+      // mixes: appear (step 2), travel (step 3)
+      const e2 = e - P1, e3 = e - P1 - P2, rowY = (k) => 78 + k * 21;
+      if (e2 > 0) {
+        if (ph === 2) { const lk = clamp(e2 / 0.6, 0, 1) * (1 - clamp((e2 - 1.2) / 0.6, 0, 1)); c.globalAlpha = 0.16 * lk; for (let k = 0; k < N; k++) for (let i = 0; i < M; i++) { c.strokeStyle = COLS[i]; c.beginPath(); c.moveTo(92, 93 + i * 40); c.lineTo(146, rowY(k) + 7); c.stroke(); } c.globalAlpha = 1; }
+        let arrived = 0;
+        for (let k = 0; k < N; k++) {
+          const ap = clamp((e2 - k * 0.09) / 0.35, 0, 1); if (!ap) continue;
+          const mv = ease(clamp((e3 - k * 0.07) / 1.1, 0, 1)), gone = gen.erased[k];
+          let x = lerp(146, gone ? 296 : 380, mv), y = rowY(k), w = 76, a = ap;
+          if (!gone && mv >= 1) { y = 78 + arrived * 21; arrived++; w = 58; x = 380; }
+          if (gone && mv > 0.95) { a = Math.max(0, 1 - (e3 - k * 0.07 - 1.05) * 2.5); const cx = 310, cy = y + 7; c.globalAlpha = Math.max(0.35, a); c.strokeStyle = K.rose; c.lineWidth = 2.2; c.beginPath(); c.moveTo(cx - 6, cy - 6); c.lineTo(cx + 6, cy + 6); c.moveTo(cx + 6, cy - 6); c.lineTo(cx - 6, cy + 6); c.stroke(); c.globalAlpha = 1; x = 272; }
+          mix(c, x, y, w, 14, gen.coef[k], a);
+        }
       }
-      if (e > 1.5) {
-        const ok = gen.got >= M, a = clamp((e - 1.5) * 4, 0, 1); c.globalAlpha = a;
-        txt(c, gen.got + ' / ' + N + ' received', 232, 278, { px: 9, w: 700, col: ok ? K.green : K.rose });
-        txt(c, ok ? '✓ decoded' : '✗ < 5: resend', 232, 290, { px: 9, col: ok ? K.green : K.rose });
-        c.globalAlpha = 1;
+      if (ph === 4) { // receiver: counter, then decoded packets (or the resend)
+        const e4 = e - P1 - P2 - P3;
+        txt(c, gen.got + ' received', 446, 88, { px: 9.5, w: 700, col: ok ? K.green : K.amber });
+        txt(c, 'need any 5', 446, 101, { px: 8.5, col: K.mute });
+        for (let s = 0; s < 5; s++) { rr(c, 446 + s * 15, 108, 12, 6, 2); c.fillStyle = s < gen.got ? (ok ? K.green : K.amber) : K.line3; c.fill(); }
+        if (ok) { txt(c, '=', 462, 146, { px: 14, w: 800, col: K.mute, al: 'center' }); for (let i = 0; i < M; i++) packet(c, 474, 126 + i * 30, 54, 20, i, clamp(e4 * 3 - i * 0.35, 0, 1)); }
+        else { txt(c, '↺ resend', 446, 150, { px: 12, w: 800, col: K.amber, sans: true }); txt(c, 'new coefficients,', 446, 166, { px: 8.5, col: K.mute }); txt(c, 'same message', 446, 178, { px: 8.5, col: K.mute }); }
       }
-      // chart: average delay (transmissions per generation) vs erasure probability
-      panel(c, 326, 14, 202, 272);
-      txt(c, 'DELAY vs ERASURE p', 340, 36, { px: 9.5, w: 700, col: K.mute });
-      [1, 1.6, 2.2, 2.8].forEach((d) => { const y = py(d); c.fillStyle = K.line; c.fillRect(X0, y, X1 - X0, 1); txt(c, d.toFixed(1), X0 - 4, y + 3, { px: 8, col: K.mute2, al: 'right' }); });
-      [0.1, 0.2, 0.3, 0.4].forEach((p) => txt(c, p.toFixed(1), px(p), Y1 + 13, { px: 8, col: K.mute2, al: 'center' }));
+      txt(c, done + ' delivered · ' + (done ? (txDone / done).toFixed(2) : '–') + ' sends/msg · theory ' + delay(N, PS[pi]).toFixed(2), 528, 294, { px: 8, col: K.mute2, al: 'right' });
+    }
+    const X0 = 58, X1 = 318, Y0 = 50, Y1 = 250, px = (p) => X0 + (p / 0.5) * (X1 - X0), py = (d) => Y1 - ((d - 1) / 2.4) * (Y1 - Y0);
+    function drawResults(c) {
+      txt(c, 'THE RESEARCH RESULT · average sends per message vs loss rate', 12, 24, { px: 9.5, w: 700, col: K.mute });
+      [1, 1.8, 2.6, 3.4].forEach((d) => { const y = py(d); c.fillStyle = K.line; c.fillRect(X0, y, X1 - X0, 1); txt(c, d.toFixed(1), X0 - 6, y + 3, { px: 8.5, col: K.mute2, al: 'right' }); });
+      [0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach((p) => txt(c, Math.round(p * 100) + '%', px(p), Y1 + 14, { px: 8.5, col: K.mute2, al: 'center' }));
+      txt(c, 'packet loss rate p', (X0 + X1) / 2, Y1 + 30, { px: 8.5, col: K.mute, al: 'center' });
+      const g = ease(clamp((t - t0m) / 1.2, 0, 1));
       [[7, K.amber], [10, K.sky]].forEach(([nn, col]) => {
-        c.strokeStyle = col; c.lineWidth = nn === n ? 2 : 1; c.globalAlpha = nn === n ? 1 : 0.35; c.setLineDash([4, 3]); c.beginPath();
-        for (let p = 0.01; p <= 0.421; p += 0.01) { const x = px(p), y = Math.max(Y0, py(delay(nn, p))); p > 0.015 ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); c.setLineDash([]);
-        PS.forEach((p) => { const s = stats[nn + '_' + p]; if (!s || !s.gens) return; c.beginPath(); c.arc(px(p), Math.max(Y0, py(s.tx / s.gens)), 3.2, 0, 7); c.fillStyle = col; c.fill(); });
-        txt(c, 'n = ' + nn, X1, nn === 7 ? Y0 + 10 : Y0 + 24, { px: 8.5, w: 700, col, al: 'right' }); c.globalAlpha = 1;
+        c.strokeStyle = col; c.lineWidth = 2; c.setLineDash([5, 4]); c.beginPath();
+        for (let p = 0.005; p <= 0.5 * g + 0.001; p += 0.005) { const x = px(p), y = Math.max(Y0, py(delay(nn, p))); p > 0.006 ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); c.setLineDash([]);
+        PS.forEach((p) => { const s = stats[nn + '_' + p]; if (!s || !s.gens || px(p) > px(0.5 * g + 0.001)) return; c.beginPath(); c.arc(px(p), Math.max(Y0, py(s.tx / s.gens)), 4, 0, 7); c.fillStyle = col; c.fill(); c.strokeStyle = K.bg; c.lineWidth = 1.5; c.stroke(); });
       });
-      c.lineWidth = 1; c.fillStyle = 'rgba(255,255,255,.25)'; c.fillRect(px(PS[pi]), Y0, 1, Y1 - Y0);
-      const s = st(), th = delay(n, PS[pi]);
-      txt(c, '- - theory   ● measured', X0 - 16, Y1 + 30, { px: 8.5, col: K.mute2 });
-      txt(c, 'theory ' + th.toFixed(3) + ' · measured ' + (s.gens ? (s.tx / s.gens).toFixed(3) : '–'), X0 - 16, Y1 + 46, { px: 8.5, col: K.tx3 });
-      txt(c, fmt(s.gens) + ' generations · throughput ' + (s.gens ? ((M * s.gens) / (n * s.tx)).toFixed(2) : '–'), X0 - 16, Y1 + 60, { px: 8.5, col: K.mute });
+      txt(c, '— 7 mixes', X0 + 8, Y0 + 6, { px: 9, w: 700, col: K.amber }); txt(c, '— 10 mixes', X0 + 8, Y0 + 20, { px: 9, w: 700, col: K.sky });
+      txt(c, '- - theory   ● simulation (10,000 messages each)', X0 + 8, Y0 + 34, { px: 8.5, col: K.mute2 });
+      const RX = 336; panel(c, RX, 34, 192, 252);
+      txt(c, 'HOW TO READ IT', RX + 14, 56, { px: 9.5, w: 700, col: K.mute });
+      const lines = [['More mixes = more safety.', '#fff'], ['With 10 mixes for 5 packets,', K.tx3], ['a message almost always', K.tx3], ['arrives first time, even at', K.tx3], ['30 % loss.', K.tx3], ['', 0], ['Fewer mixes = less waste.', '#fff'], ['7 mixes send less data but', K.tx3], ['need resends when losses', K.tx3], ['grow: 2.4 sends at 40 %.', K.tx3], ['', 0], ['Theory = simulation.', K.green], ['The binomial formula I', K.tx3], ['derived matches the', K.tx3], ['simulated points.', K.tx3]];
+      lines.forEach(([s, col], i) => { if (s) txt(c, s, RX + 14, 76 + i * 13.5, { px: 9.5, w: col === '#fff' || col === K.green ? 700 : 500, col }); });
     }
     send(1);
-    const stop = loop(canvas, (dt) => { t += dt; if (t - gen.t0 > 2.4) settle(); draw(v.begin()); });
+    const stop = loop(canvas, (dt) => {
+      t += dt;
+      if (mode === 'story' && t - gen.t0 + gen.skip > P1 + P2 + P3 + P4) { if (gen.got >= M) { done++; txDone += gen.attempt; send(1); } else send(gen.attempt + 1); }
+      const c = v.begin(); if (mode === 'story') drawStory(c); else drawResults(c);
+    });
     return {
-      p() { pi = (pi + 1) % PS.length; out('p', 'p = ' + Math.round(PS[pi] * 100) + '%'); send(1); },
-      n() { n = n === 10 ? 7 : 10; out('n', n + ' coded packets'); send(1); },
-      batch() { batch(10000); out('batch', 'Simulate 10k more'); },
+      p() { pi = (pi + 1) % PS.length; out('p', 'loss ' + pct()); done = 0; txDone = 0; msgNo = 0; send(1); if (mode === 'story') out('note', 'network now loses ' + pct() + ' of the mixes'); },
+      mode() {
+        mode = mode === 'story' ? 'results' : 'story'; t0m = t;
+        if (mode === 'results') [7, 10].forEach((nn) => PS.forEach((p) => { if (!stats[nn + '_' + p]) batch(nn, p, 10000); }));
+        out('mode', mode === 'story' ? 'Research result' : 'Step by step');
+      },
       destroy() { stop(); v.s.off(); }
     };
   };

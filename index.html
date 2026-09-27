@@ -51,6 +51,9 @@
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/></symbol>
   <symbol id="i-maximize" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
   <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></symbol>
@@ -60,16 +63,10 @@
   <symbol id="i-linkedin" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></symbol>
 </svg>
 
-<!-- Intro: a small dotted globe assembles while the name slides in -->
+<!-- Intro: a terminal cursor types the name, frames it, and the frame unfolds into the page layout (drawn on one canvas) -->
 <div id="intro" aria-hidden="true">
-  <div class="intro-stage">
-    <canvas id="introCanvas"></canvas>
-    <div class="intro-name" id="introName">Nils Demougeot</div>
-    <div class="intro-sub">Data &amp; AI Engineering · Paris</div>
-    <i class="intro-bar"><b></b></i>
-  </div>
-  <span class="intro-skip">click to skip</span>
   <canvas id="introFx"></canvas>
+  <span class="intro-skip">click to skip</span>
 </div>
 
 <!-- Dot grid: drawn on canvas so the cursor can light it and gently push the dots -->
@@ -94,7 +91,7 @@
           <div>
             <span class="hello-eyebrow"><svg class="ic"><use href="#i-pin"/></svg>Paris, France</span>
             <h1 class="hero-title" id="heroTitle"><span>Nils</span><span>Demougeot</span></h1>
-            <p class="hello-lead">Data &amp; AI engineering student at <strong>ESILV Paris</strong>. I like taking real data all the way to something people use: a Ligue 1 match predictor, security dashboards for Transdev's cyber team, network coding simulations at <strong>MIT</strong>, and La Fabrique, our prize-winning startup project.</p>
+            <p class="hello-lead">Data &amp; AI engineering student at <strong>ESILV Paris</strong>. I like taking real data all the way to something people use: a Ligue 1 match predictor, security dashboards for a cybersecurity team, network coding simulations at <strong>MIT</strong>, and La Fabrique, our prize-winning startup project.</p>
           </div>
           <div class="hello-foot">
             <div class="school">
@@ -154,7 +151,7 @@
                 <div class="years-bar"><i></i><i class="dot"></i><i class="half"></i><i class="now"></i><i class="todo"></i></div>
                 <div class="years-lbl"><span>Y1</span><span>Y2</span><span>Y3</span><span class="now">Y4</span><span>Y5</span></div>
                 <div class="years-legend">
-                  <span><i class="sw sw-dot"></i>Y2 · Transdev internship</span>
+                  <span><i class="sw sw-dot"></i>Y2 · cybersecurity internship</span>
                   <span><i class="sw sw-half"></i>Y3 · Riga exchange, Sep → Jan</span>
                 </div>
               </div>
@@ -229,9 +226,10 @@
         <button type="button" class="pf" data-filter="sw" aria-pressed="false">Software <b>8</b></button>
         <button type="button" class="pf" data-filter="hw" aria-pressed="false">Hardware &amp; CAD <b>4</b></button>
         <button type="button" class="pf" data-filter="more" aria-pressed="false">Research &amp; more <b>4</b></button>
+        <div class="view-toggle" role="group" aria-label="Project layout"><i class="vt-pill"></i><button type="button" data-view="grid" aria-pressed="true"><svg class="ic"><use href="#i-grid"/></svg><span>Grid</span></button><button type="button" data-view="list" aria-pressed="false"><svg class="ic"><use href="#i-list"/></svg><span>List</span></button></div>
       </div>
 
-      <!-- To add a screenshot: replace a card's <div class="cover">…</div> with <img class="cover-img" src="assets/img/projects/NAME.jpg" alt="…"> -->
+      <!-- Screenshots: use tools/galleries.html (drop images on a project, it writes assets/data/galleries.js). A card with a gallery gets it in place of its <div class="cover">. -->
       <div class="projects" id="projects">
 
         <!-- 01 · Data & AI -->
@@ -264,7 +262,7 @@
 
         <!-- 02 · Data & AI -->
         <article class="proj" id="p-siem" data-demo="siem" data-cat="ai" style="--c:#fb7185" data-card data-accent="#fb7185">
-          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">usb_exfiltration.query</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">soc_dashboard</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
           <div class="proj-stage">
             <div class="cover"><span>Security dashboard · screenshot</span></div>
             <div class="pip">
@@ -277,8 +275,8 @@
             </div>
           </div>
           <div class="proj-body">
-            <div class="proj-title"><h3>Security Dashboards at Transdev</h3><span class="tag">DATA · CYBERSECURITY</span></div>
-            <p>In Transdev's cybersecurity team, analysts were spending a lot of time reading raw logs by hand. I built dashboards in CrowdStrike Next-Gen SIEM that turn logs from the EDR (Falcon) and the web proxy (Netskope) into clear views, so the team can spot data leaks and suspicious behaviour much faster.</p>
+            <div class="proj-title"><h3>Security Dashboards (Cyber Internship)</h3><span class="tag">DATA · CYBERSECURITY</span></div>
+            <p>In the cybersecurity team of a large company, analysts were spending a lot of time reading raw logs by hand. I built dashboards in CrowdStrike Next-Gen SIEM that turn logs from the EDR (Falcon) and the web proxy (Netskope) into clear views, so the team can spot data leaks and suspicious behaviour much faster.</p>
             <ul class="facts">
               <li>Defined the key investigation scenarios with the team, then wrote and optimised the queries</li>
               <li>Dashboards: files leaked by a given user, suspicious SharePoint activity, map of USB exfiltration events</li>
@@ -298,9 +296,8 @@
               <div class="pip-canvas"><canvas></canvas></div>
               <button type="button" class="pip-run" data-activate="mit"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
               <div class="pip-ctrl">
-                <button type="button" class="pill-btn" data-act="p" style="background:#38bdf8"><span data-out="p">p = 20%</span> <svg class="ic"><use href="#i-refresh"/></svg></button>
-                <button type="button" class="pill-btn ghost" data-act="n"><span data-out="n">10 coded packets</span></button>
-                <button type="button" class="pill-btn ghost" data-act="batch"><span data-out="batch">Simulate 10k</span></button>
+                <button type="button" class="pill-btn" data-act="p" style="background:#38bdf8"><span data-out="p">loss 20%</span> <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="mode"><span data-out="mode">Research result</span></button>
               </div>
             </div>
           </div>
@@ -354,9 +351,9 @@
               <div class="pip-canvas"><canvas></canvas></div>
               <button type="button" class="pip-run" data-activate="fabrique"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
               <div class="pip-ctrl">
-                <button type="button" class="pill-btn" data-act="garment" style="background:#818cf8">Garment: <span data-out="garment">T-shirt</span> <svg class="ic"><use href="#i-refresh"/></svg></button>
-                <button type="button" class="pill-btn ghost" data-act="pattern">Pattern: <span data-out="pattern">Tote bag</span></button>
-                <span class="pip-note" data-out="note">does the pattern fit?</span>
+                <button type="button" class="pill-btn" data-act="restart" style="background:#818cf8">Restart demo <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <a class="pill-btn ghost" href="https://la-fabrique.onrender.com/" target="_blank" rel="noopener">Real app <svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
+                <span class="pip-note" data-out="note">simplified demo · not the real app</span>
               </div>
             </div>
           </div>
@@ -369,8 +366,7 @@
               <li>Gamified community: share your creations, earn coins and badges</li>
             </ul>
             <div class="stack"><span class="stack-lbl">$ stack</span><span>Django</span><span>PostgreSQL</span><span>Product design</span><span>Business model</span></div>
-            <!-- App link: replace this <span> with <a class="proj-link" href="https://…">Open the app</a> once it is live -->
-            <div class="proj-foot"><span>P2IP team project · 2025–2026 · app link coming soon</span></div>
+            <div class="proj-foot"><span>P2IP team project · 2025–2026</span><a class="proj-link" href="https://la-fabrique.onrender.com/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-arrow-up-right"/></svg>Open the app<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
           </div>
         </article>
 
@@ -698,6 +694,8 @@
 <script src="assets/data/land-110m.js" defer></script>
 <script src="assets/js/widgets.js" defer></script>
 <script src="assets/js/demos.js" defer></script>
+<script src="assets/data/galleries.js" defer></script>
+<script src="assets/js/gallery.js" defer></script>
 <script src="assets/js/main.js" defer></script>
 </body>
 </html>

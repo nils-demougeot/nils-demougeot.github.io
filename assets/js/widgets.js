@@ -229,40 +229,86 @@
   /* ───────── Airbus H160 (SolidWorks-style): fuselage, 5-blade Blue Edge rotor, fenestron, exploded view ───────── */
   PW.h160 = function (canvas, o) {
     o = o || {}; const out = o.out || (() => {});
-    const g = gl(canvas, 30), T = g.T, scene = g.scene, cam = g.cam; lights(T, scene);
-    const skin = mat(T, 0xbac0d6, { metalness: 0.3, roughness: 0.42 }), blade = mat(T, 0x2b2e38, { roughness: 0.5 }), glass = mat(T, 0x283049, { metalness: 0.6, roughness: 0.15 }), tyre = mat(T, 0x16181f);
-    const eM = new T.LineBasicMaterial({ color: 0x0c0d12, transparent: true, opacity: 0.55 });
-    const ed = (m, thr) => { m.add(new T.LineSegments(new T.EdgesGeometry(m.geometry, thr || 35), eM)); return m; };
-    floorDisc(T, scene, 3);
-    const root = new T.Group(); root.position.y = 0.72; scene.add(root);
+    const g = gl(canvas, 30), T = g.T, scene = g.scene, cam = g.cam;
+    scene.add(new T.HemisphereLight(0xf4f6ff, 0x20242f, 0.9));
+    const key = new T.DirectionalLight(0xffffff, 0.9); key.position.set(-3, 6, 4); scene.add(key);
+    const rim = new T.DirectionalLight(0x9fb4ff, 0.45); rim.position.set(4, 2, -5); scene.add(rim);
+    floorDisc(T, scene, 3.2);
+    const root = new T.Group(); root.position.y = 0.78; scene.add(root);
     const parts = [];
     const part = (obj, off) => { root.add(obj); parts.push({ obj, home: obj.position.clone(), off: new T.Vector3(off[0], off[1], off[2]) }); return obj; };
-    const prof = [[0.001, -1.95], [0.2, -1.88], [0.38, -1.66], [0.5, -1.3], [0.58, -0.8], [0.6, -0.2], [0.55, 0.3], [0.4, 0.75], [0.24, 1.15], [0.15, 1.6], [0.13, 2.05], [0.001, 2.12]];
-    const fus = ed(new T.Mesh(new T.LatheGeometry(prof.map(([r, y]) => new T.Vector2(r, y)), 40), skin), 50); fus.rotation.z = -Math.PI / 2; fus.scale.set(1, 1, 0.8); part(fus, [0, 0, 0]);
-    const wind = new T.Mesh(new T.SphereGeometry(0.5, 32, 16), glass); wind.scale.set(0.95, 0.55, 0.78); wind.position.set(-1.05, 0.2, 0); part(wind, [-0.9, 0.35, 0]);
-    [-0.35, 0.05].forEach((x) => [1, -1].forEach((sd) => { const w = block(T, root, 0.3, 0.2, 0.01, glass, x, 0.12, sd * 0.47); root.remove(w); part(w, [0, 0, sd * 0.6]); }));
-    const cowl = ed(new T.Mesh(new T.SphereGeometry(1, 32, 16), skin)); cowl.scale.set(0.95, 0.24, 0.42); cowl.position.set(0.1, 0.52, 0); part(cowl, [0, 0.55, 0]);
-    const mast = new T.Mesh(new T.CylinderGeometry(0.06, 0.08, 0.35, 16), blade); mast.position.set(-0.05, 0.85, 0); part(mast, [0, 0.9, 0]);
-    const rotor = new T.Group(); rotor.position.set(-0.05, 1.04, 0); part(rotor, [0, 1.4, 0]);
-    rotor.add(ed(new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 0.1, 30), skin)));
-    for (let k = 0; k < 5; k++) { // Blue Edge blade: straight root, forward sweep, then swept-back tip
-      const b = new T.Group(); b.rotation.y = k * Math.PI * 2 / 5; rotor.add(b);
-      block(T, b, 1.35, 0.02, 0.15, blade, 0.85, 0, 0);
-      const s2 = block(T, b, 0.5, 0.02, 0.13, blade, 1.72, 0, -0.06); s2.rotation.y = 0.25;
-      const s3 = block(T, b, 0.36, 0.02, 0.1, blade, 2.1, 0, 0.0); s3.rotation.y = -0.4;
+    const paint = (c, x) => mat(T, c, Object.assign({ roughness: 0.38, metalness: 0.15 }, x || {}));
+    const WHITE = new T.Color(0xe9ecf3), BELLY = new T.Color(0x9aa3b5), GLASS = new T.Color(0x16203a), STRIPE = new T.Color(0x1e3a8a);
+    // lofted body: superellipse sections along x → one smooth mesh, coloured per vertex (glass, belly, stripe)
+    function loft(secs, seg, colorAt) {
+      const pos = [], col = [], idx = [], c = new T.Color();
+      secs.forEach(([x, cy, w, ht, hb, n]) => {
+        for (let j = 0; j <= seg; j++) {
+          const th = (j / seg) * Math.PI * 2, cs = Math.cos(th), sn = Math.sin(th), e = 2 / n;
+          const z = w * Math.sign(cs) * Math.pow(Math.abs(cs), e), y = cy + (sn >= 0 ? ht : hb) * Math.sign(sn) * Math.pow(Math.abs(sn), e);
+          pos.push(x, y, z); c.copy(colorAt ? colorAt(x, sn, cs) : WHITE); col.push(c.r, c.g, c.b);
+        }
+      });
+      const r = seg + 1;
+      for (let i = 0; i < secs.length - 1; i++) for (let j = 0; j < seg; j++) { const a = i * r + j, b = a + r; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+      const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      return geo;
     }
-    const fen = new T.Group(); fen.position.set(2.05, 0.18, 0); part(fen, [1.1, 0, 0]);
-    fen.add(ed(new T.Mesh(new T.TorusGeometry(0.3, 0.1, 14, 40), skin)));
-    const fan = new T.Group(); fen.add(fan);
-    for (let k = 0; k < 10; k++) { const f = block(T, fan, 0.04, 0.26, 0.015, blade, 0, 0.13, 0); f.parent.remove(f); const p = new T.Group(); p.rotation.z = k * Math.PI / 5; p.add(f); fan.add(p); }
-    const fin = ed(block(T, root, 0.42, 0.72, 0.05, skin, 2.18, 0.72, 0)); fin.rotation.z = -0.35; root.remove(fin); part(fin, [1.2, 0.7, 0]);
-    const stab = ed(block(T, root, 0.2, 0.03, 1.1, skin, 1.55, 0.3, 0)); root.remove(stab); part(stab, [0.9, -0.35, 0]);
-    [1, -1].forEach((sd) => { const e = ed(block(T, root, 0.2, 0.18, 0.02, skin, 1.55, 0.36, sd * 0.55)); root.remove(e); part(e, [0.9, -0.35, sd * 0.35]); });
-    const wheel = (x, z) => { const gr = new T.Group(); gr.position.set(x, -0.6, z); const w = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.08, 20), tyre); w.rotation.x = Math.PI / 2; gr.add(w); block(T, gr, 0.04, 0.25, 0.04, blade, 0, 0.14, 0); return gr; };
-    [[-1.2, 0.08], [-1.2, -0.08], [0.15, 0.42], [0.15, -0.42]].forEach(([x, z]) => part(wheel(x, z), [0, -0.55, z * 0.8]));
-    [1, -1].forEach((sd) => { const sp = ed(block(T, root, 0.55, 0.14, 0.14, skin, 0.15, -0.38, sd * 0.4)); root.remove(sp); part(sp, [0, -0.35, sd * 0.35]); });
+    const FUS = [ // x, centre y, half width, half height up, half height down, squareness
+      [-2.08, -0.06, 0.01, 0.01, 0.01, 2], [-2.0, -0.05, 0.13, 0.14, 0.12, 2.1], [-1.85, -0.02, 0.27, 0.3, 0.25, 2.3], [-1.6, 0.02, 0.42, 0.45, 0.38, 2.5],
+      [-1.25, 0.05, 0.53, 0.56, 0.46, 2.8], [-0.8, 0.08, 0.58, 0.6, 0.5, 3.1], [-0.2, 0.09, 0.6, 0.6, 0.52, 3.2], [0.35, 0.1, 0.57, 0.56, 0.49, 3.0],
+      [0.72, 0.16, 0.45, 0.43, 0.33, 2.6], [1.05, 0.24, 0.3, 0.28, 0.2, 2.3], [1.45, 0.3, 0.19, 0.19, 0.14, 2.1], [1.85, 0.34, 0.15, 0.16, 0.12, 2.1], [2.05, 0.35, 0.1, 0.12, 0.1, 2], [2.12, 0.35, 0.01, 0.01, 0.01, 2]
+    ];
+    const fusColor = (x, sn, cs) => {
+      if (x > -1.78 && x < -1.12 && sn > 0.08 && !(Math.abs(cs) < 0.06 && x < -1.3)) return GLASS; // windscreen, with a thin centre post
+      if (x > -1.02 && x < 0.28 && Math.abs(cs) > 0.72 && sn > 0.02 && sn < 0.5 && ((x + 1.02) % 0.42) < 0.34) return GLASS; // cabin windows
+      if (sn < -0.42) return BELLY;
+      if (sn > -0.34 && sn < -0.22 && x > -1.5 && x < 1.3) return STRIPE;
+      return WHITE;
+    };
+    const fine = (secs, dx) => { // resample the sections so window edges (vertex colours) stay crisp
+      const outS = []; for (let i = 0; i < secs.length - 1; i++) { const a = secs[i], b = secs[i + 1], n = Math.max(1, Math.round((b[0] - a[0]) / dx)); for (let k = 0; k < n; k++) outS.push(a.map((v, j) => lerp(v, b[j], k / n))); }
+      outS.push(secs[secs.length - 1]); return outS;
+    };
+    const fus = new T.Mesh(loft(fine(FUS, 0.03), 72, fusColor), paint(0xffffff, { vertexColors: true })); part(fus, [0, 0, 0]);
+    // engine cowling with intakes and exhausts
+    const cowl = new T.Group(); part(cowl, [0, 0.4, 0]);
+    cowl.add(new T.Mesh(loft([[-0.7, 0.62, 0.02, 0.02, 0.02, 2], [-0.6, 0.62, 0.26, 0.1, 0.06, 2.4], [-0.25, 0.63, 0.36, 0.17, 0.08, 2.8], [0.25, 0.63, 0.36, 0.17, 0.08, 2.8], [0.62, 0.6, 0.28, 0.11, 0.06, 2.4], [0.78, 0.56, 0.02, 0.02, 0.02, 2]], 32), paint(0xe9ecf3)));
+    [1, -1].forEach((sd) => { const it = block(T, cowl, 0.2, 0.09, 0.02, paint(0x1c1f2b), -0.36, 0.66, sd * 0.35); it.rotation.y = sd * 0.25; const ex = new T.Mesh(new T.CylinderGeometry(0.06, 0.07, 0.14, 16), paint(0x2a2d38, { metalness: 0.6 })); ex.rotation.z = Math.PI / 2; ex.position.set(0.66, 0.66, sd * 0.2); cowl.add(ex); });
+    // rotor: mast, head, five Blue Edge blades (double-swept tips)
+    const mast = new T.Mesh(new T.CylinderGeometry(0.05, 0.07, 0.3, 20), paint(0x3a3f4d, { metalness: 0.5 })); mast.position.set(-0.06, 0.92, 0); part(mast, [0, 0.62, 0]);
+    const rotor = new T.Group(); rotor.position.set(-0.06, 1.08, 0); part(rotor, [0, 0.95, 0]);
+    rotor.add(new T.Mesh(new T.CylinderGeometry(0.17, 0.2, 0.08, 30), paint(0x4a5060, { metalness: 0.5 })));
+    const cap = new T.Mesh(new T.SphereGeometry(0.1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), paint(0xe9ecf3)); cap.position.y = 0.04; rotor.add(cap);
+    const bs = new T.Shape(); bs.moveTo(0.14, 0.06); bs.lineTo(1.4, 0.075); bs.lineTo(1.78, 0.14); bs.lineTo(2.08, 0.035); bs.lineTo(2.1, -0.02); bs.lineTo(1.8, 0.0); bs.lineTo(1.42, -0.07); bs.lineTo(0.14, -0.065); bs.closePath();
+    const bgeo = new T.ExtrudeGeometry(bs, { depth: 0.018, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.008, bevelSegments: 2 }); bgeo.rotateX(-Math.PI / 2);
+    const bladeM = paint(0x262a35, { roughness: 0.5 });
+    for (let k = 0; k < 5; k++) { const b = new T.Group(); b.rotation.y = k * Math.PI * 2 / 5; const m = new T.Mesh(bgeo, bladeM); m.rotation.z = -0.03; b.add(m); const grip = block(T, b, 0.16, 0.05, 0.07, paint(0x4a5060, { metalness: 0.5 }), 0.14, 0, 0); grip.rotation.y = 0; rotor.add(b); }
+    // fenestron: ducted tail rotor inside the fin, fin swept back above it
+    const fen = new T.Group(); fen.position.set(2.0, 0.42, 0); part(fen, [1.1, 0.15, 0]);
+    const fs = new T.Shape(); fs.moveTo(-0.34, -0.3); fs.quadraticCurveTo(0.1, -0.42, 0.36, -0.2); fs.lineTo(0.42, 0.25); fs.lineTo(0.62, 0.95); fs.lineTo(0.42, 0.98); fs.lineTo(0.02, 0.36); fs.quadraticCurveTo(-0.3, 0.3, -0.42, 0.0); fs.closePath();
+    const hole = new T.Path(); hole.absarc(0, 0, 0.22, 0, Math.PI * 2, true); fs.holes.push(hole);
+    const fgeo = new T.ExtrudeGeometry(fs, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 3, curveSegments: 32 }); fgeo.translate(0, 0, -0.05);
+    fen.add(new T.Mesh(fgeo, paint(0xe9ecf3)));
+    const fan = new T.Group(); fen.add(fan); fan.add(new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.08, 16).rotateX(Math.PI / 2), paint(0x3a3f4d, { metalness: 0.5 })));
+    for (let k = 0; k < 10; k++) { const p = new T.Group(); p.rotation.z = k * Math.PI / 5; block(T, p, 0.035, 0.2, 0.012, bladeM, 0, 0.11, 0); fan.add(p); }
+    const stator = new T.Mesh(new T.RingGeometry(0.2, 0.225, 40), paint(0x2a2d38, { side: T.DoubleSide })); fen.add(stator);
+    // biplane horizontal stabiliser + end plates
+    const stab = new T.Group(); stab.position.set(1.58, 0.36, 0); part(stab, [0.8, -0.3, 0]);
+    const ss = new T.Shape(); ss.moveTo(-0.1, 0); ss.lineTo(0.12, 0); ss.lineTo(0.08, 0.55); ss.lineTo(-0.06, 0.55); ss.closePath();
+    [[0, 1], [0, -1], [0.16, 1], [0.16, -1]].forEach(([dy, sd]) => { const gm = new T.ExtrudeGeometry(ss, { depth: 0.02, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.008, bevelSegments: 2 }); gm.rotateX(sd * Math.PI / 2); const m = new T.Mesh(gm, paint(0xe9ecf3)); m.position.y = dy; stab.add(m); });
+    [1, -1].forEach((sd) => { const ep = block(T, stab, 0.18, 0.3, 0.02, paint(0x1e3a8a), 0.01, 0.08, sd * 0.56); ep.rotation.z = -0.1; });
+    // landing gear: nose wheels + main wheels under sponson fairings
+    const gear = new T.Group(); part(gear, [0, -0.5, 0]);
+    const tyre = paint(0x14161c, { roughness: 0.8 }), strut = paint(0x5b6272, { metalness: 0.6 });
+    const wheel = (x, y, z) => { const w = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.07, 22), tyre); w.rotation.x = Math.PI / 2; w.position.set(x, y, z); gear.add(w); const hub = new T.Mesh(new T.CylinderGeometry(0.045, 0.045, 0.075, 12), strut); hub.rotation.x = Math.PI / 2; hub.position.set(x, y, z); gear.add(hub); };
+    [0.075, -0.075].forEach((z) => wheel(-1.28, -0.64, z)); block(T, gear, 0.04, 0.2, 0.04, strut, -1.28, -0.52, 0);
+    [1, -1].forEach((sd) => {
+      const sp = new T.Mesh(loft([[-0.25, -0.4, 0.01, 0.01, 0.01, 2], [-0.15, -0.4, 0.1, 0.09, 0.07, 2.4], [0.3, -0.4, 0.12, 0.1, 0.08, 2.6], [0.52, -0.39, 0.05, 0.05, 0.04, 2]], 24), paint(0xe9ecf3)); sp.position.z = sd * 0.55; gear.add(sp);
+      wheel(0.12, -0.6, sd * 0.58); block(T, gear, 0.04, 0.16, 0.04, strut, 0.12, -0.5, sd * 0.58);
+    });
     let t = 0, ex = 0, exT = 0, spin = 7, spinT = 7;
-    const cams = orbiter(canvas, cam, { ang: -0.75, el: 0.28, dist: 8.2, ty: 0.9 });
+    const cams = orbiter(canvas, cam, { ang: -0.75, el: 0.26, dist: 8.4, ty: 0.85 });
     const stop = loop(canvas, (dt) => {
       t += dt; ex = lerp(ex, exT, Math.min(1, dt * 3)); spin = lerp(spin, spinT, Math.min(1, dt * 1.5));
       parts.forEach((p) => p.obj.position.copy(p.home).addScaledVector(p.off, ex));

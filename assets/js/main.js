@@ -13,7 +13,7 @@
   const hexRgb = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
   const CV = 'assets/cv/Nils_Demougeot_CV.pdf';
-  const LOGO = { esilv: 'assets/img/logos/esilv.png', mit: 'assets/img/logos/mit.svg', rtu: 'assets/img/logos/rtu.svg', transdev: 'assets/img/logos/transdev.png' };
+  const LOGO = { esilv: 'assets/img/logos/esilv.png', mit: 'assets/img/logos/mit.svg', rtu: 'assets/img/logos/rtu.svg' };
   const AVATAR = 'assets/img/avatar.jpg'; // square photo shown in `whoami`
   let avatarOk = false; if (AVATAR) { const im = new Image(); im.onload = () => { avatarOk = true; }; im.src = AVATAR; }
 
@@ -28,7 +28,7 @@
     { shape: 'shield', color: '#fb7185', label: 'Cybersecurity', blurb: 'Threat detection, IOC hunting and security dashboards.', tags: ['CrowdStrike', 'SIEM', 'Log analysis'] }
   ];
   const PLACES = {
-    paris: { name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522, color: '#FFCC00', logo: LOGO.esilv, tag: 'HOME BASE', coords: '48.86° N · 2.35° E', title: 'ESILV, engineering cycle', sub: 'Data & AI major · M1, class of 2028', dates: '2023 → 2028', dist: 'home · 0 km', extra: 'Also here: Transdev, cybersecurity & data internship (summer 2025).' },
+    paris: { name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522, color: '#FFCC00', logo: LOGO.esilv, tag: 'HOME BASE', coords: '48.86° N · 2.35° E', title: 'ESILV, engineering cycle', sub: 'Data & AI major · M1, class of 2028', dates: '2023 → 2028', dist: 'home · 0 km', extra: 'Also here: cybersecurity & data internship (summer 2025).' },
     riga: { name: 'Riga', country: 'Latvia', lat: 56.9496, lon: 24.1052, color: '#34d399', logo: LOGO.rtu, tag: 'EXCHANGE SEMESTER', coords: '56.95° N · 24.11° E', title: 'Riga Technical University', sub: 'Telecommunications & data transmission', dates: 'Aug 2025 → Jan 2026', dist: '≈ 1,700 km from Paris', extra: 'One semester abroad during the engineering cycle.' },
     boston: { name: 'Boston', country: 'USA', lat: 42.3601, lon: -71.0942, color: '#fb7185', logo: LOGO.mit, tag: 'RESEARCH + HIGH SCHOOL', coords: '42.36° N · 71.09° W', title: 'MIT, Research Lab of Electronics', sub: 'Network Coding group · research intern', dates: 'Jul → Aug 2022', dist: '≈ 5,500 km from Paris', extra: 'Also here: International School of Boston (2021 → 2023), French Bac with Mention Très Bien.' }
   };
@@ -83,10 +83,10 @@
   function resetTerm() { out.innerHTML = ''; append(motd(), null, true); setOpen(false); }
 
   const R = {
-    whoami: () => '<div class="who"><div class="avatar">ND' + (avatarOk ? '<img src="' + AVATAR + '" alt="Nils Demougeot">' : '') + '</div><div class="who-txt"><p><strong>Nils Demougeot</strong>, Data &amp; AI engineering student at ESILV Paris. I did network coding research at MIT, built security dashboards at Transdev and won a startup prize with La Fabrique. I like projects where data turns into a decision or a product.</p><div class="pills"><span>Courbevoie, FR</span><span>M1 · class of 2028</span><span class="ok">internship · from Apr 2027</span></div></div></div>',
+    whoami: () => '<div class="who"><div class="avatar">ND' + (avatarOk ? '<img src="' + AVATAR + '" alt="Nils Demougeot">' : '') + '</div><div class="who-txt"><p><strong>Nils Demougeot</strong>, Data &amp; AI engineering student at ESILV Paris. I did network coding research at MIT, built security dashboards during a cybersecurity internship and won a startup prize with La Fabrique. I like projects where data turns into a decision or a product.</p><div class="pills"><span>Courbevoie, FR</span><span>M1 · class of 2028</span><span class="ok">internship · from Apr 2027</span></div></div></div>',
     gitlog: () => '<div class="xp">' + [
       ['2026', '<span class="logo-tile sm ph" style="--c:#818cf8">' + icon('scissors') + '</span>', 'La Fabrique, founder project', 'Django platform for textile upcycling · Prix Esprit Startup'],
-      ['summer 2025', '<span class="logo-tile sm crop"><img src="' + LOGO.transdev + '" alt="Transdev"></span>', 'Cybersecurity &amp; Data intern', 'Transdev · threat detection &amp; security dashboards'],
+      ['summer 2025', '<span class="logo-tile sm ph" style="--c:#fb7185">' + icon('briefcase') + '</span>', 'Cybersecurity &amp; Data intern', 'Corporate SOC team · threat detection &amp; security dashboards'],
       ['summer 2022', '<span class="logo-tile sm"><img src="' + LOGO.mit + '" alt="MIT"></span>', 'Research intern', 'MIT, Research Lab of Electronics · network coding']
     ].map((r) => '<div class="xp-row"><span class="xp-when">' + r[0] + '</span>' + r[1] + '<div><b>' + r[2] + '</b><span>' + r[3] + '</span></div></div>').join('') + '</div>',
     tree: () => narrow() ? eduList() : '<div class="edu"><div class="gantt"><div class="today"></div>' +
@@ -184,11 +184,11 @@
     leak: () => { run('siem', 'p-siem', (w) => w.exfil(), 500); return '→ someone is copying files to a USB key… watch the hourly search.'; },
     ttt: () => { run('uttt', 'p-uttt', (w) => w.watch(), 300); return '→ two alpha-beta AIs, 0.45 s per move.'; },
     route: () => { run('livin', 'p-livin', (w) => w.random(), 300); return '→ shortest path on the real Paris metro graph…'; },
-    fit: () => { run('fabrique', 'p-fabrique', (w) => w.pattern(), 300); return '→ checking a new pattern against the fabric.'; },
+    fit: () => { run('fabrique', 'p-fabrique', (w) => w.restart(), 300); return '→ La Fabrique demo: pick a garment to scan.'; },
     boggle: () => { run('boggle', 'p-boggle', (w) => w.ai(), 600); return '→ the Boggle solver is looking for every word…'; },
     quake: () => { run('quake', 'p-quake', (w) => w.quake(), 500); return '→ shaking stabilizer.ino… watch the ball stay put.'; },
     stab: () => { toggleStab(); return '→ stabilizer ' + (state.stab ? 'ON' : 'OFF') + '.'; },
-    rlnc: () => { run('mit', 'p-mit', (w) => w.batch(), 300); return '→ 10,000 RLNC generations over the erasure channel…'; },
+    rlnc: () => { run('mit', 'p-mit', (w) => w.mode(), 300); return '→ the research result: theory vs 10,000 simulated messages per point.'; },
     walk: () => { run('hexapod', 'p-hexapod', (w) => w.ratio(), 300); return '→ changing the hexapod gear ratio.'; },
     explode: () => { run('h160', 'p-h160', (w) => w.explode(), 400); return '→ exploded view of the H160 assembly.'; },
     morph: () => { scrollToId('top'); W.points && W.points.next(); return '→ morphing the hero particles…'; }
@@ -250,7 +250,7 @@
   $('#termSize').addEventListener('click', () => setOpen(!term.classList.contains('is-open')));
   window.addEventListener('keydown', (e) => {
     const typing = e.target && /INPUT|TEXTAREA/.test(e.target.tagName);
-    if (e.key === '/' && !typing) { e.preventDefault(); scrollToId('terminal'); setTimeout(() => input.focus({ preventScroll: true }), 350); }
+    if (e.key === '/' && !typing && !html.classList.contains('lb-open')) { e.preventDefault(); scrollToId('terminal'); setTimeout(() => input.focus({ preventScroll: true }), 350); }
   });
   resetTerm();
 
@@ -295,7 +295,7 @@
     if (window.PW) PW.pause(d.cv, !on);
     const w = demo(k); if (w && w.live) w.live(on);
   }
-  function activate(k) { if (!demos[k]) return; reveal(demos[k].el); demo(k); if (state.act != null && state.act !== k) setLive(state.act, false); setLive(k, true); state.act = k; }
+  function activate(k) { if (!demos[k]) return; reveal(demos[k].el); if (listView) openRow(demos[k].el, true); demo(k); if (state.act != null && state.act !== k) setLive(state.act, false); setLive(k, true); state.act = k; }
   function stopDemo() { if (state.act != null) setLive(state.act, false); state.act = null; }
   function toggleStab() { state.stab = !state.stab; const w = demo('quake'); w && w.setStab(state.stab); $('#stabLabel').textContent = state.stab ? 'Stabilizer ON' : 'Stabilizer OFF'; $('#stabDot').style.background = state.stab ? '#34d399' : '#f43f5e'; }
   // Phones: a live demo can fill the screen (and turn to landscape where the browser allows), so it shows at laptop size.
@@ -330,15 +330,15 @@
 
   // Filters + "show more": the first LIMIT cards show by default, a filter shows every match.
   const moreWrap = $('#projMoreWrap'), LIMIT = 10;
-  let projFilter = 'all', projOpen = false;
+  let projFilter = 'all', projOpen = false, listView = false;
   function applyProjects(animate) {
     const before = new Set(projCards.filter((el) => !el.hidden));
     projCards.forEach((el, i) => {
       const match = projFilter === 'all' || el.getAttribute('data-cat').split(' ').includes(projFilter);
-      el.hidden = !(match && (projFilter !== 'all' || projOpen || i < LIMIT));
+      el.hidden = !(match && (projFilter !== 'all' || projOpen || listView || i < LIMIT));
       if (el.hidden && state.act === el.getAttribute('data-demo')) stopDemo();
     });
-    moreWrap.hidden = projFilter !== 'all' || projOpen || projCards.length <= LIMIT;
+    moreWrap.hidden = projFilter !== 'all' || projOpen || listView || projCards.length <= LIMIT;
     $$('.pf').forEach((b) => { const on = b.getAttribute('data-filter') === projFilter; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
     if (animate) replay(projCards.filter((el) => !el.hidden && (animate === 'all' || !before.has(el))));
   }
@@ -348,9 +348,35 @@
   $('#projMoreCount').textContent = extra.length;
   $('#projMoreNames').textContent = extra.map((el) => $('h3', el).textContent).slice(0, 4).join(' · ') + ' …' + (extraDemos ? '  ·  ' + extraDemos + ' more live demos' : '');
   $('#projMore').addEventListener('click', () => { projOpen = true; applyProjects(true); });
-  applyProjects();
+  // Grid or list (remembered). The list shows every project as a compact row; a row opens into the full card.
+  const projWrap = $('#projects'), viewTgl = $('.view-toggle');
+  function openRow(el, on) {
+    if (on) projCards.forEach((o) => { if (o !== el && o.classList.contains('open')) openRow(o, false); });
+    el.classList.toggle('open', on); $('.proj-toggle', el).setAttribute('aria-expanded', on);
+    if (!on && state.act != null && state.act === el.getAttribute('data-demo')) stopDemo();
+  }
+  function setView(list, animate) {
+    listView = list; projWrap.classList.toggle('is-list', list); viewTgl.classList.toggle('is-list', list);
+    $$('[data-view]', viewTgl).forEach((b) => b.setAttribute('aria-pressed', String((b.getAttribute('data-view') === 'list') === list)));
+    if (!list) projCards.forEach((el) => { if (el.classList.contains('open')) openRow(el, false); });
+    try { localStorage.setItem('nd-proj-view', list ? 'list' : 'grid'); } catch (e) { /* private mode */ }
+    applyProjects(animate ? 'all' : false);
+  }
+  projCards.forEach((el) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'proj-toggle'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', 'Show or hide details'); b.innerHTML = icon('chevron-down');
+    b.addEventListener('click', (e) => { e.stopPropagation(); openRow(el, !el.classList.contains('open')); });
+    el.appendChild(b);
+    el.addEventListener('click', (e) => { if (!listView || el.classList.contains('open') || e.target.closest('a, button')) return; openRow(el, true); });
+  });
+  $$('[data-view]', viewTgl).forEach((b) => b.addEventListener('click', () => { const list = b.getAttribute('data-view') === 'list'; if (list !== listView) setView(list, true); }));
+  let savedView = null; try { savedView = localStorage.getItem('nd-proj-view'); } catch (e) { /* private mode */ }
+  if (savedView === 'list') setView(true, false); else applyProjects();
   projCards.forEach((el) => cardIO.observe(el));
-  document.addEventListener('click', (e) => { const b = e.target.closest('[data-goto]'); if (!b) return; const el = document.getElementById(b.getAttribute('data-goto')); if (el) { reveal(el); scrollToId(el.id); } });
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-goto]'); if (!b) return; const el = document.getElementById(b.getAttribute('data-goto')); if (el) { reveal(el); if (listView && el.classList.contains('proj')) openRow(el, true); scrollToId(el.id); } });
+
+
+  // Screenshot galleries (assets/js/gallery.js, data in assets/data/galleries.js)
+  if (window.PGallery) try { PGallery.mount(); } catch (err) { console.warn('[gallery]', err); }
 
   // Academics card: opens ./education in the terminal.
   const acad = $('.card-acad');
@@ -462,126 +488,232 @@
     resize();
   }
 
-  /* ───────── Intro: a dotted globe and the name, which then flies as particles onto the hero title ───────── */
+  /* ───────── Intro (≈3 s, once per session) ─────────
+     A dot lights up and a field of data points unrolls into a 3D landscape, with bars of the projects' figures rising out of it,
+     while the name decodes. The camera then climbs until it looks straight down: the flattened points land exactly on the
+     page's own dot grid, the name flies into the hero title and the cards are drafted in place. Without WebGL, the same
+     choreography runs in 2D over the plain dot grid. */
   function runIntro(onLand, onDone) {
     const root = $('#intro'), title = $('#heroTitle'), page = $('.page');
     if (!html.classList.contains('intro-on')) { onLand(); onDone(); return; }
     try { sessionStorage.setItem('nd-intro', '1'); } catch (e) { /* private mode */ }
-    const name = $('#introName');
-    let n = 0; name.innerHTML = name.textContent.split(' ').map((w) => '<span class="w">' + w.split('').map((ch) => '<span style="--d:' + (n++) * 30 + 'ms">' + ch + '</span>').join('') + '</span>').join(' ');
-    const cv = $('#introCanvas'), c = cv.getContext('2d'), S = 150, dpr = Math.min(2, devicePixelRatio || 1);
-    cv.width = cv.height = S * dpr; c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const N = 420, pts = [], PAL = ['#FFCC00', '#818cf8', '#34d399', '#fb7185', '#38bdf8', '#fb923c'];
-    for (let i = 0; i < N; i++) {
-      const y = 1 - (2 * (i + 0.5)) / N, r = Math.sqrt(1 - y * y), th = i * 2.39996, a = Math.random() * 6.283, sp = 1.6 + Math.random() * 1.6;
-      pts.push({ x: Math.cos(th) * r, y, z: Math.sin(th) * r, sx: Math.cos(a) * sp, sy: Math.sin(a) * sp, sz: (Math.random() - 0.5) * 2, d: Math.random() * 0.35, c: Math.random() < 0.12 ? PAL[i % PAL.length] : '#e4e4e7' });
-    }
-    const T0 = performance.now(), easeOut = (x) => 1 - Math.pow(1 - x, 3), easeIO = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-    let phase = 'globe', raf = 0, finished = false;
-    function drawGlobe(now) {
-      const t = (now - T0) / 1000, rot = t * 0.9, ct = Math.cos(0.35), st = Math.sin(0.35), cr = Math.cos(rot), sr = Math.sin(rot), R = S * 0.36;
-      c.clearRect(0, 0, S, S);
-      c.strokeStyle = 'rgba(255,204,0,0.35)'; c.lineWidth = 1; c.beginPath(); c.ellipse(S / 2, S / 2, R * 1.32, R * 1.32 * st * 0.9, 0, 0, 6.283); c.stroke();
-      for (const p of pts) {
-        const f = easeOut(clamp((t - p.d) / 0.9, 0, 1)), x = lerp(p.sx, p.x, f), y = lerp(p.sy, p.y, f), z = lerp(p.sz, p.z, f);
-        const x1 = x * cr + z * sr, z1 = -x * sr + z * cr, y2 = y * ct - z1 * st, z2 = y * st + z1 * ct, k = (z2 + 1) / 2;
-        if (f > 0.98 && z2 < -0.2) continue;
-        c.globalAlpha = (0.25 + 0.75 * k) * clamp((t - p.d) * 4, 0, 1); c.fillStyle = p.c;
-        const s = 1 + k * 0.9; c.fillRect(S / 2 + x1 * R - s / 2, S / 2 + y2 * R - s / 2, s, s);
-      }
-      const a = t * 1.6; c.globalAlpha = 1; c.fillStyle = '#FFCC00'; c.beginPath(); c.arc(S / 2 + Math.cos(a) * R * 1.32, S / 2 + Math.sin(a) * R * 1.32 * st * 0.9, 2.4, 0, 6.283); c.fill();
-    }
-    const loop = (now) => { if (phase === 'done') return; drawGlobe(now); raf = requestAnimationFrame(loop); }; // keeps spinning while it fades out
-    raf = requestAnimationFrame(loop);
-    requestAnimationFrame(() => root.classList.add('is-in'));
+    const cv = $('#introFx'), c = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), W = root.clientWidth || innerWidth, H = root.clientHeight || innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const MONO = '"JetBrains Mono", ui-monospace, monospace', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
+    const NAME = 'NILS DEMOUGEOT', SUB = 'data & ai engineering · paris', POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/';
+    const small = W < 600;
+    const T = { dot: 0.05, ripple: 0.18, rippleD: 1.3, rise: 0.3, riseD: 0.8, spikes: 0.62, labels: 0.95, name: 0.42, sub: 0.9,
+      flat: 1.5, flatD: 0.6, cam: 1.42, camD: 0.78, fly: 1.72, flyD: 0.7, frames: 1.98, clear: 2.22, land: 2.36, lit: 2.62, end: 3.05 };
+    const cl = (x) => clamp(x, 0, 1), out3 = (x) => 1 - Math.pow(1 - x, 3);
+    const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const ease = (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2);
+    // where every visible card will sit once its entrance transition is done (undo translateY(26px) scale(.985))
+    const cards = $$('.bento [data-enter]').map((el) => {
+      const r = el.getBoundingClientRect(), hello = el.classList.contains('card-hello'), k = hello ? 1 : 0.985;
+      const w = r.width / k, h = r.height / k, mx = r.left + r.width / 2, my = r.top + r.height / 2 - (hello ? 0 : 26);
+      return { x: mx - w / 2, y: my - h / 2, w, h, r: parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0 };
+    }).filter((q) => q.y < H * 1.1 && q.w > 0);
+    // the name, centred, then each letter flies to its place in the hero title
+    const tfs = parseFloat(getComputedStyle(title).fontSize), dst = [];
+    $$('span', title).forEach((sp) => { const node = sp.firstChild; for (let k = 0; k < node.length; k++) { const rg = document.createRange(); rg.setStart(node, k); rg.setEnd(node, k + 1); dst.push(rg.getBoundingClientRect()); } });
+    const lines = small ? ['NILS', 'DEMOUGEOT'] : [NAME], fs = small ? Math.min(W * 0.13, 64) : clamp(W * 0.074, 30, 104), nameY = H * 0.47, lh = fs * 0.98;
+    c.font = '800 ' + fs + 'px ' + SANS;
+    const glyphs = [], mid = (NAME.replace(/ /g, '').length - 1) / 2;
+    lines.forEach((ln, li) => {
+      const y = nameY + (li - (lines.length - 1) / 2) * lh, x0 = W / 2 - c.measureText(ln).width / 2;
+      ln.split('').forEach((ch, i) => { if (ch === ' ') return; const n = glyphs.length; glyphs.push({ ch, x: x0 + c.measureText(ln.slice(0, i)).width + c.measureText(ch).width / 2, y, s: T.name + Math.abs(n - mid) * 0.032, to: dst[n] }); });
+    });
+    const subY = nameY + (lines.length - 1) / 2 * lh + fs * 0.62 + 10;
 
-    // Rasterise one character at its on-screen box and return its lit pixels (viewport coords).
-    const oc = document.createElement('canvas'), ox = oc.getContext('2d', { willReadFrequently: true });
-    function glyph(ch, rect, fs) {
-      const pad = 6, w = Math.ceil(rect.width + pad * 2), h = Math.ceil(rect.height + pad * 2);
-      if (w < 2 || h < 2) return [];
-      oc.width = w; oc.height = h; ox.font = '800 ' + fs + 'px "Plus Jakarta Sans"'; ox.fillStyle = '#fff'; ox.textBaseline = 'alphabetic';
-      const m = ox.measureText(ch), asc = m.fontBoundingBoxAscent || fs * 0.93, desc = m.fontBoundingBoxDescent || fs * 0.25;
-      ox.fillText(ch, pad, pad + (rect.height - (asc + desc)) / 2 + asc);
-      const d = ox.getImageData(0, 0, w, h).data, out = [];
-      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 128) out.push([rect.left - pad + x, rect.top - pad + y]);
-      return out;
-    }
-    function targets() { // one entry per visible character of the hero title
-      const out = [];
-      $$('span', title).forEach((sp) => {
-        const node = sp.firstChild, box = sp.getBoundingClientRect(), fs = parseFloat(getComputedStyle(title).fontSize);
-        for (let k = 0; k < node.length; k++) { const rg = document.createRange(); rg.setStart(node, k); rg.setEnd(node, k + 1); out.push({ ch: node.data[k].toUpperCase(), rect: rg.getBoundingClientRect(), fs, box }); }
+    /* 3D: the data landscape (three.js is already on the page for the project models) */
+    const TERR = [[6, -8, 22, 4.2], [-9, -5, 16, 3], [-1, -18, 40, 5.2], [13, -17, 30, 3.4], [-16, -14, 26, 2.6], [2, -32, 80, 4]];
+    const terr = (x, z, t) => { let h = 0; TERR.forEach((p) => { const dx = x - p[0], dz = z - p[1]; h += p[3] * Math.exp(-(dx * dx + dz * dz) / p[2]); }); return h + 0.55 * Math.sin(x * 0.42 + t * 1.7) * Math.cos(z * 0.36 - t * 1.3) + 0.25 * Math.sin(Math.hypot(x, z + 4) * 0.6 - t * 2.4); };
+    const riseAt = (t) => out3(cl((t - T.rise) / T.riseD)) * (1 - inOut(cl((t - T.flat) / T.flatD)));
+    const rippleAt = (t) => out3(cl((t - T.ripple) / T.rippleD)) * 70;
+    const flatAt = (t) => inOut(cl((t - 1.58) / 0.56));
+    const g3 = (() => {
+      if (!window.THREE) return null;
+      let renderer;
+      try { renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
+      const el = renderer.domElement; el.className = 'intro-gl'; root.insertBefore(el, cv);
+      renderer.setPixelRatio(dpr); renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0); // transparent: the intro's background shows through, then the page's
+      const G = 26, FOV = 50, D = (H / G) / (2 * Math.tan(FOV * Math.PI / 360));
+      // a half-step grid; the points on whole steps sit on the page's dots (centres at 13 + 26k px) once seen from above,
+      // the ones in between thicken the landscape and fade out as it flattens
+      const ox = ((((13 - W / 2) / G) % 1) + 1) % 1, oz = ((((13 - H / 2) / G) % 1) + 1) % 1;
+      const XH = Math.max(small ? 22 : 34, Math.ceil(W / G / 2) + 2), ZN = Math.ceil(H / G / 2) + 2, ZF = small ? 48 : 64;
+      const pos = [], rnd = [], main = [];
+      for (let z = -ZF * 2; z <= ZN * 2; z++) for (let x = -XH * 2; x <= XH * 2; x++) { pos.push(x / 2 + ox, 0, z / 2 + oz); rnd.push(Math.random()); main.push(x % 2 === 0 && z % 2 === 0 ? 1 : 0); }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('aRnd', new THREE.Float32BufferAttribute(rnd, 1)); geo.setAttribute('aMain', new THREE.Float32BufferAttribute(main, 1));
+      const U = { uT: { value: 0 }, uRise: { value: 0 }, uR: { value: 0 }, uFlat: { value: 0 }, uPx: { value: dpr }, uO: { value: new THREE.Vector2(0, -4) } };
+      const pk = TERR.map((p) => '+' + p[3].toFixed(2) + '*pk(p,vec2(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + '),' + p[2].toFixed(1) + ')').join('');
+      const mat = new THREE.ShaderMaterial({
+        uniforms: U, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+        vertexShader: [
+          'uniform float uT, uRise, uR, uFlat, uPx; uniform vec2 uO; attribute float aRnd, aMain; varying vec3 vCol; varying float vA;',
+          'float pk(vec2 p, vec2 c, float r) { vec2 d = p - c; return exp(-dot(d, d) / r); }',
+          'void main() {',
+          '  vec2 p = position.xz; float d = length(p - uO), rev = smoothstep(uR, uR - 7.0, d);',
+          '  float h = (0.0' + pk + ' + 0.55 * sin(p.x * 0.42 + uT * 1.7) * cos(p.y * 0.36 - uT * 1.3) + 0.25 * sin(length(p - uO) * 0.6 - uT * 2.4)) * uRise * rev;',
+          '  vec4 mv = modelViewMatrix * vec4(position.x, h, position.z, 1.0); gl_Position = projectionMatrix * mv;',
+          '  float ring = exp(-pow((d - uR) / 1.7, 2.0)) * step(0.5, uR) * (1.0 - uFlat), hk = clamp(h / 5.0, 0.0, 1.0), fog = smoothstep(78.0, 24.0, -mv.z);',
+          '  vec3 side = mix(vec3(0.506, 0.549, 0.973), vec3(0.984, 0.443, 0.522), smoothstep(-20.0, 20.0, position.x));',
+          '  vec3 col = mix(vec3(0.46, 0.48, 0.58), mix(side, vec3(1.0, 0.8, 0.0), smoothstep(0.6, 1.0, hk)), smoothstep(0.06, 0.6, hk)) + ring * vec3(1.0, 0.82, 0.25);',
+          '  float a = (0.34 + 0.62 * hk + 1.3 * ring) * rev * fog * (0.78 + 0.22 * sin(uT * 3.0 + aRnd * 40.0));',
+          '  vCol = mix(col, vec3(1.0), uFlat); vA = mix(a, 0.1 * aMain, uFlat);',
+          '  gl_PointSize = mix(clamp(2.9 * (1.0 + hk * 1.2 + ring * 1.4) * 16.0 / -mv.z, 1.0, 9.0), 3.3 * aMain, uFlat) * uPx;',
+          '}'].join('\n'),
+        fragmentShader: 'varying vec3 vCol; varying float vA; void main() { float r = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vCol, vA * (1.0 - smoothstep(0.32, 0.5, r))); }'
       });
-      return out;
-    }
-    // Sample every letter a few at a time while the name is still settling, so the merge itself starts with no hitch.
-    const prep = { chars: [], i: 0, src: null, dst: null, done: false, skip: false };
-    function prepare(all) {
-      if (prep.done) return;
-      if (!prep.src) {
-        const tr = title.getBoundingClientRect();
-        if (tr.bottom < 0 || tr.top > innerHeight) { prep.skip = prep.done = true; return; }
-        const fs0 = parseFloat(getComputedStyle(name).fontSize);
-        prep.src = $$('.w > span', name).map((sp) => { // final resting box: undo the slide-in transform still running
-          const r = sp.getBoundingClientRect(), m = getComputedStyle(sp).transform, ty = m && m !== 'none' ? new DOMMatrixReadOnly(m).m42 : 0;
-          return { ch: sp.textContent.toUpperCase(), rect: { left: r.left, top: r.top - ty, width: r.width, height: r.height }, fs: fs0 };
-        });
-        prep.dst = targets();
+      const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(FOV, W / H, 0.1, 400);
+      scene.add(new THREE.Points(geo, mat));
+      // bars: the projects' figures poking out of the landscape
+      const COLS = ['#FFCC00', '#fb7185', '#818cf8', '#34d399', '#38bdf8', '#fb923c', '#a78bfa', '#2dd4bf'];
+      const LABELS = ['ligue1 · 52% acc.', 'soc_dashboard · live', 'rlnc · MIT', 'uttt · alpha-beta', 'h160 · 3D'];
+      const spikes = [], NS = small ? 16 : 30;
+      for (let k = 0; k < NS; k++) {
+        const x = Math.round((Math.random() * 2 - 1) * (small ? 10 : 18)) + ox, z = Math.round(-2 - Math.random() * 24) + oz;
+        spikes.push({ x, z, len: 1.2 + Math.pow(Math.random(), 2) * 3.5, delay: Math.random() * 0.45, col: new THREE.Color(COLS[k % COLS.length]), label: k < LABELS.length ? LABELS[k] : null });
       }
-      const grad = [[24, 24, 27], [82, 82, 91], [161, 161, 170]], per = Math.floor((innerWidth < 700 ? 1500 : 3000) / prep.src.length);
-      for (let k = 0; k < (all ? 99 : 3) && prep.i < prep.src.length; k++, prep.i++) {
-        const i = prep.i, s = prep.src[i], t = prep.dst[i]; if (!t) continue;
-        const A = glyph(s.ch, s.rect, s.fs), B = glyph(t.ch, t.rect, t.fs); if (!A.length || !B.length) continue;
-        const u = clamp((t.rect.left + t.rect.width / 2 - t.box.left) / t.box.width, 0, 1), a = u < 0.55 ? grad[0] : grad[1], b = u < 0.55 ? grad[1] : grad[2], f = u < 0.55 ? u / 0.55 : (u - 0.55) / 0.45;
-        // one shared arc per letter: the curve bulges upward, perpendicular to the flight
-        const dx = t.rect.left - s.rect.left, dy = t.rect.top - s.rect.top, len = Math.hypot(dx, dy) || 1;
-        let nx = -dy / len, ny = dx / len; if (ny > 0) { nx = -nx; ny = -ny; }
-        const bend = len * (0.16 + 0.1 * (i / prep.src.length));
-        const ps = [];
-        for (let q = 0; q < per; q++) { const p = A[(Math.random() * A.length) | 0], r = B[(Math.random() * B.length) | 0], a2 = Math.random() * 6.283, sp = Math.random() * 7; ps.push({ x0: p[0], y0: p[1], x1: r[0], y1: r[1], jx: Math.cos(a2) * sp, jy: Math.sin(a2) * sp, j: Math.random() * 0.09 }); }
-        prep.chars.push({ ps, delay: i * 0.022, cx: nx * bend, cy: ny * bend, col: [lerp(a[0], b[0], f), lerp(a[1], b[1], f), lerp(a[2], b[2], f)] });
+      spikes.slice(0, LABELS.length).forEach((s, k) => { s.len = 3.6 + k * 0.35; s.x = [-11, 8, -3, 15, -18][k] + ox; s.z = [-9, -6, -17, -15, -20][k] + oz; s.delay = 0.05 * k; });
+      const lp = new Float32Array(NS * 6), lc = new Float32Array(NS * 6), tp = new Float32Array(NS * 3), tc = new Float32Array(NS * 3);
+      spikes.forEach((s, k) => { [0, 3].forEach((o) => { lc[k * 6 + o] = s.col.r; lc[k * 6 + o + 1] = s.col.g; lc[k * 6 + o + 2] = s.col.b; }); tc[k * 3] = s.col.r; tc[k * 3 + 1] = s.col.g; tc[k * 3 + 2] = s.col.b; });
+      const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(lp, 3)); lg.setAttribute('color', new THREE.BufferAttribute(lc, 3));
+      const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.BufferAttribute(tp, 3)); tg.setAttribute('color', new THREE.BufferAttribute(tc, 3));
+      const lm = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false });
+      const tm = new THREE.PointsMaterial({ vertexColors: true, size: 7 * dpr, sizeAttenuation: false, transparent: true, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, map: (() => {
+        const s = document.createElement('canvas'); s.width = s.height = 64; const x = s.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+        g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.9)'); g.addColorStop(0.5, 'rgba(255,255,255,.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(s);
+      })() });
+      scene.add(new THREE.LineSegments(lg, lm), new THREE.Points(tg, tm));
+      const TGT0 = new THREE.Vector3(0, 1, -6), v = new THREE.Vector3(), tgt = new THREE.Vector3(), up = new THREE.Vector3();
+      function camAt(t) {
+        const o = out3(cl(t / T.cam)), a = inOut(cl((t - T.cam) / T.camD)), yaw = lerp(-0.6, 0.1, o), dist = lerp(small ? 24 : 21, small ? 19 : 16, o), el = lerp(0.5, 0.6, o);
+        v.set(TGT0.x + Math.sin(yaw) * dist * Math.cos(el), TGT0.y + dist * Math.sin(el), TGT0.z + Math.cos(yaw) * dist * Math.cos(el)).lerp(new THREE.Vector3(0, D, 0), a);
+        tgt.copy(TGT0).lerp(new THREE.Vector3(0, 0, 0), a); up.set(0, 1 - a, -a).normalize();
+        cam.position.copy(v); cam.up.copy(up); cam.lookAt(tgt); cam.updateMatrixWorld();
       }
-      if (prep.i >= prep.src.length) prep.done = true; else if (!all) requestAnimationFrame(() => prepare(false));
-    }
-    function merge() {
-      if (phase !== 'globe') return; phase = 'merge';
-      prepare(true);
-      if (prep.skip || !prep.chars.length) { finish(); return; }
-      const fx = $('#introFx'), g = fx.getContext('2d'), Wd = innerWidth, H = innerHeight;
-      fx.width = Wd * dpr; fx.height = H * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      page.classList.add('hello-in'); root.classList.add('merging');
-      const chars = prep.chars, M0 = performance.now(), DUR = 0.7, END = chars[chars.length - 1].delay + DUR;
-      const ease = (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2); // quartic in-out: quick lift-off, soft landing
-      let lit = false, entered = false;
-      const step = (now) => {
-        if (finished) return;
-        const t = (now - M0) / 1000; g.clearRect(0, 0, Wd, H);
-        const fade = t < END ? 1 : clamp(1 - (t - END) / 0.22, 0, 1);
-        for (const ch of chars) {
-          const fc = ease(clamp((t - ch.delay) / DUR, 0, 1));
-          g.fillStyle = 'rgba(' + Math.round(lerp(244, ch.col[0], fc)) + ',' + Math.round(lerp(244, ch.col[1], fc)) + ',' + Math.round(lerp(245, ch.col[2], fc)) + ',' + fade.toFixed(3) + ')';
-          for (const p of ch.ps) {
-            const f = ease(clamp((t - ch.delay - p.j) / (DUR - 0.09), 0, 1)), m = 1 - f, w = 2 * m * f, bow = Math.sin(f * Math.PI);
-            // quadratic Bézier from the source pixel to the target pixel, control point lifted by the letter's shared arc
-            const x = m * m * p.x0 + w * ((p.x0 + p.x1) / 2 + ch.cx) + f * f * p.x1 + bow * p.jx;
-            const y = m * m * p.y0 + w * ((p.y0 + p.y1) / 2 + ch.cy) + f * f * p.y1 + bow * p.jy;
-            g.fillRect(x, y, 1.6, 1.6);
-          }
-        }
-        if (!lit && t > END - 0.12) { lit = true; title.classList.add('lit'); }
-        if (!entered && t > END - 0.05) { entered = true; onLand(); }
-        if (t > END + 0.24) { cleanup(); return; }
-        requestAnimationFrame(step);
+      const proj = (x, y, z) => { const p = new THREE.Vector3(x, y, z).project(cam); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H, on: p.z < 1 }; };
+      let alive = true;
+      return {
+        el, proj, count: pos.length / 3,
+        render(t) {
+          if (!alive) return [];
+          camAt(t);
+          const rise = riseAt(t), R = rippleAt(t), flat = flatAt(t);
+          U.uT.value = t; U.uRise.value = rise; U.uR.value = t > T.flat ? 200 : R; U.uFlat.value = flat;
+          const tops = [], grow = (s) => out3(cl((t - T.spikes - s.delay) / 0.55)) * (1 - inOut(cl((t - T.flat + 0.2) / 0.4)));
+          spikes.forEach((s, k) => {
+            const d = Math.hypot(s.x, s.z + 4), rev = cl((R - d) / 7), base = terr(s.x, s.z, t) * rise * rev, top = base + s.len * grow(s) * rev;
+            lp.set([s.x, base, s.z, s.x, top, s.z], k * 6); tp.set([s.x, top, s.z], k * 3);
+            if (s.label) tops.push({ label: s.label, col: s.col.getStyle(), k: grow(s) * rev, p: proj(s.x, top, s.z) });
+          });
+          lg.attributes.position.needsUpdate = true; tg.attributes.position.needsUpdate = true;
+          lm.opacity = tm.opacity = 1 - flat;
+          renderer.render(scene, cam);
+          return tops;
+        },
+        dispose() { if (!alive) return; alive = false; [geo, mat, lg, tg, lm, tm, tm.map].forEach((o) => o.dispose()); renderer.dispose(); if (renderer.forceContextLoss) renderer.forceContextLoss(); el.remove(); }
       };
-      requestAnimationFrame(step);
+    })();
+    if (!g3) root.classList.add('no-gl');
+    const origin = g3 ? (g3.render(0), g3.proj(0, 0, -4)) : { x: W / 2, y: H * 0.62 };
+
+    let raf = 0, finished = false, landed = false, lit = false, cleared = false;
+    const T0 = performance.now(), NPTS = g3 ? g3.count.toLocaleString('en-US') : '';
+    function frame(now) {
+      if (finished) return;
+      const t = (now - T0) / 1000; c.clearRect(0, 0, W, H);
+      const tops = g3 && t < T.clear + 0.45 ? g3.render(t) : [];
+      if (g3 && t >= T.clear + 0.45) g3.dispose();
+      // 1 · a dot lights up where the landscape will unroll, and sends out the first ring
+      const dotA = cl((t - T.dot) / 0.12) * (1 - cl((t - T.ripple - 0.45) / 0.3));
+      if (dotA > 0) {
+        c.fillStyle = 'rgba(255,204,0,' + dotA + ')'; c.beginPath(); c.arc(origin.x, origin.y, 3.2 + Math.sin(t * 18) * 0.6, 0, 7); c.fill();
+        const rr = out3(cl((t - T.dot) / 0.7)); c.strokeStyle = 'rgba(255,204,0,' + (1 - rr) * dotA * 0.8 + ')'; c.lineWidth = 1.2; c.beginPath(); c.arc(origin.x, origin.y, 4 + rr * 70, 0, 7); c.stroke();
+      }
+      // 2 · HUD: prompt, point count, progress
+      const hudA = cl((t - 0.2) / 0.25) * (1 - cl((t - T.flat - 0.1) / 0.3));
+      if (hudA > 0) {
+        const pct = Math.round(out3(cl((t - 0.15) / (T.flat - 0.1))) * 100), m = small ? 16 : 26;
+        c.font = '500 ' + (small ? 9.5 : 11) + 'px ' + MONO; c.textBaseline = 'alphabetic';
+        c.fillStyle = 'rgba(161,161,170,' + hudA + ')'; c.textAlign = 'left'; c.fillText('~/nils-demougeot % ./render --projects 19', m, m + 10);
+        if (!small && NPTS) c.fillText('data points ' + NPTS + ' · webgl', m, H - m);
+        c.textAlign = 'right'; c.fillStyle = 'rgba(244,244,245,' + hudA + ')'; c.fillText(String(pct).padStart(3, '0') + ' %', W - m, H - m);
+        c.fillStyle = 'rgba(255,255,255,' + 0.12 * hudA + ')'; c.fillRect(W - m - 120, H - m + 8, 120, 1.5);
+        c.fillStyle = 'rgba(255,204,0,' + hudA + ')'; c.fillRect(W - m - 120, H - m + 8, 120 * pct / 100, 1.5);
+        c.textAlign = 'left';
+      }
+      // 3 · labels on the tallest bars
+      const labA = cl((t - T.labels) / 0.3) * (1 - cl((t - T.flat + 0.2) / 0.25));
+      if (labA > 0 && !small) tops.forEach((q) => {
+        if (!q.p.on || q.k < 0.6) return;
+        c.font = '600 10px ' + MONO; const w = c.measureText(q.label).width + 14;
+        c.globalAlpha = labA * cl((q.k - 0.6) / 0.3);
+        c.strokeStyle = q.col; c.lineWidth = 1; c.beginPath(); c.moveTo(q.p.x, q.p.y - 6); c.lineTo(q.p.x + 10, q.p.y - 16); c.stroke();
+        c.fillStyle = 'rgba(12,13,18,.82)'; c.beginPath(); if (c.roundRect) c.roundRect(q.p.x + 10, q.p.y - 27, w, 20, 10); else c.rect(q.p.x + 10, q.p.y - 27, w, 20); c.fill();
+        c.stroke(); c.fillStyle = '#f4f4f5'; c.fillText(q.label, q.p.x + 17, q.p.y - 13.5); c.globalAlpha = 1;
+      });
+      // 4 · the name decodes from the centre out, then each letter flies to the hero title (white → ink as the card lands)
+      const veil = cl((t - T.name) / 0.4) * (1 - cl((t - T.fly) / 0.4));
+      if (veil > 0) { const g = c.createRadialGradient(W / 2, nameY - fs * 0.3, 0, W / 2, nameY - fs * 0.3, Math.max(W * 0.42, fs * 5)); g.addColorStop(0, 'rgba(12,13,18,' + 0.7 * veil + ')'); g.addColorStop(1, 'rgba(12,13,18,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+      if (!lit) {
+        const inkK = cl((t - T.land - 0.05) / 0.45);
+        glyphs.forEach((g, n) => {
+          if (t < g.s || !g.to) return;
+          const settled = t > g.s + 0.3, f = t < T.fly ? 0 : ease(cl((t - T.fly - n * 0.018) / T.flyD));
+          const ch = settled ? g.ch : POOL[(Math.floor(t * 22) + n * 7) % POOL.length], pop = settled ? 1 + 0.12 * (1 - cl((t - g.s - 0.3) / 0.16)) : 1;
+          const tx = g.to.left + g.to.width / 2, ty = g.to.top + g.to.height * 0.5 + tfs * 0.36;
+          const x = lerp(g.x, tx, f), y = lerp(g.y, ty, f) - Math.sin(f * Math.PI) * (small ? 20 : 44), size = lerp(fs, tfs, f) * pop;
+          c.font = '800 ' + size + 'px ' + SANS; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+          if (!settled) c.fillStyle = 'rgba(255,204,0,.9)';
+          else { const k = inkK; c.fillStyle = 'rgb(' + Math.round(lerp(244, 24, k)) + ',' + Math.round(lerp(244, 24, k)) + ',' + Math.round(lerp(245, 27, k)) + ')'; }
+          if (settled && f === 0) { c.shadowColor = 'rgba(255,204,0,.35)'; c.shadowBlur = 26 * (1 - cl((t - g.s - 0.3) / 0.6)) + 6; }
+          c.fillText(ch, x, y); c.shadowBlur = 0;
+        });
+        c.textAlign = 'left';
+      }
+      const subN = Math.floor(cl((t - T.sub) / 0.4) * SUB.length), subA = 1 - cl((t - T.fly) / 0.2);
+      if (subN && subA > 0) {
+        c.font = '500 ' + (small ? 11 : 13) + 'px ' + MONO; c.textAlign = 'center'; c.fillStyle = 'rgba(161,161,170,' + subA + ')';
+        const s = SUB.slice(0, subN), cur = subN < SUB.length || t % 0.5 < 0.28 ? '▍' : ' ';
+        c.fillText('> ' + s + cur, W / 2, subY); c.textAlign = 'left';
+      }
+      // 5 · the cards are drafted on the grid: each outline is traced, with guides and live sizes, then the card lands in it
+      if (t >= T.frames) {
+        cards.forEach((r, i) => {
+          const p = out3(cl((t - T.frames - i * 0.06) / 0.5)), a = 1 - cl((t - T.land - 0.3 - i * 0.04) / 0.4); if (a <= 0 || p <= 0.02) return;
+          const per = 2 * (r.w + r.h) - (8 - 2 * Math.PI) * r.r;
+          if (p < 1) {
+            c.strokeStyle = 'rgba(244,244,245,' + 0.13 * a * (1 - p) + ')'; c.lineWidth = 1; c.setLineDash([2, 4]); c.beginPath();
+            c.moveTo(r.x, 0); c.lineTo(r.x, H); c.moveTo(0, r.y); c.lineTo(W, r.y); c.stroke(); c.setLineDash([]);
+          }
+          c.strokeStyle = 'rgba(244,244,245,' + 0.85 * a + ')'; c.lineWidth = 1; c.setLineDash([per * p, per]); c.beginPath();
+          if (c.roundRect) c.roundRect(r.x, r.y, r.w, r.h, r.r); else c.rect(r.x, r.y, r.w, r.h); c.stroke(); c.setLineDash([]);
+          c.fillStyle = 'rgba(255,204,0,' + a + ')'; c.fillRect(r.x - 2.5, r.y - 2.5, 5, 5);
+          if (p > 0.98) { c.fillStyle = 'rgba(244,244,245,' + a + ')'; [[r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h]].forEach(([x, y]) => c.fillRect(x - 2.5, y - 2.5, 5, 5)); }
+          if (p < 1 && !small) { c.font = '500 9px ' + MONO; c.fillStyle = 'rgba(161,161,170,' + a * (1 - p) + ')'; c.fillText(Math.round(r.w * p) + '×' + Math.round(r.h * p), r.x + 4, r.y - 6); }
+        });
+      }
+      if (!cleared && t >= T.clear) { cleared = true; root.classList.add('clear'); }
+      if (!landed && t >= T.land) { landed = true; page.classList.add('hello-in'); onLand(); }
+      if (!lit && t >= T.lit) { lit = true; title.classList.add('lit'); }
+      if (t >= T.end) { cleanup(); return; }
+      raf = requestAnimationFrame(frame);
     }
-    function cleanup() { if (finished) return; finished = true; phase = 'done'; root.remove(); html.classList.remove('intro-on'); onDone(); }
-    function finish() { phase = 'done'; cancelAnimationFrame(raf); title.classList.add('lit'); page.classList.add('hello-in'); onLand(); root.classList.add('is-leaving'); setTimeout(cleanup, 300); }
-    const prepTimer = setTimeout(() => prepare(false), 850), timer = setTimeout(merge, 1300);
-    const skip = () => { clearTimeout(timer); clearTimeout(prepTimer); if (!finished) finish(); };
+    function cleanup() { if (finished) return; finished = true; cancelAnimationFrame(raf); if (g3) g3.dispose(); root.remove(); html.classList.remove('intro-on'); onDone(); }
+    function skip() {
+      if (finished) return; finished = true; cancelAnimationFrame(raf);
+      title.classList.add('lit'); page.classList.add('hello-in'); onLand(); root.classList.add('is-leaving');
+      setTimeout(() => { if (g3) g3.dispose(); root.remove(); html.classList.remove('intro-on'); onDone(); }, 280);
+    }
+    const W0 = innerWidth;
+    raf = requestAnimationFrame(frame);
     root.addEventListener('click', skip); root.addEventListener('wheel', skip, { passive: true }); root.addEventListener('touchstart', skip, { passive: true });
-    addEventListener('keydown', function k() { removeEventListener('keydown', k); if (!finished) skip(); });
+    addEventListener('keydown', function k() { removeEventListener('keydown', k); skip(); });
+    addEventListener('resize', function r() { if (innerWidth === W0) return; removeEventListener('resize', r); skip(); });
   }
 
   /* ───────── Page choreography ───────── */
