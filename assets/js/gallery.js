@@ -1,7 +1,7 @@
 /* Screenshot galleries in the project cards.
    The data lives in assets/data/galleries.js (window.GALLERIES, edited with tools/galleries.html): one entry per card id
    ("siem" → #p-siem). The cover first shows the screenshots scattered like cards on a gradient in the project colours,
-   then each one on its own; a click opens them full screen. Shared by the site (main.js) and the gallery tool (preview). */
+   then each one on its own, in its own proportions (or cropped to fill the frame with "fit": "cover"); a click opens them full screen. Shared by the site (main.js) and the gallery tool (preview). */
 (function () {
   'use strict';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -16,8 +16,8 @@
   const COLLAGE = 3; // how many screenshots the scattered first view shows
   // Poses of the scattered cards (x %, y %, rotation deg, scale), front card first. "side" leaves room for a demo window bottom-left.
   const POSES = {
-    side: [[3, 8, -1.5, 0.84], [-29, -4, -7, 0.72], [19, -15, 6, 0.7]],
-    solo: [[0, 9, -1, 0.8], [-24, 1, -6, 0.68], [24, -2, 6, 0.68]]
+    side: [[2, 6, -1.5, 0.9], [-27, -3, -7, 0.76], [17, -12, 6, 0.74]],
+    solo: [[0, 7, -1, 0.86], [-23, 1, -6, 0.72], [23, -2, 6, 0.72]]
   };
   const EXTRA = [0, 14, 0, 0.9]; // screenshots after the third one wait out of sight
 
@@ -47,7 +47,7 @@
     g.className = 'gal paused' + (side ? '' : ' solo'); g.style.setProperty('--g1', c1); g.style.setProperty('--g2', c2);
     g.innerHTML = '<div class="gal-frame">' + imgs.map((im, j) => {
       const p = j < COLLAGE ? poses[j] : EXTRA, ar = im.w && im.h ? im.w / im.h : 1.4;
-      return '<figure class="gal-slide' + (j < COLLAGE && n > 1 ? ' pile' : '') + (ar < 0.95 ? ' tall' : '') + '" style="--x:' + p[0] + '%;--y:' + p[1] + '%;--r:' + p[2] + 'deg;--s:' + p[3] + ';--ar:' + ar.toFixed(3) + ';z-index:' + (COLLAGE - j) + '">' +
+      return '<figure class="gal-slide' + (j < COLLAGE && n > 1 ? ' pile' : '') + (im.fit === 'cover' ? ' fill' : '') + '" style="--x:' + p[0] + '%;--y:' + p[1] + '%;--r:' + p[2] + 'deg;--s:' + p[3] + ';--ar:' + ar.toFixed(3) + ';z-index:' + (COLLAGE - j) + '">' +
         '<img src="' + esc(im.src) + '" alt="' + esc(im.alt || title + ', screenshot ' + (j + 1)) + '" loading="lazy" decoding="async"></figure>';
     }).join('') + '</div>' +
       (n > 1 ? '<div class="gal-ui"><button type="button" class="gal-btn" data-gal="-1" aria-label="Previous screenshot">' + icon('left') + '</button><div class="gal-dots"></div>' +
@@ -55,8 +55,8 @@
         : '<div class="gal-ui"><button type="button" class="gal-btn gal-zoom" data-gal="zoom" aria-label="Enlarge screenshot">' + icon('zoom') + '</button></div>');
     const old = $('.cover, .gal', stage); if (old) old.replaceWith(g); else stage.prepend(g);
 
-    // steps of the slideshow: the scattered view (-1), then each screenshot
-    const slides = $$('.gal-slide', g), steps = n > 1 ? [-1].concat(imgs.map((_, j) => j)) : [0], dots = $('.gal-dots', g);
+    // steps of the slideshow: the scattered view (-1, the first dot, drawn as a ring), then each screenshot
+    const slides = $$('.gal-slide', g), steps = n > 1 ? [-1].concat(imgs.map((_, j) => j)) : [0], dots = $('.gal-dots', g), ui = $('.gal-ui', g);
     const s = { g, card, title, imgs, slides, step: 0 };
     s.shown = () => Math.max(0, steps[s.step]);
     s.go = (k) => {
@@ -64,14 +64,15 @@
       g.classList.toggle('collage', v < 0);
       slides.forEach((el, j) => el.classList.toggle('on', j === v));
       if (dots) {
-        dots.innerHTML = steps.map((t, j) => '<button type="button" class="' + (j === s.step ? 'on' : '') + '" aria-label="' + (t < 0 ? 'All screenshots' : 'Screenshot ' + (t + 1) + ' of ' + n) + '">' +
-          (j === s.step ? '<i style="animation-duration:' + (t < 0 ? 6.5 : 5.5) + 's"></i>' : '') + '</button>').join('');
+        // the active dot stretches into a bar that fills up
+        dots.innerHTML = steps.map((t, j) => '<button type="button" class="' + (t < 0 ? 'all' : '') + (j === s.step ? ' on' : '') + '" aria-label="' + (t < 0 ? 'All screenshots' : 'Screenshot ' + (t + 1) + ' of ' + n) + '"><b>' +
+          (j === s.step ? '<i style="animation-duration:' + (t < 0 ? 6.5 : 5.5) + 's"></i>' : '') + '</b></button>').join('');
       }
     };
     s.goImage = (j) => s.go(Math.max(0, steps.indexOf(j)));
     if (dots) {
       // the active dot fills up; when it is full the slideshow moves on (pausing the fill pauses the slideshow)
-      dots.addEventListener('animationend', (e) => { if (e.animationName === 'galFill' && !reduce) s.go(s.step + 1); });
+      ui.addEventListener('animationend', (e) => { if (e.animationName === 'galFill' && !reduce) s.go(s.step + 1); });
       dots.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) s.go($$('button', dots).indexOf(b)); });
     }
     $$('[data-gal]', g).forEach((b) => b.addEventListener('click', () => { const a = b.getAttribute('data-gal'); if (a === 'zoom') openLb(s, s.shown()); else s.go(s.step + +a); }));

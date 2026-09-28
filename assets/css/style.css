@@ -370,6 +370,8 @@ a:hover > .ext { transform: translate(2px, -2px); color: currentColor; }
 .is-list .proj:not(.open) .proj-bar, .is-list .proj:not(.open) .pip-run, .is-list .proj:not(.open):has(.gal) .pip, .is-list .proj:not(.open) .gal-ui, .is-list .proj:not(.open) .facts, .is-list .proj:not(.open) .proj-foot { display: none; }
 .is-list .proj:not(.open) .proj-stage { aspect-ratio: auto; min-height: 128px; pointer-events: none; border-right: 1px solid var(--line); }
 .is-list .proj:not(.open) .cover { inset: 10px; }
+.is-list .proj:not(.open) .gal-frame { left: 5%; right: 5%; top: 7%; bottom: 7%; } /* no controls in a row: the thumbnail uses the whole space */
+.is-list .proj:not(.open) .gal .gal-slide:not(.fill) { left: calc((100cqw - var(--w)) / 2); top: calc((100cqh - var(--w) / var(--ar)) / 2); }
 .is-list .proj:not(.open) .pip { left: 0; bottom: 0; width: 100%; height: 100%; border-radius: 0; border: 0; box-shadow: none; } /* the demo's preview is the thumbnail */
 .is-list .proj:not(.open) .cover span { font-size: 9.5px; text-align: center; padding: 0 10px; }
 .is-list .proj:not(.open) .proj-body { padding: 16px 60px 16px 20px; gap: 9px; justify-content: center; }
@@ -460,34 +462,45 @@ html.demo-full .proj.is-full .pip-canvas { inset: 0 0 64px 0; }
 .gal::before { content: ""; position: absolute; inset: 0; pointer-events: none;
   background-image: radial-gradient(rgba(255, 255, 255, .16) 1px, transparent 1.3px); background-size: 14px 14px;
   -webkit-mask-image: linear-gradient(115deg, #000, transparent 70%); mask-image: linear-gradient(115deg, #000, transparent 70%); }
-.gal-frame { position: absolute; left: 27%; right: 5%; top: 10%; bottom: -14px; container-type: size; cursor: zoom-in; }
-.gal.solo .gal-frame { left: 9%; right: 9%; top: 11%; }
-.gal-slide { position: absolute; inset: 0; margin: 0; border-radius: 10px; overflow: hidden; background: #0c0d12; opacity: 0; pointer-events: none;
+.gal-frame { position: absolute; left: 21%; right: 3%; top: 4%; bottom: 11%; container-type: size; cursor: zoom-in; }
+.gal.solo .gal-frame { left: 4%; right: 4%; top: 5%; }
+/* each card takes its image's proportions, as large as the frame allows and centred in it; .fill crops the image to the whole frame */
+.gal-slide { --w: min(100cqw, 100cqh * var(--ar)); position: absolute; left: calc((100cqw - var(--w)) / 2); top: calc((100cqh - var(--w) / var(--ar)) / 2); width: var(--w); height: calc(var(--w) / var(--ar)); margin: 0; border-radius: 10px; overflow: hidden; background: #0c0d12; opacity: 0; pointer-events: none;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 26px 55px -12px rgba(0, 0, 0, .75);
   transform: translate(calc(var(--x) * 1.35), calc(var(--y) * 1.35 + 5%)) rotate(calc(var(--r) * 1.6)) scale(calc(var(--s) * .97));
   transition: transform .95s var(--ease-out), opacity .6s var(--ease-out), filter .6s; }
 .gal-slide img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; pointer-events: none; }
-.gal-slide.tall { right: auto; left: 50%; width: calc(100cqh * var(--ar)); margin-left: calc(-50cqh * var(--ar)); } /* phone screenshots keep their shape */
+.gal-slide.fill { left: 0; top: 0; width: 100%; height: 100%; }
+/* next to a demo window (bottom-left), cards sit top-right, away from it; hovering a screenshot fades the window out of the way */
+.gal:not(.solo) .gal-slide:not(.fill) { left: calc(100cqw - var(--w)); top: 0; }
+.proj:has(.gal:not(.collage) .gal-frame:hover):not(.is-live) .pip:not(:hover) { opacity: .08; }
 .gal-slide.on { opacity: 1; pointer-events: auto; z-index: 5 !important; transform: none; }
 .gal.collage .gal-slide.pile { opacity: 1; pointer-events: auto; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(var(--s)); }
 .gal.collage .gal-slide.pile:not(:first-child) { filter: brightness(.8); }
-.gal.collage .gal-frame:hover .gal-slide.pile { transform: translate(calc(var(--x) * 1.2), calc(var(--y) * 1.25)) rotate(calc(var(--r) * 1.35)) scale(calc(var(--s) * 1.015)); }
-.gal.collage .gal-frame:hover .gal-slide.pile:hover { filter: none; }
+.gal.collage .gal-frame:hover .gal-slide.pile { transform: translate(calc(var(--x) * 1.15), calc(var(--y) * 1.1)) rotate(calc(var(--r) * 1.3)) scale(calc(var(--s) * 1.015)); }
+.gal.collage .gal-frame:hover .gal-slide.pile:hover { z-index: 10 !important; filter: none; transform: translate(calc(var(--x) * 1.15), calc(var(--y) * 1.1)) rotate(calc(var(--r) * 1.3)) scale(calc(var(--s) * 1.04)); } /* the card under the cursor comes to the top, where it is (so it stays under the cursor) */
 .gal:not(.collage) .gal-frame:hover .gal-slide.on { transform: translateY(-5px); }
 /* controls: prev · progress dots · next · enlarge */
 .gal-ui { position: absolute; right: 12px; bottom: 12px; z-index: 20; display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 9999px;
   background: rgba(12, 13, 18, .78); border: 1px solid var(--line-3); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.gal-btn { width: 26px; height: 26px; border-radius: 9999px; border: 0; background: transparent; color: #e4e4e7; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: background .2s, color .2s; }
+.gal-btn { position: relative; width: 30px; height: 30px; border-radius: 9999px; border: 0; background: transparent; color: #e4e4e7; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: background .2s, color .2s; }
 .gal-btn:hover { background: rgba(255, 255, 255, .12); color: #fff; }
 .gal-zoom { margin-left: 2px; background: var(--g1); color: #0c0d12; }
 .gal-zoom:hover { background: #fff; color: #0c0d12; }
-.gal-dots { display: flex; align-items: center; gap: 5px; padding: 0 4px; }
-.gal-dots button { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 9999px; background: rgba(255, 255, 255, .32); cursor: pointer; overflow: hidden; transition: width .35s var(--ease-out), background .2s; }
-.gal-dots button:hover { background: rgba(255, 255, 255, .6); }
-.gal-dots button.on { width: 22px; background: rgba(255, 255, 255, .22); }
+/* dots: small marks, but each sits in a 16×30 button so it is easy to hit */
+.gal-dots { display: flex; align-items: center; }
+.gal-dots button { width: 16px; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: width .35s var(--ease-out); }
+.gal-dots button.on { width: 30px; }
+.gal-dots b { display: block; width: 7px; height: 7px; border-radius: 9999px; background: rgba(255, 255, 255, .34); overflow: hidden; transition: width .35s var(--ease-out), background .2s; }
+.gal-dots button:hover b { background: rgba(255, 255, 255, .65); }
+.gal-dots button.on b { width: 24px; background: rgba(255, 255, 255, .22); }
+/* the first dot (all screenshots, scattered) is a slightly bigger ring */
+.gal-dots button.all b { width: 10px; height: 10px; background: none; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .6); }
+.gal-dots button.all:hover b { box-shadow: inset 0 0 0 1.5px #fff; background: none; }
+.gal-dots button.all.on b { width: 26px; height: 10px; background: rgba(255, 255, 255, .22); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .6); }
 .gal-dots i { display: block; height: 100%; background: #fff; transform-origin: 0 50%; animation: galFill 5.5s linear forwards; }
 @keyframes galFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.gal.paused .gal-dots i, .gal:hover .gal-dots i, .proj.is-live .gal-dots i, html.lb-open .gal-dots i { animation-play-state: paused; }
+.gal.paused .gal-ui i, .gal:hover .gal-ui i, .proj.is-live .gal-ui i, html.lb-open .gal-ui i { animation-play-state: paused; }
 .proj.is-live .gal-ui { opacity: 0; pointer-events: none; }
 /* lightbox */
 html.lb-open, html.lb-open body { overflow: hidden; }
@@ -684,7 +697,7 @@ a.pill-btn { text-decoration: none; }
   .nav-status { display: none; }
   .proj.is-live .proj-stage { aspect-ratio: 1 / 0.86; }
   .pip { width: 58%; height: 58%; left: 18px; bottom: 18px; }
-  .proj:not(.is-live):has(.gal) .pip { width: 46%; height: 46%; }
+  .proj:not(.is-live):has(.gal) .pip { width: 42%; height: 42%; }
   .view-toggle { margin-left: 0; }
   .view-toggle span { display: none; }
   .projects.is-list .proj { grid-template-columns: 104px minmax(0, 1fr); }
@@ -699,9 +712,13 @@ a.pill-btn { text-decoration: none; }
   .is-list .proj.open .proj-body { padding-right: 20px; }
   .is-list .proj.open .proj-toggle { top: 4px; }
   .is-list .proj.open .proj-bar { padding-right: 50px; }
-  .gal-frame { left: 22%; right: 4%; top: 9%; }
-  .gal.solo .gal-frame { left: 6%; right: 6%; }
-  .gal-ui { right: 10px; bottom: 10px; }
+  .gal-frame { left: 14%; right: 3%; top: 4%; bottom: 17%; }
+  .gal.solo .gal-frame { left: 3%; right: 3%; top: 4%; }
+  .gal-ui { right: 8px; bottom: 8px; }
+  .gal-btn { width: 34px; height: 34px; }
+  .gal-btn[data-gal="-1"], .gal-btn[data-gal="1"] { display: none; } /* phones swipe; the dots stay */
+  .gal-dots button { width: 14px; height: 34px; }
+  .gal-dots button.on { width: 28px; }
   .lb-main { padding: 6px 8px; gap: 0; }
   .lb-main .lb-nav { display: none; }
   .lb-fig figcaption { font-size: 12.5px; padding: 0 8px; }

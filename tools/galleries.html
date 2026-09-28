@@ -61,16 +61,17 @@
   .t-cols input[type=color]:disabled { opacity: .55; cursor: default; }
   .t-cols label { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--tx-3); cursor: pointer; }
   .t-imgs { display: flex; flex-direction: column; gap: 10px; }
-  .t-img { display: grid; grid-template-columns: 26px 150px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+  .t-img { display: grid; grid-template-columns: 26px 190px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
   .t-img .n { font: 800 13px var(--mono); color: var(--mute); padding-top: 4px; text-align: center; }
-  .t-img .th { position: relative; width: 150px; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; background: #0a0b10; box-shadow: 0 0 0 1px var(--line-2); cursor: zoom-in; }
-  .t-img .th img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+  .t-img .th { position: relative; width: 190px; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; background: #0a0b10; box-shadow: 0 0 0 1px var(--line-2); cursor: zoom-in; }
+  .t-img .th img { width: 100%; height: 100%; object-fit: contain; }
+  .t-img .th.fill img { object-fit: cover; object-position: top left; }
   .t-img .th small { position: absolute; left: 6px; bottom: 6px; font: 700 9.5px var(--mono); background: var(--yellow); color: #0c0d12; border-radius: 9999px; padding: 2px 7px; }
   .t-img .meta { font: 500 10.5px var(--mono); color: var(--mute-2); margin-top: 6px; word-break: break-all; }
   .t-img .f { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .t-img label { font: 700 10px var(--mono); color: var(--mute-2); text-transform: uppercase; letter-spacing: .04em; display: flex; flex-direction: column; gap: 4px; }
-  .t-img textarea, .t-img input { background: #0a0b10; border: 1px solid var(--line-2); border-radius: 8px; color: var(--tx-2); padding: 8px 10px; font: 13px/1.45 var(--sans); resize: vertical; text-transform: none; letter-spacing: 0; width: 100%; }
-  .t-img textarea:focus, .t-img input:focus { outline: none; border-color: var(--line-3); }
+  .t-img textarea, .t-img input, .t-img select { background: #0a0b10; border: 1px solid var(--line-2); border-radius: 8px; color: var(--tx-2); padding: 8px 10px; font: 13px/1.45 var(--sans); resize: vertical; text-transform: none; letter-spacing: 0; width: 100%; }
+  .t-img textarea:focus, .t-img input:focus, .t-img select:focus { outline: none; border-color: var(--line-3); }
   .t-img .b { display: flex; flex-direction: column; gap: 6px; }
   .t-img .b div { display: flex; gap: 6px; }
   @media (max-width: 700px) { .t-img { grid-template-columns: 22px minmax(0, 1fr); } .t-img .f, .t-img .b { grid-column: 1 / -1; } .t-img .b { flex-direction: row; flex-wrap: wrap; } }
@@ -176,7 +177,8 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const MAXW = 1600, QUALITY = 0.86, DATA = ['assets', 'data', 'galleries.js'], IMG = ['assets', 'img', 'projects'];
   const HEAD = '// Screenshot galleries of the project cards, written by tools/galleries.html (safe to edit by hand: keep it valid JSON).\n' +
-    '// Key = card id without "p-". colors = the two background colours (optional, else taken from the card colour).\n';
+    '// Key = card id without "p-". colors = the two background colours (optional, else taken from the card colour).\n' +
+    '// An image is shown whole in its own proportions; "fit": "cover" crops it to fill the frame instead.\n';
   // images: { id, src?, w, h, alt, caption, blur: [[x, y, w, h] as fractions], file? (new), name?, url? (preview) }
   const S = { root: null, projects: [], data: {}, orphans: {}, sel: null, dirty: new Set(), removed: {}, gal: null, pv: 0 };
   let uid = 0;
@@ -259,7 +261,7 @@
     S.projects.forEach((p) => {
       const d = S.data[p.key]; if (!d.images.length) return;
       const e = {}; if (d.colors) e.colors = d.colors;
-      e.images = d.images.map((im) => { const o = { src: im.src, w: im.w, h: im.h }; if (im.alt.trim()) o.alt = im.alt.trim(); if (im.caption.trim()) o.caption = im.caption.trim(); return o; });
+      e.images = d.images.map((im) => { const o = { src: im.src, w: im.w, h: im.h }; if (im.alt.trim()) o.alt = im.alt.trim(); if (im.caption.trim()) o.caption = im.caption.trim(); if (im.fit === 'cover') o.fit = 'cover'; return o; });
       out[p.key] = e;
     });
     Object.keys(S.orphans).forEach((k) => { out[k] = S.orphans[k]; });
@@ -320,9 +322,10 @@
     $('#imgs').innerHTML = n ? d.images.map((im, j) => {
       const tag = im.file ? 'nouvelle' : im.blur.length ? im.blur.length + ' zone' + (im.blur.length > 1 ? 's' : '') + ' à flouter' : '';
       return '<div class="t-img" data-id="' + im.id + '"><span class="n">' + (j + 1) + '</span>' +
-        '<div><div class="th" data-act="view"><img alt="">' + (tag ? '<small>' + tag + '</small>' : '') + '</div><div class="meta">' + esc(im.file ? im.file.name : (im.src || '').split('/').pop()) + ' · ' + im.w + '×' + im.h + '</div></div>' +
+        '<div><div class="th' + (im.fit === 'cover' ? ' fill' : '') + '" data-act="view"><img alt="">' + (tag ? '<small>' + tag + '</small>' : '') + '</div><div class="meta">' + esc(im.file ? im.file.name : (im.src || '').split('/').pop()) + ' · ' + im.w + '×' + im.h + '</div></div>' +
         '<div class="f"><label>Légende (affichée en grand)<textarea rows="2" data-f="caption" placeholder="Ce que montre la capture, en une phrase">' + esc(im.caption) + '</textarea></label>' +
-        '<label>Texte alternatif (optionnel)<input data-f="alt" value="' + esc(im.alt) + '" placeholder="' + esc(p.title + ', screenshot ' + (j + 1)) + '"></label></div>' +
+        '<label>Texte alternatif (optionnel)<input data-f="alt" value="' + esc(im.alt) + '" placeholder="' + esc(p.title + ', screenshot ' + (j + 1)) + '"></label>' +
+        '<label>Dans la cover<select data-f="fit"><option value="">Format d\'origine (image entière)</option><option value="cover"' + (im.fit === 'cover' ? ' selected' : '') + '>Remplir le cadre (recadrée)</option></select></label></div>' +
         '<div class="b"><div><button type="button" class="t-btn sm" data-act="up"' + (j ? '' : ' disabled') + ' aria-label="Monter">↑</button><button type="button" class="t-btn sm" data-act="down"' + (j < n - 1 ? '' : ' disabled') + ' aria-label="Descendre">↓</button></div>' +
         '<button type="button" class="t-btn sm" data-act="blur">Flouter…</button><button type="button" class="t-btn sm danger" data-act="del">Retirer</button></div></div>';
     }).join('') : '<p class="t-empty">Pas encore d\'image : la card garde son emplacement vide.</p>';
@@ -331,7 +334,7 @@
   }
   async function preview() {
     const p = proj(S.sel), d = S.data[p.key], token = ++S.pv, host = $('#pv');
-    const imgs = await Promise.all(d.images.map(async (im) => ({ src: await urlOf(im), w: im.w, h: im.h, alt: im.alt, caption: im.caption })));
+    const imgs = await Promise.all(d.images.map(async (im) => ({ src: await urlOf(im), w: im.w, h: im.h, alt: im.alt, caption: im.caption, fit: im.fit })));
     if (token !== S.pv) return;
     if (S.gal) S.gal.destroy();
     host.innerHTML = '<article class="proj" style="--c:' + esc(p.color) + '"><div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">' + esc(p.file) + '</span></div>' +
@@ -410,6 +413,7 @@
     const f = e.target.getAttribute('data-f'); if (!f) return;
     const im = S.data[S.sel].images.find((x) => x.id === +e.target.closest('.t-img').getAttribute('data-id')); im[f] = e.target.value;
     if (!S.dirty.has(S.sel)) touch();
+    if (f === 'fit') { renderEditor(); return; }
     clearTimeout(S.capT); S.capT = setTimeout(preview, 500);
   });
   $('#colAuto').addEventListener('change', (e) => { const d = S.data[S.sel]; d.colors = e.target.checked ? null : [$('#col1').value, $('#col2').value]; touch(); renderEditor(); });
