@@ -253,6 +253,21 @@ window.GALLERIES = {
         "src": "assets/img/projects/distraction/distraction-1.jpg",
         "w": 410,
         "h": 260
+      },
+      {
+        "src": "assets/img/projects/distraction/distraction-2.jpg",
+        "w": 792,
+        "h": 1718
+      },
+      {
+        "src": "assets/img/projects/distraction/distraction-3.jpg",
+        "w": 781,
+        "h": 1722
+      },
+      {
+        "src": "assets/img/projects/distraction/distraction-4.jpg",
+        "w": 786,
+        "h": 1697
       }
     ]
   },
@@ -296,6 +311,15 @@ window.GALLERIES = {
         "src": "assets/img/projects/h160/h160-2.jpg",
         "w": 1080,
         "h": 755
+      }
+    ]
+  },
+  "doovoirs": {
+    "images": [
+      {
+        "src": "assets/img/projects/doovoirs/doovoirs-1.jpg",
+        "w": 1600,
+        "h": 1078
       }
     ]
   },
