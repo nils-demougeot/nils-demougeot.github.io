@@ -50,13 +50,15 @@
       return '<figure class="gal-slide' + (j < COLLAGE && n > 1 ? ' pile' : '') + (im.fit === 'cover' ? ' fill' : '') + '" style="--x:' + p[0] + '%;--y:' + p[1] + '%;--r:' + p[2] + 'deg;--s:' + p[3] + ';--ar:' + ar.toFixed(3) + ';z-index:' + (COLLAGE - j) + '">' +
         '<img src="' + esc(im.src) + '" alt="' + esc(im.alt || title + ', screenshot ' + (j + 1)) + '" loading="lazy" decoding="async"></figure>';
     }).join('') + '</div>' +
-      (n > 1 ? '<div class="gal-ui"><button type="button" class="gal-btn" data-gal="-1" aria-label="Previous screenshot">' + icon('left') + '</button><div class="gal-dots"></div>' +
-        '<button type="button" class="gal-btn" data-gal="1" aria-label="Next screenshot">' + icon('right') + '</button><button type="button" class="gal-btn gal-zoom" data-gal="zoom" aria-label="Enlarge screenshot">' + icon('zoom') + '</button></div>'
+      (n > 1 ? '<button type="button" class="gal-arrow prev" data-gal="-1" aria-label="Previous screenshot">' + icon('left') + '</button><button type="button" class="gal-arrow next" data-gal="1" aria-label="Next screenshot">' + icon('right') + '</button>' +
+        '<div class="gal-ui"><div class="gal-dots"></div><button type="button" class="gal-count" aria-label="Back to all screenshots"></button><button type="button" class="gal-btn gal-zoom" data-gal="zoom" aria-label="Enlarge screenshot">' + icon('zoom') + '</button></div>'
         : '<div class="gal-ui"><button type="button" class="gal-btn gal-zoom" data-gal="zoom" aria-label="Enlarge screenshot">' + icon('zoom') + '</button></div>');
+    // big arrows on the cover (hover, desktop); on phones a long row of dots becomes a compact "3 / 8" counter
+    if (n + 1 > 6) g.classList.add('many');
     const old = $('.cover, .gal', stage); if (old) old.replaceWith(g); else stage.prepend(g);
 
     // steps of the slideshow: the scattered view (-1, the first dot, drawn as a ring), then each screenshot
-    const slides = $$('.gal-slide', g), steps = n > 1 ? [-1].concat(imgs.map((_, j) => j)) : [0], dots = $('.gal-dots', g), ui = $('.gal-ui', g);
+    const slides = $$('.gal-slide', g), steps = n > 1 ? [-1].concat(imgs.map((_, j) => j)) : [0], dots = $('.gal-dots', g), count = $('.gal-count', g), ui = $('.gal-ui', g);
     const s = { g, card, title, imgs, slides, step: 0 };
     s.shown = () => Math.max(0, steps[s.step]);
     s.go = (k) => {
@@ -67,6 +69,9 @@
         // the active dot stretches into a bar that fills up
         dots.innerHTML = steps.map((t, j) => '<button type="button" class="' + (t < 0 ? 'all' : '') + (j === s.step ? ' on' : '') + '" aria-label="' + (t < 0 ? 'All screenshots' : 'Screenshot ' + (t + 1) + ' of ' + n) + '"><b>' +
           (j === s.step ? '<i style="animation-duration:' + (t < 0 ? 6.5 : 5.5) + 's"></i>' : '') + '</b></button>').join('');
+        // the counter carries its own progress bar (only the visible one runs, so only one moves the slideshow on)
+        count.classList.toggle('all', v < 0);
+        count.innerHTML = (v < 0 ? '<b></b>all' : (v + 1) + ' / ' + n) + '<i style="animation-duration:' + (v < 0 ? 6.5 : 5.5) + 's"></i>';
       }
     };
     s.goImage = (j) => s.go(Math.max(0, steps.indexOf(j)));
@@ -74,6 +79,7 @@
       // the active dot fills up; when it is full the slideshow moves on (pausing the fill pauses the slideshow)
       ui.addEventListener('animationend', (e) => { if (e.animationName === 'galFill' && !reduce) s.go(s.step + 1); });
       dots.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) s.go($$('button', dots).indexOf(b)); });
+      count.addEventListener('click', () => s.go(0));
     }
     $$('[data-gal]', g).forEach((b) => b.addEventListener('click', () => { const a = b.getAttribute('data-gal'); if (a === 'zoom') openLb(s, s.shown()); else s.go(s.step + +a); }));
     let sx = null, sy = 0, swiped = false;

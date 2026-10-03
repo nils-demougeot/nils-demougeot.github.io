@@ -12,7 +12,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const hexRgb = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
-  const CV = 'assets/cv/Nils_Demougeot_CV.pdf';
+  const CV = 'assets/cv/Resume_Nils_Demougeot.pdf';
   const LOGO = { esilv: 'assets/img/logos/esilv.png', mit: 'assets/img/logos/mit.svg', rtu: 'assets/img/logos/rtu.svg' };
   const AVATAR = 'assets/img/avatar.jpg'; // square photo shown in `whoami`
   let avatarOk = false; if (AVATAR) { const im = new Image(); im.onload = () => { avatarOk = true; }; im.src = AVATAR; }
@@ -177,7 +177,7 @@
     svg.__pin = key && svg.__pin !== key ? key : null; skFocus(svg, svg.__pin ? sel : null);
   });
 
-  const text = (t, color, link) => '<div class="txt"><span style="color:' + (color || '#d4d4d8') + '">' + esc(t) + '</span>' + (link ? '<a href="' + link.href + '" download="Nils_Demougeot_CV.pdf">' + esc(link.label) + icon('download') + '</a>' : '') + '</div>';
+  const text = (t, color, link) => '<div class="txt"><span style="color:' + (color || '#d4d4d8') + '">' + esc(t) + '</span>' + (link ? '<a href="' + link.href + '" download="Resume_Nils_Demougeot.pdf">' + esc(link.label) + icon('download') + '</a>' : '') + '</div>';
   const run = (k, id, fn, delay) => { activate(k); scrollToId(id); const w = demo(k); if (w && fn) setTimeout(() => fn(w), delay || 0); };
   const demoCmds = {
     predict: () => { run('ligue1', 'p-ligue1', (w) => w.random(), 300); return '→ random fixture sent to the Ligue 1 model…'; },
@@ -344,6 +344,8 @@
   }
   function reveal(card) { if (card.hidden) { projFilter = 'all'; projOpen = true; applyProjects(true); } }
   $$('.pf').forEach((b) => b.addEventListener('click', () => { projFilter = b.getAttribute('data-filter'); applyProjects('all'); }));
+  // filter chips count their cards, so cards can be added or moved without touching the numbers
+  $$('.pf').forEach((b) => { const f = b.getAttribute('data-filter'), n = f === 'all' ? projCards.length : projCards.filter((el) => (el.getAttribute('data-cat') || '').split(' ').includes(f)).length, c = $('b', b); if (c) c.textContent = n; });
   const extra = projCards.slice(LIMIT), extraDemos = extra.filter((el) => el.hasAttribute('data-demo')).length;
   $('#projMoreCount').textContent = extra.length;
   $('#projMoreNames').textContent = extra.map((el) => $('h3', el).textContent).slice(0, 4).join(' · ') + ' …' + (extraDemos ? '  ·  ' + extraDemos + ' more live demos' : '');

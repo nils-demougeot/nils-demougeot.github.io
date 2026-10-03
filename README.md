@@ -34,7 +34,7 @@ assets/data/            world land mask, Paris metro graph (Liv'in Paris), Boggl
 assets/img/logos/       ESILV, MIT, Riga TU
 assets/cv/              CV served by the Download button and `cv` command
 assets/img/projects/    project screenshots, one folder per card (managed by tools/galleries.html)
-tools/galleries.html    local tool to add, order, caption and blur project screenshots
+tools/galleries.html    local tool: project cards (add, edit, reorder, delete) and their screenshots
 ```
 
 ## Editing content
@@ -44,12 +44,12 @@ tools/galleries.html    local tool to add, order, caption and blur project scree
 - **Globe places**: `PLACES` in `main.js`.
 - **Photo in `whoami`**: `assets/img/avatar.jpg` (square), path set in `AVATAR` in `main.js`.
 - **Logo / favicon**: `assets/img/logo-nd.png` (nav logo and browser tab icon).
-- **Projects**: one `<article class="proj">` per project in `index.html`, in display order (most relevant first). `data-cat` sets the filter chips (`ai`, `sw`, `hw`, `more`; update the counts on the chips if you move a card). The first 10 cards show by default; change `LIMIT` in `main.js`. The Grid / List switch is remembered per browser; the list shows every project as a row that opens into the full card.
+- **Projects**: one `<article class="proj">` per project in `index.html`, in display order (most relevant first). `data-cat` sets the filter chips (`ai`, `sw`, `hw`, `more`, or any chip you add; the counts are computed on load). The easiest way to add, edit, reorder or delete a card is the tool (`tools/galleries.html` → Projets): it rewrites the `#projects` grid of `index.html` and keeps the demo markup of existing cards untouched. The first 10 cards show by default; change `LIMIT` in `main.js`. The Grid / List switch is remembered per browser; the list shows every project as a row that opens into the full card.
 - **Project covers**: replace a card's `<div class="cover">…</div>` with `<img class="cover-img" src="assets/img/projects/NAME.jpg" alt="…">` (16:10 works best).
 - **Screenshots (galleries)**: open `tools/galleries.html` in Chrome or Edge, pick the Portfolio folder, drop images on a project and click Save. The tool resizes them (1600 px JPEG), can pixelate private zones, writes them to `assets/img/projects/<card id>/` and rewrites `assets/data/galleries.js` (plain JSON, editable by hand). On the site, `assets/js/gallery.js` replaces the card's `.cover` with the gallery: the first 3 images scattered like cards on a gradient in the project colours, then each image on its own, and a full-screen viewer on click. Images keep their own proportions (whole, never cropped) unless an image is set to "fill the frame" in the tool (`"fit": "cover"` in the data).
 - **Live demos**: a card with `data-demo="key"` gets its widget from `DEMOS` in `main.js`. Buttons with `data-act="name"` call that method on the widget, and widgets write back into elements marked `data-out="name"`.
 - **La Fabrique impact figures**: `IMPACT` at the top of the La Fabrique section of `demos.js` (water and CO₂ per kg of fabric) is a rough estimate; replace it with the app's own factors.
-- **CV**: overwrite `assets/cv/Nils_Demougeot_CV.pdf`.
+- **CV**: overwrite `assets/cv/Resume_Nils_Demougeot.pdf`.
 
 ## Behaviour notes
 

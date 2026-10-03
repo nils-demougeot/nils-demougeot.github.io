@@ -101,19 +101,49 @@ window.GALLERIES = {
   "fabrique": {
     "images": [
       {
-        "src": "assets/img/projects/fabrique/fabrique-3.jpg",
-        "w": 1600,
-        "h": 1341
+        "src": "assets/img/projects/fabrique/fabrique-1-2.jpg",
+        "w": 718,
+        "h": 1600
       },
       {
-        "src": "assets/img/projects/fabrique/fabrique-1.jpg",
-        "w": 526,
-        "h": 1137
+        "src": "assets/img/projects/fabrique/fabrique-2-2.jpg",
+        "w": 732,
+        "h": 1600
       },
       {
-        "src": "assets/img/projects/fabrique/fabrique-2.jpg",
-        "w": 528,
-        "h": 1140
+        "src": "assets/img/projects/fabrique/fabrique-3-2.jpg",
+        "w": 750,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-4.jpg",
+        "w": 743,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-5.jpg",
+        "w": 748,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-6.jpg",
+        "w": 748,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-7.jpg",
+        "w": 729,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-8.jpg",
+        "w": 719,
+        "h": 1600
+      },
+      {
+        "src": "assets/img/projects/fabrique/fabrique-9.jpg",
+        "w": 733,
+        "h": 1600
       }
     ]
   },
@@ -240,6 +270,30 @@ window.GALLERIES = {
         "src": "assets/img/projects/quake/68387dc2609946e13ec26d4f-20250528-152312.jpg",
         "w": 1600,
         "h": 2689
+      }
+    ]
+  },
+  "rpg": {
+    "images": [
+      {
+        "src": "assets/img/projects/rpg/00-cover.jpg",
+        "w": 1600,
+        "h": 900
+      },
+      {
+        "src": "assets/img/projects/rpg/01-startup-and-stats.jpg",
+        "w": 1540,
+        "h": 1734
+      },
+      {
+        "src": "assets/img/projects/rpg/03-mercy-pacifist-ending.jpg",
+        "w": 1468,
+        "h": 1734
+      },
+      {
+        "src": "assets/img/projects/rpg/06-inventory-and-bestiary.jpg",
+        "w": 1504,
+        "h": 1398
       }
     ]
   },
