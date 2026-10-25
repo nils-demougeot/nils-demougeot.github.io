@@ -3,25 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nils Demougeot · Data & AI Engineering</title>
+  <title>Nils Demougeot · Data & AI Engineering Portfolio</title>
   <meta name="description" content="Nils Demougeot, Data & AI engineering student at ESILV Paris. Machine learning, full-stack web, embedded systems, networks and security. Looking for a Data / AI internship from April 2027.">
   <meta name="author" content="Nils Demougeot">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://nils-demougeot.github.io/">
   <meta name="theme-color" content="#0c0d12">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Nils Demougeot · Data & AI Engineering">
+  <meta property="og:type" content="profile">
+  <meta property="profile:first_name" content="Nils">
+  <meta property="profile:last_name" content="Demougeot">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Nils Demougeot · Data & AI Engineering Portfolio">
   <meta property="og:description" content="Interactive portfolio: machine learning, full-stack web, embedded systems and networks. Projects running live in the browser.">
   <meta property="og:url" content="https://nils-demougeot.github.io/">
   <meta property="og:site_name" content="Nils Demougeot">
-  <!-- link previews (WhatsApp, LinkedIn, Slack, iMessage…) show the ND logo; without these they pick the first big enough image (ESILV) -->
-  <meta property="og:image" content="https://nils-demougeot.github.io/assets/img/logo-nd.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="256">
-  <meta property="og:image:height" content="256">
-  <meta property="og:image:alt" content="ND, Nils Demougeot's logo">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://nils-demougeot.github.io/assets/img/logo-nd.png">
-  <link rel="icon" href="assets/img/logo-nd.png" type="image/png">
+  <!-- link previews (WhatsApp, LinkedIn, Slack, iMessage…) show this card; without these they pick the first big enough image (ESILV) -->
+  <meta property="og:image" content="https://nils-demougeot.github.io/assets/img/og-card.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nils Demougeot, Data & AI engineering student at ESILV Paris">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nils Demougeot · Data & AI Engineering Portfolio">
+  <meta name="twitter:description" content="Interactive portfolio: machine learning, full-stack web, embedded systems and networks. Projects running live in the browser.">
+  <meta name="twitter:image" content="https://nils-demougeot.github.io/assets/img/og-card.jpg">
+  <link rel="icon" href="assets/img/logo-nd.png" type="image/png" sizes="256x256">
   <link rel="apple-touch-icon" href="assets/img/logo-nd.png">
+  <!-- Structured data: tells search engines this page is Nils Demougeot's profile and links it to the same person elsewhere (sameAs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://nils-demougeot.github.io/#page",
+        "url": "https://nils-demougeot.github.io/",
+        "name": "Nils Demougeot · Data & AI Engineering Portfolio",
+        "inLanguage": "en",
+        "dateModified": "2026-10-25",
+        "mainEntity": { "@id": "https://nils-demougeot.github.io/#nils" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://nils-demougeot.github.io/#nils",
+        "name": "Nils Demougeot",
+        "givenName": "Nils",
+        "familyName": "Demougeot",
+        "url": "https://nils-demougeot.github.io/",
+        "image": "https://nils-demougeot.github.io/assets/img/avatar.jpg",
+        "jobTitle": "Data & AI Engineering Student",
+        "description": "Data & AI engineering student at ESILV Paris, looking for a Data / AI internship from April 2027.",
+        "email": "mailto:nils.demougeot@gmail.com",
+        "address": { "@type": "PostalAddress", "addressLocality": "Paris", "addressCountry": "FR" },
+        "alumniOf": [
+          { "@type": "CollegeOrUniversity", "name": "ESILV, De Vinci Engineering School", "url": "https://www.esilv.fr/" },
+          { "@type": "CollegeOrUniversity", "name": "Riga Technical University", "url": "https://www.rtu.lv/" }
+        ],
+        "knowsAbout": ["Machine Learning", "Data Science", "Python", "pandas", "scikit-learn", "SQL", "C#", "C++", "Cybersecurity", "Network Coding", "Web Development"],
+        "knowsLanguage": ["fr", "en", "es"],
+        "sameAs": [
+          "https://www.linkedin.com/in/nils-demougeot/",
+          "https://github.com/nils-demougeot",
+          "https://www.youtube.com/@seechyTech"
+        ]
+      }
+    ]
+  }
+  </script>
   <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/style.css">
@@ -31,8 +79,10 @@
       var d = document.documentElement, seen = false;
       try { seen = sessionStorage.getItem('nd-intro') === '1'; } catch (e) {}
       var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // crawlers and page-speed tools get the page straight away (same content, no 3 s animation hiding the name)
+      var bot = /bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent);
       d.classList.add('js');
-      if (!seen && !reduce && !location.hash) d.classList.add('intro-on');
+      if (!seen && !reduce && !bot && !location.hash) d.classList.add('intro-on');
     })();
   </script>
 </head>

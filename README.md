@@ -23,7 +23,8 @@ python -m http.server 8000
 ## Structure
 
 ```
-index.html              page markup + inline SVG icon sprite
+index.html              page markup + inline SVG icon sprite + SEO tags and JSON-LD
+robots.txt, sitemap.xml for search engines
 assets/css/style.css    all styles (tokens at the top)
 assets/js/main.js       app: intro, cursor swarm, terminal, content data
 assets/js/widgets.js    WebGL widgets (particle shapes, globe, 3D project models: platform, hexapod, H160, rocket)
@@ -50,6 +51,7 @@ tools/galleries.html    local tool: project cards (add, edit, reorder, delete) a
 - **Live demos**: a card with `data-demo="key"` gets its widget from `DEMOS` in `main.js`. Buttons with `data-act="name"` call that method on the widget, and widgets write back into elements marked `data-out="name"`.
 - **La Fabrique impact figures**: `IMPACT` at the top of the La Fabrique section of `demos.js` (water and CO₂ per kg of fabric) is a rough estimate; replace it with the app's own factors.
 - **CV**: overwrite `assets/cv/Resume_Nils_Demougeot.pdf`.
+- **SEO**: the `<head>` of `index.html` holds the title, description, canonical URL, link-preview tags and a JSON-LD `Person` block (school, skills, `sameAs` links to LinkedIn, GitHub, YouTube: add any new public profile there). `assets/img/og-card.jpg` (1200×630) is the link-preview image. `robots.txt` keeps `/tools/` out of search engines and points to `sitemap.xml`. After a real content update, bump `dateModified` in the JSON-LD and `lastmod` in `sitemap.xml`.
 
 ## Behaviour notes
 
