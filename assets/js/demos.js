@@ -3,8 +3,8 @@
 (function () {
   const PW = window.PW; if (!PW || !PW.u) return;
   const { loop, ctx2d, clamp, lerp, ease } = PW.u;
-  const MONO = '"JetBrains Mono", ui-monospace, monospace', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
-  const K = { bg: '#10121a', card: '#13151d', card2: '#1c1f2b', line: '#262a38', line2: '#2a2f3d', line3: '#3f4457', tx: '#e4e4e7', tx3: '#d4d4d8', mute: '#a1a1aa', mute2: '#71717a', mute3: '#52525b', yellow: '#FFCC00', indigo: '#818cf8', amber: '#fbbf24', green: '#34d399', rose: '#fb7185', sky: '#38bdf8', violet: '#a78bfa', teal: '#2dd4bf', orange: '#fb923c', pink: '#f472b6' };
+  const MONO = '"JetBrains Mono", ui-monospace, monospace', SANS = 'Archivo, system-ui, sans-serif';
+  const K = { bg: '#0b0f22', card: '#0f1530', card2: '#182042', line: '#222b50', line2: '#29335c', line3: '#3d4878', tx: '#e4e4e7', tx3: '#d4d4d8', mute: '#a1a1aa', mute2: '#71717a', mute3: '#52525b', yellow: '#FFCC00', indigo: '#818cf8', amber: '#fbbf24', green: '#34d399', rose: '#fb7185', sky: '#38bdf8', violet: '#a78bfa', teal: '#2dd4bf', orange: '#fb923c', pink: '#f472b6' };
   const noop = () => {};
 
   // Draw in a fixed design space (W×H), letterboxed into whatever size the card gives.

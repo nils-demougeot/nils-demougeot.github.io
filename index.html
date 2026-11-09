@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nils Demougeot · Data & AI Engineering Portfolio</title>
+  <meta name="description" content="Nils Demougeot, Data & AI engineering student at ESILV Paris. Machine learning, full-stack web, embedded systems, networks and security. Looking for a Data / AI internship from April 2027.">
+  <meta name="author" content="Nils Demougeot">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://nils-demougeot.github.io/">
+  <meta name="theme-color" content="#002FFF">
+  <meta property="og:type" content="profile">
+  <meta property="profile:first_name" content="Nils">
+  <meta property="profile:last_name" content="Demougeot">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Nils Demougeot · Data & AI Engineering Portfolio">
+  <meta property="og:description" content="Interactive portfolio: machine learning, full-stack web, embedded systems and networks. Projects running live in the browser.">
+  <meta property="og:url" content="https://nils-demougeot.github.io/">
+  <meta property="og:site_name" content="Nils Demougeot">
+  <!-- link previews (WhatsApp, LinkedIn, Slack, iMessage…) show this card; without these they pick the first big enough image -->
+  <meta property="og:image" content="https://nils-demougeot.github.io/assets/img/og-card.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Nils Demougeot, Data & AI engineering student at ESILV Paris">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nils Demougeot · Data & AI Engineering Portfolio">
+  <meta name="twitter:description" content="Interactive portfolio: machine learning, full-stack web, embedded systems and networks. Projects running live in the browser.">
+  <meta name="twitter:image" content="https://nils-demougeot.github.io/assets/img/og-card.jpg">
+  <link rel="icon" href="assets/img/logo-nd.png" type="image/png" sizes="256x256">
+  <link rel="apple-touch-icon" href="assets/img/logo-nd.png">
+  <!-- Structured data: tells search engines this page is Nils Demougeot's profile and links it to the same person elsewhere (sameAs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://nils-demougeot.github.io/#page",
+        "url": "https://nils-demougeot.github.io/",
+        "name": "Nils Demougeot · Data & AI Engineering Portfolio",
+        "inLanguage": "en",
+        "dateModified": "2026-11-09",
+        "mainEntity": { "@id": "https://nils-demougeot.github.io/#nils" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://nils-demougeot.github.io/#nils",
+        "name": "Nils Demougeot",
+        "givenName": "Nils",
+        "familyName": "Demougeot",
+        "url": "https://nils-demougeot.github.io/",
+        "image": "https://nils-demougeot.github.io/assets/img/avatar.jpg",
+        "jobTitle": "Data & AI Engineering Student",
+        "description": "Data & AI engineering student at ESILV Paris, looking for a Data / AI internship from April 2027.",
+        "email": "mailto:nils.demougeot@gmail.com",
+        "address": { "@type": "PostalAddress", "addressLocality": "Paris", "addressCountry": "FR" },
+        "alumniOf": [
+          { "@type": "CollegeOrUniversity", "name": "ESILV, De Vinci Engineering School", "url": "https://www.esilv.fr/" },
+          { "@type": "CollegeOrUniversity", "name": "Riga Technical University", "url": "https://www.rtu.lv/" }
+        ],
+        "knowsAbout": ["Machine Learning", "Data Science", "Python", "pandas", "scikit-learn", "SQL", "C#", "C++", "Cybersecurity", "Network Coding", "Web Development"],
+        "knowsLanguage": ["fr", "en", "es"],
+        "sameAs": [
+          "https://www.linkedin.com/in/nils-demougeot/",
+          "https://github.com/nils-demougeot",
+          "https://www.youtube.com/@seechyTech"
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/demos.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></symbol>
+  <symbol id="i-arrow-down-right" viewBox="0 0 24 24"><path d="m7 7 10 10"/><path d="M17 7v10H7"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12"/><path d="M5 15V3h12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-5-5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16"/><path d="m22 7-10 6.5L2 7"/></symbol>
+  <symbol id="i-maximize" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></symbol>
+  <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></symbol>
+</svg>
+
+<a class="skip" href="#work">Skip to the projects</a>
+
+<!-- Top bar: sheet navigation, like the ribbon of a CAD workspace -->
+<header class="bar bar-top">
+  <a class="bar-logo" href="#top" aria-label="Nils Demougeot, back to top"><b>ND</b><span>Nils Demougeot</span></a>
+  <nav class="bar-nav" aria-label="Sections">
+    <a href="#work"><i>02</i>Work</a>
+    <a href="#workshop"><i>03</i>Workshop</a>
+    <a href="#index"><i>04</i>Index</a>
+    <a href="#path"><i>05</i>Path</a>
+    <a href="#skills"><i>06</i>Skills</a>
+    <a href="#contact"><i>07</i>Contact</a>
+  </nav>
+  <div class="bar-tools">
+    <a class="bar-cv" href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf">CV<svg class="ic"><use href="#i-download"/></svg></a>
+    <button type="button" class="bar-find" id="palOpen" aria-haspopup="dialog"><svg class="ic"><use href="#i-search"/></svg><span>Find</span><kbd>/</kbd></button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═════════ 01 · Title sheet ═════════ -->
+  <section class="sheet s-blue hero" id="top" data-sheet="Title sheet">
+    <canvas id="heroGL" aria-hidden="true"></canvas>
+
+    <div class="hero-fig">
+      <span class="anno">Fig. 00 · Loss surface L(θ₁, θ₂) · three optimizers racing to a minimum</span>
+      <span class="anno dim" id="heroHint">click the surface to drop them somewhere else · drag to orbit</span>
+    </div>
+
+    <div class="hero-read" id="heroRead" aria-hidden="true">
+      <div class="hr-head"><span>optimizer</span><span>step</span><span>loss</span></div>
+      <div class="hr-row" data-opt="0"><span><i style="--k:#FFD60A"></i>SGD</span><span class="st">000</span><span class="ls">0.000</span></div>
+      <div class="hr-row" data-opt="1"><span><i style="--k:#FFFFFF"></i>Momentum</span><span class="st">000</span><span class="ls">0.000</span></div>
+      <div class="hr-row" data-opt="2"><span><i style="--k:#FF6A4D"></i>Adam</span><span class="st">000</span><span class="ls">0.000</span></div>
+    </div>
+
+    <h1 class="name" id="name" aria-label="Nils Demougeot"><span class="ln" aria-hidden="true">Nils</span><span class="ln" aria-hidden="true">Demougeot</span></h1>
+
+    <div class="hero-main">
+      <p class="lead">Data &amp; AI engineering student at <strong>ESILV Paris</strong>. I like taking real data all the way to something people use: a Ligue 1 match predictor, security dashboards for a cybersecurity team, network coding simulations at <strong>MIT</strong>, and La Fabrique, our prize-winning startup project.</p>
+      <div class="cta-row">
+        <a class="btn btn-hi" href="#work">See the work<svg class="ic"><use href="#i-arrow-down"/></svg></a>
+        <a class="btn" href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf">Résumé, 1 page<svg class="ic"><use href="#i-download"/></svg></a>
+        <a class="btn btn-txt" href="mailto:nils.demougeot@gmail.com">nils.demougeot@gmail.com</a>
+      </div>
+    </div>
+
+    <!-- Title block, as on an engineering drawing -->
+    <aside class="tblock" aria-label="Summary">
+      <div class="tb-photo"><canvas id="portrait" width="220" height="220" aria-hidden="true"></canvas><img src="assets/img/avatar.jpg" alt="Portrait of Nils Demougeot" width="110" height="110"></div>
+      <dl class="tb-grid">
+        <div><dt>Drawn by</dt><dd>Nils Demougeot</dd></div>
+        <div><dt>Discipline</dt><dd>Data &amp; AI engineering</dd></div>
+        <div class="w2"><dt>School</dt><dd>ESILV Paris · M1 · class of 2028</dd></div>
+        <div class="w2 hl"><dt>Looking for</dt><dd>Data / AI internship, 4 to 5 months, from April 2027</dd></div>
+        <div><dt>Based in</dt><dd>Paris, FR</dd></div>
+        <div><dt>Local time</dt><dd id="clock">--:--:--</dd></div>
+        <div><dt>Sheet</dt><dd>01 / 07</dd></div>
+        <div><dt>Rev.</dt><dd>2.0 · Nov 2026</dd></div>
+      </dl>
+    </aside>
+  </section>
+
+  <!-- ═════════ 02 · Selected work ═════════ -->
+  <section class="sheet s-paper" id="work" data-sheet="Selected work">
+    <header class="sec-head">
+      <span class="sec-no">02</span>
+      <h2>Selected work</h2>
+      <p class="sec-note">Most relevant first. The dark screens are not videos: each one runs a small live model of the real project, ported to JavaScript. Drag, click, break things.</p>
+    </header>
+
+    <!-- One <article class="proj"> per project, in display order (most relevant first). This grid is the single source for the
+         whole site: the first cards become the large sheets below, hardware demos go to the Workshop, everything is listed in the Index.
+         tools/galleries.html can still add, edit, reorder and delete cards here. -->
+    <div class="projects" id="projects">
+        <!-- 01 · Data & AI -->
+        <article class="proj" id="p-ligue1" data-demo="ligue1" data-cat="ai" style="--c:#FFCC00" data-card data-accent="#FFCC00">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">ligue1_model.ipynb</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Ligue 1 model · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="ligue1"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="random" style="background:#FFCC00">Random match <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="mode" data-out="mode">Model scores</button>
+                <span class="pip-note" data-out="note">drag the sliders</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Ligue 1 Match Predictor</h3><span class="tag">MACHINE LEARNING</span></div>
+            <p>Can a model call a French football match before kick-off? I merged 8 data files (more than 10 seasons of matches, player market values, lineups, cards) into one clean table, built new features such as the budget gap and each team's recent form, and trained three classifiers to predict home win, draw or away win for the 2025 season.</p>
+            <ul class="facts">
+              <li>Rolling "last 5 matches" features, shifted by one game so the model never sees the result it predicts</li>
+              <li>Split by time: trained up to 2022, tested on 2023–24</li>
+              <li>52% accuracy vs a 44% baseline; feature selection kept almost the same score with only 3 variables</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Python</span><span>pandas</span><span>scikit-learn</span><span>seaborn</span></div>
+            <div class="proj-foot"><span>Group project · predictions for 233 matches</span></div>
+          </div>
+        </article>
+
+        <!-- 02 · Data & AI -->
+        <article class="proj" id="p-siem" data-demo="siem" data-cat="ai" style="--c:#fb7185" data-card data-accent="#fb7185">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">soc_dashboard</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Security dashboard · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="siem"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="exfil" style="background:#fb7185">Simulate a data leak</button>
+                <span class="pip-note" data-out="note">simulated USB activity · no real data</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Security Dashboards (Cyber Internship)</h3><span class="tag">DATA · CYBERSECURITY</span></div>
+            <p>In the cybersecurity team of a large company, analysts were spending a lot of time reading raw logs by hand. I built dashboards in CrowdStrike Next-Gen SIEM that turn logs from the EDR (Falcon) and the web proxy (Netskope) into clear views, so the team can spot data leaks and suspicious behaviour much faster.</p>
+            <ul class="facts">
+              <li>Defined the key investigation scenarios with the team, then wrote and optimised the queries</li>
+              <li>Dashboards: files leaked by a given user, suspicious SharePoint activity, map of USB exfiltration events</li>
+              <li>Hourly scheduled searches that alert the team when a massive data exfiltration is likely</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>CrowdStrike NG-SIEM</span><span>Falcon EDR</span><span>Netskope</span><span>Log queries</span></div>
+            <div class="proj-foot"><span>Internship · summer 2025</span></div>
+          </div>
+        </article>
+
+        <!-- 03 · Research -->
+        <article class="proj" id="p-mit" data-demo="mit" data-cat="more" style="--c:#38bdf8" data-card data-accent="#38bdf8">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">rlnc_simulation.ipynb</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>RLNC delay plot · chart</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="mit"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="p" style="background:#38bdf8"><span data-out="p">loss 20%</span> <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="mode"><span data-out="mode">Research result</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Network Coding Research (MIT)</h3><span class="tag">RESEARCH · NETWORKS</span></div>
+            <p>Six-week research internship in Muriel Médard's Network Coding and Reliable Communications Group at MIT, with three classmates. After simulating noisy channels in Python, I worked on Random Linear Network Coding for the SNOB 5G project: packets are mixed with random coefficients, sent over a lossy channel, and rebuilt by inverting a matrix as soon as enough of them arrive.</p>
+            <ul class="facts">
+              <li>Added retransmissions, then measured throughput and delay over 40,000 generations for different loss rates</li>
+              <li>Derived the theoretical delay with binomial probabilities: it matched our simulations</li>
+              <li>Presented our results to Prof. Médard</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Python</span><span>NumPy</span><span>Matplotlib</span><span>Probability</span></div>
+            <div class="proj-foot"><span>Research internship · Boston · summer 2022</span></div>
+          </div>
+        </article>
+
+        <!-- 04 · Data & AI -->
+        <article class="proj" id="p-uttt" data-demo="uttt" data-cat="ai sw" style="--c:#a78bfa" data-card data-accent="#a78bfa">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">ultimate_tictactoe.py</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Ultimate Tic-Tac-Toe · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="uttt"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Play the AI</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="new" style="background:#a78bfa">New game <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="watch" data-out="mode">Watch AI vs AI</button>
+                <span class="pip-note" data-out="note">you are X · click a cell</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Ultimate Tic-Tac-Toe AI</h3><span class="tag">GAME AI</span></div>
+            <p>An AI for Ultimate Tic-Tac-Toe, a 9×9 version where each move decides which small board your opponent has to play in next. It uses minimax with alpha-beta pruning and iterative deepening: it searches deeper and deeper until its time is up, and keeps the best move found so far. The demo is a JavaScript port of my Python code.</p>
+            <ul class="facts">
+              <li>Transposition table so positions already analysed are never searched twice</li>
+              <li>Killer-move and history heuristics to try the most promising moves first</li>
+              <li>Hand-tuned evaluation: won boards, two-in-a-rows, control of the centre</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Python</span><span>Minimax</span><span>Alpha-beta</span><span>Heuristics</span></div>
+            <div class="proj-foot"><span>Search algorithms · personal project</span></div>
+          </div>
+        </article>
+
+        <!-- 05 · Software -->
+        <article class="proj" id="p-fabrique" data-demo="fabrique" data-cat="sw" style="--c:#818cf8" data-card data-accent="#818cf8">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">la_fabrique.py</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>La Fabrique · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="fabrique"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="restart" style="background:#818cf8">Restart demo <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <a class="pill-btn ghost" href="https://la-fabrique.onrender.com/" target="_blank" rel="noopener">Real app <svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
+                <span class="pip-note" data-out="note">simplified demo · not the real app</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>La Fabrique</h3><span class="tag">STARTUP · WEB APP</span></div>
+            <p>Winner of the <strong>Prix Esprit Start-up</strong> at the ESILV P2IP showroom (about 140 teams). La Fabrique helps people turn old clothes into new objects: you take a photo of a garment, the app estimates its material and usable fabric, suggests sewing patterns that fit, checks that the pieces can be cut from it, and shows the water and CO₂ saved.</p>
+            <ul class="facts">
+              <li>Months of work as a startup team: user needs, specifications, business model, working prototype</li>
+              <li>Mobile-first web app with step-by-step guides, printable PDF patterns and a "circular passport" with QR code</li>
+              <li>Gamified community: share your creations, earn coins and badges</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Django</span><span>PostgreSQL</span><span>Product design</span><span>Business model</span></div>
+            <div class="proj-foot"><span>P2IP team project · 2025–2026</span><a class="proj-link" href="https://la-fabrique.onrender.com/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-arrow-up-right"/></svg>Open the app<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 06 · Software -->
+        <article class="proj" id="p-livin" data-demo="livin" data-cat="sw" style="--c:#fbbf24" data-card data-accent="#fbbf24">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">Graphe.cs</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Liv'in Paris · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="livin"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="random" style="background:#fbbf24">Random trip <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="algo"><span data-out="algo">Dijkstra</span></button>
+                <span class="pip-note" data-out="note">click two stations</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Liv'in Paris</h3><span class="tag">GRAPHS · DATABASES</span></div>
+            <p>A C# platform where home cooks sell meals to people in Paris, with a MySQL database for users, dishes and orders. Deliveries follow the real metro network: we modelled every station as a graph and implemented Dijkstra, Bellman-Ford and Floyd-Warshall to find the fastest route between cook and customer.</p>
+            <ul class="facts">
+              <li>Graph tools: connectivity, cycle detection, Welsh-Powell colouring</li>
+              <li>Statistics: best customers, deliveries per cook, average order price</li>
+              <li>WinForms visualisation, JSON/XML export, unit tests with MSTest</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>C#</span><span>.NET</span><span>MySQL</span><span>Graph algorithms</span></div>
+            <div class="proj-foot"><span>Team of 3 · 2025</span><a class="proj-link" href="https://github.com/nils-demougeot/livin_paris" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>View on GitHub<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 07 · Data & AI -->
+        <article class="proj" id="p-tips" data-demo="tips" data-cat="ai" style="--c:#2dd4bf" data-card data-accent="#2dd4bf">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">tipping_norway.ipynb</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Tipping analysis · chart</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="tips"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn ghost on" data-act="rt">Response time</button>
+                <button type="button" class="pill-btn ghost" data-act="fin">Finances</button>
+                <button type="button" class="pill-btn ghost" data-act="age">Age</button>
+                <button type="button" class="pill-btn ghost" data-act="svc">Service</button>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Tipping Behaviour Analysis</h3><span class="tag">STATISTICS</span></div>
+            <p>Descriptive statistics on a survey of 709 people in Norway about restaurant tips. With two classmates, I studied one variable of each type (binary, ordinal, discrete, continuous): frequency tables, quartiles, variance, box plots, ECDF, and outlier detection with the IQR rule. The demo uses our real results.</p>
+            <ul class="facts">
+              <li>Response time: mean 148 s but median 105 s, a strongly skewed variable</li>
+              <li>48 outliers found with the 1.5 × IQR rule, shown on a log scale</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Python</span><span>pandas</span><span>NumPy</span><span>Matplotlib</span></div>
+            <div class="proj-foot"><span>Team of 3 · statistics course</span></div>
+          </div>
+        </article>
+
+        <!-- 08 · Software -->
+        <article class="proj" id="p-boggle" data-demo="boggle" data-cat="sw" style="--c:#fb923c" data-card data-accent="#fb923c">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">Plateau.cs</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Boggle · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="boggle"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Play</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="shuffle" style="background:#fb923c">New board <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <button type="button" class="pill-btn ghost" data-act="size"><span data-out="size">4×4</span></button>
+                <button type="button" class="pill-btn ghost" data-act="ai">Let the AI play</button>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Boggle with AI</h3><span class="tag">ALGORITHMS</span></div>
+            <p>A console Boggle game in C#, in French or English, with a custom board size and round time, and an AI opponent with three difficulty levels. Dice letters follow real frequency weights, the dictionary is sorted with merge sort and searched by binary search, and a recursive search checks that each word really exists on the board.</p>
+            <ul class="facts">
+              <li>Recursive depth-first search through the 8 neighbours of each letter</li>
+              <li>A word cloud image of every word found is generated at the end of the game</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>C#</span><span>.NET</span><span>Recursion</span><span>OOP</span></div>
+            <div class="proj-foot"><span>School project · 2025</span><a class="proj-link" href="https://github.com/nils-demougeot/boggle" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>View on GitHub<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 09 · Hardware -->
+        <article class="proj" id="p-quake" data-demo="quake" data-cat="hw" style="--c:#34d399" data-card data-accent="#34d399">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">stabilizer.ino</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Platform prototype · photo</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="quake"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="quake" style="background:#34d399">Trigger quake</button>
+                <button type="button" class="pill-btn ghost" data-act="stab"><i class="stab-dot" id="stabDot"></i><span id="stabLabel">Stabilizer ON</span></button>
+                <span class="pip-note"><b class="amber">pitch <span id="pitch">0.0</span>°</b> · <b class="indigo">roll <span id="roll">0.0</span>°</b></span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Earthquake-Resistant Platform</h3><span class="tag">EMBEDDED</span></div>
+            <p>Year-long project in a team of six: a model building that stays level during an earthquake. A laser-cut box holds the Arduino and the batteries; above it, two servo motors stacked at 90° correct the pitch and the roll measured by an MPU6050 gyroscope, keeping the LED panel and the 3D-printed tower level. Parts are wood and recycled plastic.</p>
+            <ul class="facts">
+              <li>Sensor reading and real-time correction loop programmed on the Arduino</li>
+              <li>CAD, machining, electronics and 3D printing, all done by the team</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Arduino</span><span>C++</span><span>MPU6050</span><span>CAD</span></div>
+            <div class="proj-foot"><span>PIX 2 · team of 6 · 2024–2025</span></div>
+          </div>
+        </article>
+
+        <!-- 10 · Software -->
+        <article class="proj" id="p-rpg" data-demo="rpg" data-cat="sw" style="--c:#f472b6" data-card data-accent="#f472b6">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">jeu.cpp</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Alterdune · screenshot</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="rpg"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Play</span></button>
+              <div class="pip-ctrl"><div class="rpg-menu" data-out="menu"></div></div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Alterdune, a C++ RPG</h3><span class="tag">C++ · OOP</span></div>
+            <p>A turn-based console RPG in C++, inspired by Undertale: in each fight you can attack, use an item, or calm the monster down with actions until you are allowed to spare it. Monsters and items are loaded from CSV files, and the code is built around classes and inheritance (normal monsters, mini-bosses, bosses) with manual memory management.</p>
+            <ul class="facts">
+              <li>Damage = attack + random bonus − defence, with 10% critical hits</li>
+              <li>Loot by rarity (60% common, 30% rare, 10% epic) and a pacifist ending after 10 wins</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>C++</span><span>OOP</span><span>Inheritance</span><span>CSV</span></div>
+            <div class="proj-foot"><span>School project · 2026</span><a class="proj-link" href="https://github.com/nils-demougeot/RPG-game" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>View on GitHub<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 11 · Hackathon -->
+        <article class="proj" id="p-distraction" data-cat="more" style="--c:#4ade80" data-card data-accent="#4ade80">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">distraction_guard.pdf</span></div>
+          <div class="proj-stage"><div class="cover"><span>DistractionGuard · prototype</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>DistractionGuard</h3><span class="tag">HACKATHON</span></div>
+            <p>Inter-school hackathon on hyperconnectivity: how can we limit phone distractions so students focus better? Our team designed DistractionGuard, a low-tech bracelet that vibrates when you reach for your phone out of habit, with an app that shows a daily distraction report so you can see your own habits in numbers.</p>
+            <ul class="facts">
+              <li>Starting point: 43% of French students feel nervous when their phone is out of reach</li>
+              <li>Low-tech on purpose: cheap, light, small environmental footprint</li>
+              <li>Full pitch: stakeholders, QQOQCP analysis, business model, app mock-up and prototype</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Product design</span><span>Business model</span><span>Pitch</span></div>
+            <div class="proj-foot"><span>ESILV · EMLV · IIM hackathon</span></div>
+          </div>
+        </article>
+
+        <!-- 12 · Hackathon -->
+        <article class="proj" id="p-sport" data-cat="more" style="--c:#38bdf8" data-card data-accent="#38bdf8">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">sport_hackathon.pdf</span></div>
+          <div class="proj-stage"><div class="cover"><span>Sport hackathon · photo</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Inclusive Sport Hackathon</h3><span class="tag">HACKATHON</span></div>
+            <p>A 3-day hackathon with 1,300 first-year students from three schools (engineering, management, digital design) on making sport more sustainable and inclusive, using the UN Sustainable Development Goals. Our mixed team worked on gender equality at the Olympics and proposed inter-school tournaments mixing sport and intellectual challenges for teenagers in the Hauts-de-Seine.</p>
+            <ul class="facts">
+              <li>Work phases with and without generative AI, to keep our own critical thinking</li>
+              <li>Final pitch in front of a jury</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Teamwork</span><span>Design thinking</span><span>UN SDGs</span><span>Pitch</span></div>
+            <div class="proj-foot"><span>Pôle Léonard de Vinci · March 2024</span></div>
+          </div>
+        </article>
+
+        <!-- 13 · Hardware -->
+        <article class="proj" id="p-hexapod" data-demo="hexapod" data-cat="hw" style="--c:#fb923c" data-card data-accent="#fb923c">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">hexapod.SLDASM</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Hexapod robot · photo</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="hexapod"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="ratio" style="background:#fb923c">Gear ratio <span data-out="ratio">1:5</span> <svg class="ic"><use href="#i-refresh"/></svg></button>
+                <span class="pip-note" data-out="note">legs balanced · torque ×5</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Hexapod Robot</h3><span class="tag">ROBOTICS</span></div>
+            <p>Year-long project in a team of six: a six-legged robot inspired by insects, driven by only two electric motors. We designed the whole robot in SolidWorks, worked out the gear ratios to get the right balance between speed and torque, and cut every wooden part with a laser cutter.</p>
+            <ul class="facts">
+              <li>Each leg is moved by a crank and slides in a slot, so a simple rotation becomes a walking step</li>
+              <li>Legs move in two groups of three (tripod gait), so the robot always stands on three feet</li>
+            </ul>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>SolidWorks</span><span>Gear design</span><span>Laser cutting</span><span>Electronics</span></div>
+            <div class="proj-foot"><span>PIX 1 · team of 6 · 2023–2024</span></div>
+          </div>
+        </article>
+
+        <!-- 14 · Hardware -->
+        <article class="proj" id="p-h160" data-demo="h160" data-cat="hw" style="--c:#818cf8" data-card data-accent="#818cf8">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">H160.SLDASM</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Airbus H160 model · render</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="h160"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="explode" style="background:#818cf8"><span data-out="explode">Exploded view</span></button>
+                <button type="button" class="pill-btn ghost" data-act="rotor"><span data-out="rotor">Rotor ON</span></button>
+                <span class="pip-note">drag to orbit</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Airbus H160 in 3D</h3><span class="tag">CAD</span></div>
+            <p>Group project: a detailed 3D model of the Airbus H160 helicopter in SolidWorks, reproducing its structure and design details as accurately as possible, from the five-blade rotor to the fenestron tail. Good training in complex assemblies and in splitting a large model across a team.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>SolidWorks</span><span>3D modelling</span><span>Assemblies</span></div>
+            <div class="proj-foot"><span>Group project · ESILV</span></div>
+          </div>
+        </article>
+
+        <!-- 15 · Software -->
+        <article class="proj" id="p-doovoirs" data-cat="sw" style="--c:#fbbf24" data-card data-accent="#fbbf24">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">index.php</span></div>
+          <div class="proj-stage"><div class="cover"><span>Doovoirs · screenshot</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Doovoirs</h3><span class="tag">WEB APP</span></div>
+            <p>A homework-help forum where students help each other. I first pitched the idea at a contest; it was turned down, so I built it myself. Students post a question with its subject and deadline, others answer, and posts can be liked, searched and filtered by subject. My first dynamic website with PHP and a SQL database.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>PHP</span><span>MySQL</span><span>HTML / CSS</span><span>JavaScript</span></div>
+            <div class="proj-foot"><span>Personal project · 2023</span><a class="proj-link" href="https://github.com/nils-demougeot/doovoirs" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>View on GitHub<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 16 · Software -->
+        <article class="proj" id="p-vivesmap" data-cat="sw" style="--c:#2dd4bf" data-card data-accent="#2dd4bf">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">autocomplete.php</span></div>
+          <div class="proj-stage"><div class="cover"><span>Vives Map · screenshot</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Vives Map</h3><span class="tag">WEB APP</span></div>
+            <p>In my high school, classrooms were named after famous people (Newton, Molière…) with no logic, so nobody knew where to go. I built an interactive map: type a room name, autocomplete finds it among 60 rooms, and the app shows its floor on a 3D map I modelled in Blender. It was shared with the whole school.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>PHP</span><span>JavaScript</span><span>Blender</span><span>Adobe XD</span></div>
+            <div class="proj-foot"><span>Personal project · 2021</span><a class="proj-link" href="https://github.com/nils-demougeot/vivesmap" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>View on GitHub<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 17 · Software -->
+        <article class="proj" id="p-boudoubox" data-cat="sw" style="--c:#FFCC00" data-card data-accent="#FFCC00">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">boudoubox.com</span></div>
+          <div class="proj-stage"><div class="cover"><span>BoudouBox · screenshot</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>BoudouBox Website</h3><span class="tag">WEBSITE · SEO</span></div>
+            <p>Website for BoudouBox, a self-storage company in Agde renting boxes from 1 to 10 m². I handled the full process: design in Figma, build in Webflow, responsive layout for phones, and SEO work so the business shows up in local searches as it grows.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Figma</span><span>Webflow</span><span>SEO</span><span>Responsive design</span></div>
+            <div class="proj-foot"><span>Client project</span><a class="proj-link" href="https://www.boudoubox.com/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-arrow-up-right"/></svg>Visit the site<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 18 · More -->
+        <article class="proj" id="p-seechy" data-cat="more" style="--c:#fb7185" data-card data-accent="#fb7185">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">@seechyTech</span></div>
+          <div class="proj-stage"><div class="cover"><span>Seechy · video thumbnail</span></div></div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Seechy, a Tech YouTube Channel</h3><span class="tag">YOUTUBE</span></div>
+            <p>A YouTube channel where I explain computer science ideas in simple terms. Each video means finding the right words and the right visuals to make a technical topic easy to follow. It takes a lot of time, so there are only a few videos, but it taught me how to explain complex things clearly.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>Script writing</span><span>Video editing</span><span>Explaining tech</span></div>
+            <div class="proj-foot"><span>Personal project</span><a class="proj-link" href="https://www.youtube.com/@seechyTech" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg>Watch on YouTube<svg class="ic"><use href="#i-arrow-up-right"/></svg></a></div>
+          </div>
+        </article>
+
+        <!-- 19 · Hardware -->
+        <article class="proj" id="p-rocket" data-demo="rocket" data-cat="hw" style="--c:#a78bfa" data-card data-accent="#a78bfa">
+          <div class="proj-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="file">rocket.nc</span><span class="status"><i></i><em>paused</em></span><button type="button" class="pip-back" data-stop><svg class="ic"><use href="#i-arrow-left"/></svg>Back to cover</button></div>
+          <div class="proj-stage">
+            <div class="cover"><span>Wooden rocket · photo</span></div>
+            <div class="pip">
+              <div class="pip-canvas"><canvas></canvas></div>
+              <button type="button" class="pip-run" data-activate="rocket"><span><i><svg class="ic"><use href="#i-play"/></svg></i>Run demo</span></button>
+              <div class="pip-ctrl">
+                <button type="button" class="pill-btn" data-act="step" style="background:#a78bfa"><span data-out="step">CNC cut</span> <svg class="ic"><use href="#i-chevron-right"/></svg></button>
+                <span class="pip-note" data-out="note">the finished puzzle · drag to orbit</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title"><h3>Wooden Rocket Puzzle</h3><span class="tag">CAD · CNC</span></div>
+            <p>Our first CAD project: a 3D rocket puzzle of about 30 wooden pieces, made only from small pre-cut boards. We modelled every piece in SolidWorks, then generated the G-code to cut them on a CNC machine. Stacked slices slot onto two crossed spines, and two crossed arches make the fins.</p>
+            <div class="stack"><span class="stack-lbl">$ stack</span><span>SolidWorks</span><span>G-code</span><span>CNC machining</span></div>
+            <div class="proj-foot"><span>Academic project · ESILV</span></div>
+          </div>
+        </article>
+      </div>
+    <div class="proj-more-wrap" hidden></div>
+  </section>
+
+  <!-- ═════════ 03 · Workshop ═════════ -->
+  <section class="sheet s-ink" id="workshop" data-sheet="Workshop">
+    <header class="sec-head">
+      <span class="sec-no">03</span>
+      <h2>Workshop</h2>
+      <p class="sec-note">Hardware and CAD: things that left the screen. Pick a viewport, then drag the model to orbit it.</p>
+    </header>
+    <div class="cad" id="cad">
+      <div class="cad-views" id="cadViews"></div>
+      <div class="cad-props" id="cadProps"><span class="anno">Properties</span></div>
+    </div>
+  </section>
+
+  <!-- ═════════ 04 · Index ═════════ -->
+  <section class="sheet s-paper" id="index" data-sheet="Index">
+    <header class="sec-head">
+      <span class="sec-no">04</span>
+      <h2>Index</h2>
+      <p class="sec-note">Every project, from a high-school room finder to MIT research. Rows marked <b class="live-tag">live</b> have a demo.</p>
+    </header>
+    <div class="proj-filters" role="toolbar" aria-label="Filter projects">
+        <button type="button" class="pf is-on" data-filter="all" aria-pressed="true">All <b>19</b></button>
+        <button type="button" class="pf" data-filter="ai" aria-pressed="false">Data &amp; AI <b>4</b></button>
+        <button type="button" class="pf" data-filter="sw" aria-pressed="false">Software <b>8</b></button>
+        <button type="button" class="pf" data-filter="hw" aria-pressed="false">Hardware &amp; CAD <b>4</b></button>
+        <button type="button" class="pf" data-filter="more" aria-pressed="false">Research &amp; more <b>4</b></button>
+        <div class="view-toggle" hidden></div>
+    </div>
+    <div class="ix" id="ix" role="list"></div>
+  </section>
+
+  <!-- ═════════ 05 · Path ═════════ -->
+  <section class="sheet s-blue" id="path" data-sheet="Path">
+    <header class="sec-head">
+      <span class="sec-no">05</span>
+      <h2>Path</h2>
+      <p class="sec-note">Three cities, one research lab, one security team, one exchange semester. Point at a line to fly there.</p>
+    </header>
+    <div class="path">
+      <div class="globe-wrap">
+        <canvas id="globe" aria-label="Globe showing Paris, Riga and Boston"></canvas>
+        <div class="globe-cap"><span class="anno" id="globeCap">Orthographic projection · drag to rotate</span></div>
+      </div>
+      <ol class="tl" id="tl">
+        <li data-place="paris"><time>2025 → 2026</time><div><b>La Fabrique, startup project</b><span>Django platform for textile upcycling · Prix Esprit Start-up, about 140 teams</span></div><em>Paris</em></li>
+        <li data-place="riga"><time>Aug 2025 → Jan 2026</time><div><b>Riga Technical University</b><span>Exchange semester · telecommunications and data transmission</span></div><em>Riga</em></li>
+        <li data-place="paris"><time>Summer 2025</time><div><b>Cybersecurity &amp; data intern</b><span>Corporate SOC team · threat detection, security dashboards in CrowdStrike NG-SIEM</span></div><em>Paris</em></li>
+        <li data-place="paris"><time>2023 → 2028</time><div><b>ESILV, engineering school</b><span>Data &amp; AI major · currently M1, class of 2028</span></div><em>Paris</em></li>
+        <li data-place="boston"><time>Summer 2022</time><div><b>MIT, Research Lab of Electronics</b><span>Research intern · Network Coding and Reliable Communications group</span></div><em>Boston</em></li>
+        <li data-place="boston"><time>2021 → 2023</time><div><b>International School of Boston</b><span>French Baccalauréat, mention Très Bien</span></div><em>Boston</em></li>
+      </ol>
+    </div>
+
+    <div class="gantt" id="gantt" aria-hidden="true"></div>
+
+    <div class="facts3">
+      <div class="f3">
+        <span class="anno">Languages</span>
+        <ul class="langs">
+          <li><b>French</b><i style="--v:1"></i><span>native</span></li>
+          <li><b>English</b><i style="--v:.9"></i><span>C1 · TOEFL 657</span></li>
+          <li><b>Spanish</b><i style="--v:.5"></i><span>intermediate</span></li>
+        </ul>
+      </div>
+      <div class="f3">
+        <span class="anno">Outside class · DeVinci Durable</span>
+        <p>Head of Communication and Board Advisor of the school's sustainability association.</p>
+        <ul class="nums">
+          <li><b data-count="10">10</b><span>people on my team</span></li>
+          <li><b data-count="600" data-unit=" m²">600 m²</b><span>shared garden launched at La Défense</span></li>
+          <li><b data-count="4" data-unit=" days">4 days</b><span>eco seminar in Marseille</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ 06 · Skills ═════════ -->
+  <section class="sheet s-paper" id="skills" data-sheet="Skills">
+    <header class="sec-head">
+      <span class="sec-no">06</span>
+      <h2>Skills</h2>
+      <p class="sec-note">No progress bars. Each skill cites the projects where I actually used it: hover a number, click to open the project.</p>
+    </header>
+    <div class="spec" id="spec"></div>
+  </section>
+
+  <!-- ═════════ 07 · Contact ═════════ -->
+  <section class="sheet s-yellow" id="contact" data-sheet="Contact">
+    <div class="contact">
+      <span class="sec-no">07</span>
+      <h2 class="big">Let's build<br>something<br>together.</h2>
+      <div class="contact-side">
+        <p>I'm looking for a 4 to 5 month Data &amp; AI internship from April 2027, in machine learning or data analysis. I bring solid Python, a habit of checking results against theory, and a lot of team projects, from hackathons to a startup prize.</p>
+        <div class="avail" id="avail"><span class="anno">Internship window</span><b id="availN">from April 2027</b></div>
+        <div class="contact-links">
+          <button type="button" class="mail" id="mailCopy" data-mail="nils.demougeot@gmail.com"><span>nils.demougeot@gmail.com</span><em><svg class="ic"><use href="#i-copy"/></svg><i>copy</i></em></button>
+          <a href="mailto:nils.demougeot@gmail.com?subject=Internship%20%C2%B7%20April%202027"><svg class="ic"><use href="#i-mail"/></svg>Write an email<svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
+          <a href="https://www.linkedin.com/in/nils-demougeot/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-linkedin"/></svg>LinkedIn<svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
+          <a href="https://github.com/nils-demougeot" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg>GitHub<svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
+          <a href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf"><svg class="ic"><use href="#i-download"/></svg>Résumé (PDF)<svg class="ic ext"><use href="#i-arrow-down"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <footer class="colophon">
+      <span>© 2026 Nils Demougeot</span>
+      <span>Hand-written HTML, CSS and JavaScript. No framework, no tracker, no external request.</span>
+      <a href="v1/">Previous version of this site<svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
+    </footer>
+  </section>
+</main>
+
+<!-- Bottom bar: live readouts -->
+<div class="bar bar-bot" aria-hidden="true">
+  <span class="bb-xy">X <b id="bbX">0000</b> Y <b id="bbY">0000</b></span>
+  <span class="bb-sheet">Sheet <b id="bbNo">01</b>/07 · <b id="bbName">Title sheet</b></span>
+  <span class="bb-prog"><i id="bbProg"></i></span>
+  <span class="bb-live" id="bbLive">no demo running</span>
+  <span class="bb-time">Paris <b id="bbClock">--:--</b></span>
+  <span class="bb-avail">Internship from <b>04/2027</b></span>
+</div>
+
+<!-- Find anything: sections, projects, actions -->
+<dialog class="pal" id="pal" aria-label="Find a project, a section or an action">
+  <div class="pal-in">
+    <svg class="ic"><use href="#i-search"/></svg>
+    <input id="palInput" type="text" placeholder="Find a project, a section, an action…" autocomplete="off" spellcheck="false" autocapitalize="off" aria-controls="palList">
+    <kbd>esc</kbd>
+  </div>
+  <div class="pal-list" id="palList" role="listbox"></div>
+  <div class="pal-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>/</kbd> from anywhere</span></div>
+</dialog>
+
+<!-- Screenshot viewer -->
+<dialog class="lb" id="lb" aria-label="Screenshots">
+  <div class="lb-top"><span class="anno" id="lbTitle"></span><span class="anno" id="lbCount"></span><button type="button" id="lbClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <button type="button" class="lb-nav prev" id="lbPrev" aria-label="Previous"><svg class="ic"><use href="#i-chevron-left"/></svg></button>
+  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
+  <button type="button" class="lb-nav next" id="lbNext" aria-label="Next"><svg class="ic"><use href="#i-chevron-right"/></svg></button>
+</dialog>
+
+<div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/vendor/three.r128.min.js" defer></script>
+<script src="assets/js/widgets.js" defer></script>
+<script src="assets/js/demos.js" defer></script>
+<script src="assets/data/galleries.js" defer></script>
+<script src="assets/data/land-110m.js" defer></script>
+<script src="assets/js/hero.js" defer></script>
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
