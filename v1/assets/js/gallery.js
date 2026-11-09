@@ -13,6 +13,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const SRC = (u) => (/^assets\//.test(u) ? '../' + u : u); // archived in /v1: shared images live one level up
   const COLLAGE = 3; // how many screenshots the scattered first view shows
   // Poses of the scattered cards (x %, y %, rotation deg, scale), front card first. "side" leaves room for a demo window bottom-left.
   const POSES = {
@@ -48,7 +49,7 @@
     g.innerHTML = '<div class="gal-frame">' + imgs.map((im, j) => {
       const p = j < COLLAGE ? poses[j] : EXTRA, ar = im.w && im.h ? im.w / im.h : 1.4;
       return '<figure class="gal-slide' + (j < COLLAGE && n > 1 ? ' pile' : '') + (im.fit === 'cover' ? ' fill' : '') + '" style="--x:' + p[0] + '%;--y:' + p[1] + '%;--r:' + p[2] + 'deg;--s:' + p[3] + ';--ar:' + ar.toFixed(3) + ';z-index:' + (COLLAGE - j) + '">' +
-        '<img src="' + esc(im.src) + '" alt="' + esc(im.alt || title + ', screenshot ' + (j + 1)) + '" loading="lazy" decoding="async"></figure>';
+        '<img src="' + esc(SRC(im.src)) + '" alt="' + esc(im.alt || title + ', screenshot ' + (j + 1)) + '" loading="lazy" decoding="async"></figure>';
     }).join('') + '</div>' +
       (n > 1 ? '<button type="button" class="gal-arrow prev" data-gal="-1" aria-label="Previous screenshot">' + icon('left') + '</button><button type="button" class="gal-arrow next" data-gal="1" aria-label="Next screenshot">' + icon('right') + '</button>' +
         '<div class="gal-ui"><div class="gal-dots"></div><button type="button" class="gal-count" aria-label="Back to all screenshots"></button><button type="button" class="gal-btn gal-zoom" data-gal="zoom" aria-label="Enlarge screenshot">' + icon('zoom') + '</button></div>'
@@ -104,7 +105,7 @@
     $('.lb-title span', lb).textContent = n > 1 ? (lbI + 1) + ' / ' + n : '';
     $$('.lb-thumbs button', lb).forEach((b, j) => b.classList.toggle('on', j === lbI));
     const put = () => {
-      img.src = im.src; img.alt = im.alt || lbS.title; $('.lb-fig figcaption', lb).textContent = im.caption || '';
+      img.src = SRC(im.src); img.alt = im.alt || lbS.title; $('.lb-fig figcaption', lb).textContent = im.caption || '';
       const done = () => requestAnimationFrame(() => img.classList.remove('swap'));
       if (img.complete) done(); else img.onload = done;
     };
@@ -147,7 +148,7 @@
     clearTimeout(lbTimer); lbS = s; lbFocus = document.activeElement;
     lb.style.setProperty('--g1', s.g.style.getPropertyValue('--g1'));
     $('.lb-title b', lb).textContent = s.title;
-    $('.lb-thumbs', lb).innerHTML = s.imgs.length < 2 ? '' : s.imgs.map((im, j) => '<button type="button" aria-label="Screenshot ' + (j + 1) + '"><img src="' + esc(im.src) + '" alt=""></button>').join('');
+    $('.lb-thumbs', lb).innerHTML = s.imgs.length < 2 ? '' : s.imgs.map((im, j) => '<button type="button" aria-label="Screenshot ' + (j + 1) + '"><img src="' + esc(SRC(im.src)) + '" alt=""></button>').join('');
     $$('.lb-nav', lb).forEach((b) => { b.style.visibility = s.imgs.length < 2 ? 'hidden' : ''; });
     $('.lb-fig img', lb).classList.remove('swap'); lbShow(k, 0);
     lb.hidden = false; document.documentElement.classList.add('lb-open');

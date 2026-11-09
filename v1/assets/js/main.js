@@ -12,9 +12,9 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const hexRgb = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 
-  const CV = 'assets/cv/Resume_Nils_Demougeot.pdf';
-  const LOGO = { esilv: 'assets/img/logos/esilv.png', mit: 'assets/img/logos/mit.svg', rtu: 'assets/img/logos/rtu.svg' };
-  const AVATAR = 'assets/img/avatar.jpg'; // square photo shown in `whoami`
+  const CV = '../assets/cv/Resume_Nils_Demougeot.pdf';
+  const LOGO = { esilv: '../assets/img/logos/esilv.png', mit: '../assets/img/logos/mit.svg', rtu: '../assets/img/logos/rtu.svg' };
+  const AVATAR = '../assets/img/avatar.jpg'; // square photo shown in `whoami`
   let avatarOk = false; if (AVATAR) { const im = new Image(); im.onload = () => { avatarOk = true; }; im.src = AVATAR; }
 
   /* ───────── Content ───────── */
