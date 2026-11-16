@@ -58,6 +58,10 @@ Its look is its own: warm paper, black type (Inter Tight, with Instrument Serif 
 - Project texts are a copy: after editing a project card in `index.html`, update the same entry in `3d/js/data.js`. The other texts (about, places, contact) are in `3d/index.html`, and the "What I build" and skills lists at the top of `3d/js/app.js`.
 - Each section's 3D state (layout of the ice, position, size, day or night) is one line of `keys()` in `3d/js/app.js`; the layouts themselves are in `layout()` in `3d/js/scene.js`.
 - The headline behind the rock is the `parts` array in `buildMarquee()` (`scene.js`); the ring of words at the end is in `buildRing()`.
+- Data points: a cloud of dots behind the ice takes the shapes of the trade, section by section (six clusters for the six fields, a small neural network with signals along its edges for the skills, a loss surface under the project index). Shapes are built in the "Data points" block of `scene.js`; which shape each section uses is the `pw` entry of `keys()`.
+- Search: `/` or Ctrl/⌘ K opens a palette over projects, skills, sections and a few actions (`INDEX` in `app.js`).
+- A project has its own link: `/3d/#ligue1` opens that project (the id is the card id without `p-`).
+- Scrolling is inertial with a mouse or trackpad (native on touch and with the keyboard); the 3D lowers its resolution by itself on slow machines and stops drawing while a project page covers it.
 - The page is marked `noindex` with a canonical link to the classic page, so search engines keep a single version.
 - Without WebGL it falls back to plain paper with the same content.
 

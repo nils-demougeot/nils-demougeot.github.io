@@ -56,7 +56,7 @@
   setBuild(0);
   disc.addEventListener('click', (e) => {
     const b = e.target.closest('[data-build]'); if (!b) return; const i = +b.getAttribute('data-build'), r = buildSec.getBoundingClientRect();
-    window.scrollTo({ top: window.scrollY + r.top + ((i + 0.5) / BUILD.length) * (r.height - innerHeight), behavior: reduce ? 'auto' : 'smooth' });
+    scrollToY(window.scrollY + r.top + ((i + 0.5) / BUILD.length) * (r.height - innerHeight));
   });
 
   /* ───────── Skills ───────── */
@@ -108,7 +108,7 @@
 
   /* ───────── Project page ───────── */
   const detail = $('#detail'), dHead = $('#detailHead'), dMedia = $('#detailMedia'), dBody = $('#detailBody'), dIdx = $('#detailIdx'), dScroll = $('#detailScroll'), zoom = $('#zoom');
-  let openId = null, widget = null, lastFocus = null;
+  let openId = null, widget = null, lastFocus = null, pauseT = 0;
   const visible = () => $$('.row', rows).filter((el) => !el.hidden).map((el) => el.getAttribute('data-open'));
   function stopDemo() { if (widget) { try { widget.destroy && widget.destroy(); } catch (e) { /* demo already gone */ } widget = null; } }
   function media(p, i) {
@@ -132,9 +132,12 @@
       (at >= 0 && list.length > 1 ? '<button type="button" class="d-next" data-open="' + list[(at + 1) % list.length] + '"><small>Next project</small><b>' + esc(byId[list[(at + 1) % list.length]].title) + '</b><span>→</span></button>' : '');
     detail.classList.remove('swap-l', 'swap-r'); void detail.offsetWidth; detail.classList.add(dir < 0 ? 'swap-l' : 'swap-r');
     dScroll.scrollTop = 0; $('#detailClose').focus({ preventScroll: true });
+    try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) { /* file:// */ }
+    clearTimeout(pauseT); pauseT = setTimeout(() => { if (openId) ND.paused = true; }, 1000); // the page covers the canvas: stop drawing the 3D, the demos get the GPU
   }
   function closeProject() {
-    if (!openId) return; stopDemo(); openId = null; detail.classList.remove('is-open'); html.classList.remove('is-detail');
+    if (!openId) return; stopDemo(); openId = null; clearTimeout(pauseT); ND.paused = false;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* file:// */ } detail.classList.remove('is-open'); html.classList.remove('is-detail');
     setTimeout(() => { if (!openId) { detail.hidden = true; dMedia.innerHTML = ''; } }, 600);
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
@@ -170,7 +173,7 @@
   document.addEventListener('click', (e) => { const o = e.target.closest('[data-open]'); if (o) { e.preventDefault(); openProject(o.getAttribute('data-open'), 1); } });
   document.addEventListener('keydown', (e) => {
     if (!zoom.hidden && e.key === 'Escape') return closeZoom();
-    if (!openId) return;
+    if (!openId || html.classList.contains('is-find')) return;
     if (e.key === 'Escape') closeProject(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1);
   });
 
@@ -179,10 +182,57 @@
   const menu = $('#menu'), burger = $('#burger');
   function setMenu(on) { burger.setAttribute('aria-expanded', on); burger.textContent = on ? 'Close' : 'Menu'; html.classList.toggle('is-menu', on); if (on) { menu.hidden = false; requestAnimationFrame(() => menu.classList.add('is-open')); } else { menu.classList.remove('is-open'); setTimeout(() => { if (!html.classList.contains('is-menu')) menu.hidden = true; }, 500); } }
   burger.addEventListener('click', () => setMenu(!html.classList.contains('is-menu')));
-  document.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-goto]'); if (!b) return; const el = document.getElementById(b.getAttribute('data-goto')); setMenu(false); if (openId) closeProject();
-    if (el) window.scrollTo({ top: el.id === 'hero' ? 0 : el.getBoundingClientRect().top + window.scrollY + (el.id === 'build' ? 2 : 0), behavior: reduce ? 'auto' : 'smooth' });
-  });
+  /* Inertial scrolling (mouse and trackpad only): the wheel sets a target and the page glides to it. Touch, keyboard and the scrollbar stay native. */
+  const sm = { on: fine && !reduce, y: window.scrollY, to: window.scrollY, run: false };
+  const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - innerHeight);
+  if (sm.on) {
+    window.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey || html.classList.contains('is-detail') || html.classList.contains('is-menu') || html.classList.contains('is-find')) return;
+      e.preventDefault(); if (!sm.run) { sm.y = sm.to = window.scrollY; }
+      sm.to = clamp(sm.to + e.deltaY * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? innerHeight : 1), 0, maxScroll()); sm.run = true;
+    }, { passive: false });
+    window.addEventListener('scroll', () => { if (sm.run && Math.abs(window.scrollY - sm.y) > 3) sm.run = false; }, { passive: true }); // something else moved the page (keys, scrollbar)
+    window.addEventListener('keydown', (e) => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) sm.run = false; });
+  }
+  function glide(dt) { if (!sm.run) return; sm.y = lerp(sm.y, sm.to, 1 - Math.exp(-dt * 7.5)); if (Math.abs(sm.to - sm.y) < 0.4) { sm.y = sm.to; sm.run = false; } window.scrollTo(0, sm.y); }
+  function scrollToY(top) { top = clamp(top, 0, maxScroll()); if (sm.on) { if (!sm.run) sm.y = window.scrollY; sm.to = top; sm.run = true; } else window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' }); }
+  function goTo(id) { const el = document.getElementById(id); setMenu(false); if (openId) closeProject(); if (el) scrollToY(id === 'hero' ? 0 : el.getBoundingClientRect().top + window.scrollY + (id === 'build' ? 2 : 0)); }
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-goto]'); if (b) goTo(b.getAttribute('data-goto')); });
+  const railBtns = $$('#rail [data-goto]'), railBar = $('#railBar');
+
+  /* ───────── Search: "/" or Ctrl/⌘ K finds a project, a skill or a section ───────── */
+  const find = $('#find'), findIn = $('#findIn'), findOut = $('#findOut');
+  const INDEX = [].concat(
+    [['about', 'About'], ['build', 'What I build'], ['skills', 'Skills'], ['work', 'Selected work'], ['path', 'Path'], ['contact', 'Contact']].map(([id, t]) => ({ kind: 'Section', title: t, hay: t.toLowerCase(), go: () => goTo(id) })),
+    P.map((p) => ({ kind: 'Project', title: p.title, sub: p.tag, hay: (p.title + ' ' + p.tag + ' ' + p.stack.join(' ') + ' ' + p.foot).toLowerCase(), go: () => openProject(p.id, 1) })),
+    SKILLS.reduce((acc, c, ci) => acc.concat(c.skills.map(([n, used], si) => ({ kind: 'Skill', title: n, sub: c.name + ' · ' + used.length + (used.length > 1 ? ' projects' : ' project'), hay: (n + ' ' + c.name).toLowerCase(), go: () => { goTo('skills'); skillPin = ci + '.' + si; showSkill(skillPin); } }))), []),
+    [{ kind: 'Action', title: 'Download the CV', hay: 'cv resume download pdf', go: () => { const a = document.createElement('a'); a.href = 'assets/cv/Resume_Nils_Demougeot.pdf'; a.download = 'Resume_Nils_Demougeot.pdf'; a.click(); } },
+     { kind: 'Action', title: 'Write an email', hay: 'email mail contact hire internship', go: () => { location.href = 'mailto:nils.demougeot@gmail.com'; } },
+     { kind: 'Action', title: 'Open the classic version', hay: 'classic version old', go: () => { location.href = './'; } }]);
+  let hits = [], sel = 0;
+  function renderFind() {
+    const q = findIn.value.trim().toLowerCase(), words = q.split(/\s+/).filter(Boolean);
+    hits = (q ? INDEX.filter((it) => words.every((w) => it.hay.includes(w))) : INDEX.filter((it) => it.kind === 'Section' || it.kind === 'Action')).slice(0, 9); sel = Math.min(sel, Math.max(0, hits.length - 1));
+    findOut.innerHTML = hits.length ? hits.map((it, i) => '<button type="button" class="hit' + (i === sel ? ' is-on' : '') + '" data-hit="' + i + '"><small>' + it.kind + '</small><b>' + esc(it.title) + '</b><span>' + esc(it.sub || '') + '</span><i>↵</i></button>').join('') : '<p class="nohit">Nothing for “' + esc(findIn.value) + '”. Try a language, a tool or a project name.</p>';
+  }
+  function setFind(on) { html.classList.toggle('is-find', on); if (on) { find.hidden = false; findIn.value = ''; sel = 0; renderFind(); requestAnimationFrame(() => { find.classList.add('is-open'); findIn.focus(); }); } else { find.classList.remove('is-open'); setTimeout(() => { if (!html.classList.contains('is-find')) find.hidden = true; }, 350); } }
+  function pick(i) { const it = hits[i]; if (!it) return; setFind(false); it.go(); }
+  findIn.addEventListener('input', () => { sel = 0; renderFind(); });
+  findOut.addEventListener('click', (e) => { const h = e.target.closest('[data-hit]'); if (h) pick(+h.getAttribute('data-hit')); });
+  findOut.addEventListener('mousemove', (e) => { const h = e.target.closest('[data-hit]'); if (h && +h.getAttribute('data-hit') !== sel) { sel = +h.getAttribute('data-hit'); $$('.hit', findOut).forEach((el, k) => el.classList.toggle('is-on', k === sel)); } });
+  find.addEventListener('click', (e) => { if (e.target === find) setFind(false); });
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-find]')) { setMenu(false); setFind(true); } });
+  document.addEventListener('keydown', (e) => {
+    const typing = /^(INPUT|TEXTAREA)$/.test((e.target.tagName || ''));
+    if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setFind(!html.classList.contains('is-find')); return; }
+    if (!html.classList.contains('is-find')) return;
+    if (e.key === 'Escape') { e.stopPropagation(); setFind(false); } else if (e.key === 'ArrowDown') { e.preventDefault(); sel = (sel + 1) % Math.max(1, hits.length); renderFind(); } else if (e.key === 'ArrowUp') { e.preventDefault(); sel = (sel - 1 + hits.length) % Math.max(1, hits.length); renderFind(); } else if (e.key === 'Enter') { e.preventDefault(); pick(sel); }
+  }, true);
+
+  /* ───────── Copy the email address ───────── */
+  const copyBtn = $('#copyMail');
+  if (copyBtn) copyBtn.addEventListener('click', (e) => { e.preventDefault(); const done = () => { copyBtn.textContent = 'Copied ✓'; setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1800); }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText('nils.demougeot@gmail.com').then(done, () => { copyBtn.textContent = 'Select it above'; }); else copyBtn.textContent = 'Select it above'; });
+
   const clock = $('#clock'), tick = () => { try { clock.textContent = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }).format(new Date()); } catch (e) { clock.textContent = ''; } };
   tick(); setInterval(tick, 20000);
 
@@ -211,34 +261,42 @@
   const wide = () => innerWidth / innerHeight > 1.05 && innerWidth > 900;
   function keys() {
     const W = wide();
+    // pw: shape of the data points [shell, clusters, network, loss surface]; pop: their opacity; ptx/pty/pts: where and how big
     return [
-      { lay: 'one', x: W ? 0.06 : 0, y: W ? 0.06 : 0.12, scale: W ? 1.45 : 1.25, night: 0, globe: 0, ring: 0, fade: 0, marquee: 1 },
-      { lay: 'cluster', x: W ? 0.62 : 0.1, y: 0, scale: W ? 0.95 : 0.9, night: 0, globe: 0, ring: 0, fade: W ? 0 : 0.45, marquee: 0 },
-      { lay: 'six', x: W ? 0.48 : 0, y: W ? 0 : 0.42, scale: W ? 1.25 : 0.95, night: 0, globe: 0, ring: 0, fade: 0, marquee: 0 },
-      { lay: 'drift', x: 0, y: 0, scale: 1, night: 0, globe: 0, ring: 0, fade: W ? 0.1 : 0.4, marquee: 0 },
-      { lay: 'drift', x: 0, y: 0, scale: 1.15, night: 0, globe: 0, ring: 0, fade: W ? 0.1 : 0.4, marquee: 0 },
-      { lay: 'orbit', x: W ? 0.48 : 0, y: W ? 0.02 : 0.4, scale: W ? 1.2 : 0.7, night: 1, globe: 1, ring: 0, fade: 0, marquee: 0 },
-      { lay: 'one', x: W ? 0.4 : 0, y: W ? 0 : 0.36, scale: W ? 1.15 : 0.8, night: 0, globe: 0, ring: W ? 1 : 0, fade: W ? 0 : 0.45, marquee: 0 }
+      { lay: 'one', x: W ? 0.06 : 0, y: W ? 0.06 : 0.12, scale: W ? 1.45 : 1.25, night: 0, globe: 0, ring: 0, fade: 0, marquee: 1, pw: [1, 0, 0, 0], pop: 0, ptx: W ? 0.06 : 0, pty: 0.06, pts: 1.5 },
+      { lay: 'cluster', x: W ? 0.62 : 0.1, y: 0, scale: W ? 0.95 : 0.9, night: 0, globe: 0, ring: 0, fade: W ? 0 : 0.45, marquee: 0, pw: [1, 0, 0, 0], pop: W ? 0.55 : 0.3, ptx: W ? 0.62 : 0.1, pty: 0, pts: 1.25 },
+      { lay: 'six', x: W ? 0.48 : 0, y: W ? 0 : 0.42, scale: W ? 1.25 : 0.95, night: 0, globe: 0, ring: 0, fade: 0, marquee: 0, pw: [0, 1, 0, 0], pop: 0.9, ptx: W ? 0.48 : 0, pty: W ? 0 : 0.42, pts: W ? 1.25 : 0.8 },
+      { lay: 'drift', x: 0, y: 0, scale: 1, night: 0, globe: 0, ring: 0, fade: W ? 0.1 : 0.4, marquee: 0, pw: [0, 0, 1, 0], pop: W ? 0.6 : 0.3, ptx: W ? 0.6 : 0, pty: W ? 0.0 : 0.2, pts: W ? 0.95 : 0.7 },
+      { lay: 'drift', x: 0, y: 0, scale: 1.15, night: 0, globe: 0, ring: 0, fade: W ? 0.1 : 0.4, marquee: 0, pw: [0, 0, 0, 1], pop: W ? 0.85 : 0.3, ptx: W ? 0.45 : 0, pty: -0.38, pts: W ? 1.35 : 0.8 },
+      { lay: 'orbit', x: W ? 0.48 : 0, y: W ? 0.02 : 0.4, scale: W ? 1.2 : 0.7, night: 1, globe: 1, ring: 0, fade: 0, marquee: 0, pw: [1, 0, 0, 0], pop: 0.5, ptx: W ? 0.48 : 0, pty: W ? 0.02 : 0.4, pts: W ? 1.7 : 1 },
+      { lay: 'one', x: W ? 0.4 : 0, y: W ? 0 : 0.36, scale: W ? 1.15 : 0.8, night: 0, globe: 0, ring: W ? 1 : 0, fade: W ? 0 : 0.45, marquee: 0, pw: [1, 0, 0, 0], pop: W ? 0.4 : 0, ptx: W ? 0.4 : 0, pty: 0, pts: 1.3 }
     ];
   }
   const smooth = (t) => t * t * (3 - 2 * t);
-  let secIdx = -1, intro = 1, lastY = -1, navHide = false;
-  function update() {
-    const vh = innerHeight, y = window.scrollY, mid = vh * 0.5, K = keys();
-    let i = 0; for (let k = 0; k < SECS.length; k++) if (SECS[k].getBoundingClientRect().top <= mid) i = k;
-    const nxt = Math.min(SECS.length - 1, i + 1), topN = SECS[nxt].getBoundingClientRect().top, prevTop = SECS[i].getBoundingClientRect().top;
+  let secIdx = -1, intro = 1, lastY = -1, navHide = false, tops = [], buildTop = 0, buildH = 1, KEYS = keys(), lastT = performance.now();
+  // section positions are measured once per layout change, not every frame
+  function measure() { const y = window.scrollY; tops = SECS.map((el) => el.getBoundingClientRect().top + y); const r = buildSec.getBoundingClientRect(); buildTop = r.top + y; buildH = r.height; KEYS = keys(); }
+  measure(); window.addEventListener('resize', measure); window.addEventListener('load', measure);
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(document.querySelector('main'));
+  function update(now) {
+    const dt = Math.min(0.05, ((now || performance.now()) - lastT) / 1000); lastT = now || performance.now();
+    glide(dt);
+    const vh = innerHeight, y = window.scrollY, mid = vh * 0.5, K = KEYS;
+    let i = 0; for (let k = 0; k < tops.length; k++) if (tops[k] - y <= mid) i = k;
+    const nxt = Math.min(SECS.length - 1, i + 1), topN = tops[nxt] - y, prevTop = tops[i] - y;
     let t = 0, a = i, b = nxt; // blend in a band of one viewport around each boundary
     if (nxt !== i && topN - mid < vh * 0.5) t = clamp(0.5 - (topN - mid) / vh, 0, 0.5);
     else if (i > 0 && mid - prevTop < vh * 0.5) { a = i - 1; b = i; t = clamp(0.5 + (mid - prevTop) / vh, 0.5, 1); }
     const A = K[a], B = K[b], ts = smooth(t), num = (n) => lerp(A[n], B[n], ts);
-    const br = buildSec.getBoundingClientRect(), bp = clamp(-br.top / Math.max(1, br.height - vh), 0, 0.9999);
-    if (br.top < vh * 0.6 && br.bottom > vh * 0.4) setBuild(Math.floor(bp * BUILD.length));
-    const st = { a: A.lay, b: B.lay, t, x: num('x'), y: num('y'), scale: num('scale'), night: num('night'), globe: num('globe'), ring: num('ring'), fade: num('fade'), marquee: num('marquee'), active: buildIdx };
+    const bTop = buildTop - y, bp = clamp(-bTop / Math.max(1, buildH - vh), 0, 0.9999);
+    if (bTop < vh * 0.6 && bTop + buildH > vh * 0.4) setBuild(Math.floor(bp * BUILD.length));
+    const st = { a: A.lay, b: B.lay, t, x: num('x'), y: num('y'), scale: num('scale'), night: num('night'), globe: num('globe'), ring: num('ring'), fade: num('fade'), marquee: num('marquee'), active: buildIdx, pw: A.pw.map((v, k) => lerp(v, B.pw[k], ts)), pop: num('pop'), ptx: num('ptx'), pty: num('pty'), pts: num('pts') };
     if (openId) st.fade = Math.max(st.fade, 0.2);
     if (intro > 0) st.scale = lerp(st.scale, 0.2, intro); // before the loader ends the rock is small and far
     ND.target = st;
     const cur = t < 0.5 ? a : b;
-    if (cur !== secIdx) { secIdx = cur; html.setAttribute('data-sec', SECS[cur].id); }
+    if (cur !== secIdx) { secIdx = cur; html.setAttribute('data-sec', SECS[cur].id); railBtns.forEach((el, k) => el.classList.toggle('is-on', k === cur)); }
+    railBar.style.transform = 'scaleY(' + clamp(y / Math.max(1, document.documentElement.scrollHeight - vh), 0, 1).toFixed(4) + ')';
     const night = st.night > 0.5; if (night !== (html.getAttribute('data-tone') === 'night')) html.setAttribute('data-tone', night ? 'night' : 'day');
     if (lastY >= 0 && y !== lastY) { const hide = y > lastY && y > vh * 0.6 && !html.classList.contains('is-menu'); if (hide !== navHide) { navHide = hide; html.classList.toggle('nav-hide', hide); } } lastY = y;
     html.classList.toggle('is-top', y < 40);
@@ -254,6 +312,7 @@
   function start() {
     done = true; html.classList.add('is-ready'); loader.classList.add('is-done'); setTimeout(() => { loader.hidden = true; }, 1200);
     $$('.hero [data-reveal]').forEach((el, i) => setTimeout(() => el.classList.add('in'), 700 + i * 110));
+    const deep = location.hash.slice(1); if (byId[deep]) setTimeout(() => openProject(deep, 1), 900);
     const t0 = performance.now(); (function ease(now) { const k = clamp((now - t0) / 1500, 0, 1); intro = Math.pow(1 - k, 3); if (k < 1) requestAnimationFrame(ease); else intro = 0; })(t0);
   }
   (function load() {

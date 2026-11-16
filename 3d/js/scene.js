@@ -29,10 +29,10 @@
 
   /* ───────── State ───────── */
   // a/b: the two layouts being blended (t = 0 → a, 1 → b); x/y: centre, as fractions of the half viewport.
-  const BASE = { a: 'one', b: 'one', t: 0, x: 0, y: 0, scale: 0.6, night: 0, globe: 0, ring: 0, fade: 0, active: -1, marquee: 1 };
+  const BASE = { a: 'one', b: 'one', t: 0, x: 0, y: 0, scale: 0.6, night: 0, globe: 0, ring: 0, fade: 0, active: -1, marquee: 1, pw: [1, 0, 0, 0], pop: 0, ptx: 0, pty: 0, pts: 1 };
   ND.target = Object.assign({}, BASE);
-  const cur = { x: 0, y: 0, scale: 0.4, night: 0, globe: 0, ring: 0, fade: 0, marquee: 0 };
-  const NUM = ['x', 'y', 'scale', 'night', 'globe', 'ring', 'fade', 'marquee'];
+  const cur = { x: 0, y: 0, scale: 0.4, night: 0, globe: 0, ring: 0, fade: 0, marquee: 0, pop: 0, ptx: 0, pty: 0, pts: 1, pw: [1, 0, 0, 0] };
+  const NUM = ['x', 'y', 'scale', 'night', 'globe', 'ring', 'fade', 'marquee', 'pop', 'ptx', 'pty', 'pts'];
   const U = {
     uTime: { value: 0 }, uAspect: { value: 1 }, uRes: { value: new T.Vector2(2, 2) }, uNight: { value: 0 }, uMouse2: { value: new T.Vector2() },
     uLight: { value: new T.Vector3(-0.5, 0.75, 0.45) }, uObj: { value: new T.Vector2() }, uA: { value: new T.Vector3(0.62, 0.56, 0.9) }
@@ -87,6 +87,61 @@
   const dotTex = blobTex([[0, 'rgba(255,255,255,1)'], [0.4, 'rgba(255,255,255,.75)'], [1, 'rgba(255,255,255,0)']]);
   const shadowMat = new T.SpriteMaterial({ map: blobTex([[0, 'rgba(40,36,60,.5)'], [0.35, 'rgba(70,60,110,.22)'], [0.7, 'rgba(190,150,120,.07)'], [1, 'rgba(255,255,255,0)']]), transparent: true, depthTest: false, depthWrite: false, opacity: 0 });
   const shadow = new T.Sprite(shadowMat); shadow.renderOrder = -4; bgScene.add(shadow);
+
+
+  /* ───────── Data points: one cloud of dots that rearranges itself into the shapes of the trade ─────────
+     0 a loose shell around the ice · 1 six clusters (one per field) · 2 a small neural network with signals running along its edges · 3 a loss surface */
+  const COLS = ['#e8590c', '#3b5bdb', '#e03131', '#0ca678', '#1c7ed6', '#d6336c'].map(hex);
+  const PN = 3000, pA = new Float32Array(PN * 3), pB = new Float32Array(PN * 3), pC = new Float32Array(PN * 3), pC2 = new Float32Array(PN * 3), pD = new Float32Array(PN * 3), pR = new Float32Array(PN * 4);
+  const gauss = () => { let u = 0; for (let i = 0; i < 4; i++) u += rnd(); return (u - 2) / 0.58; };
+  (function () {
+    const CEN = [[-1.25, 0.95], [0.25, 1.25], [1.5, 0.55], [1.2, -0.85], [-0.2, -1.2], [-1.5, -0.4]], LAYERS = [5, 8, 10, 8, 3], nodes = [];
+    LAYERS.forEach((n, l) => { const col = []; for (let k = 0; k < n; k++) col.push([(l - 2) * 0.95, (k - (n - 1) / 2) * 0.42, (rnd() - 0.5) * 0.3]); nodes.push(col); });
+    for (let i = 0; i < PN; i++) {
+      const i3 = i * 3, g = i % 6, r1 = rnd(), r2 = rnd(), r3 = rnd();
+      const th = rnd() * 6.283, ph = Math.acos(rnd() * 2 - 1), rad = 1.7 + Math.pow(rnd(), 2) * 1.6;
+      pA[i3] = Math.sin(ph) * Math.cos(th) * rad; pA[i3 + 1] = Math.cos(ph) * rad * 0.8; pA[i3 + 2] = Math.sin(ph) * Math.sin(th) * rad;
+      pB[i3] = CEN[g][0] + gauss() * 0.3; pB[i3 + 1] = CEN[g][1] + gauss() * 0.26; pB[i3 + 2] = gauss() * 0.3;
+      const l = Math.floor(rnd() * 4), a = nodes[l][Math.floor(rnd() * nodes[l].length)], b = nodes[l + 1][Math.floor(rnd() * nodes[l + 1].length)], edge = i % 5 !== 0; // 4 in 5 travel along an edge, 1 in 5 sits on a node
+      const na = edge ? a : nodes[Math.floor(rnd() * 5)][0], nn = edge ? a : (() => { const L = nodes[Math.floor(rnd() * 5)]; return L[Math.floor(rnd() * L.length)]; })(), jit = edge ? 0 : 0.05;
+      pC[i3] = nn[0] + gauss() * jit; pC[i3 + 1] = nn[1] + gauss() * jit; pC[i3 + 2] = nn[2] + gauss() * jit;
+      const e = edge ? b : null; pC2[i3] = e ? e[0] : pC[i3]; pC2[i3 + 1] = e ? e[1] : pC[i3 + 1]; pC2[i3 + 2] = e ? e[2] : pC[i3 + 2];
+      const gx = (i % 60) / 59, gz = Math.floor(i / 60) / 49; pD[i3] = (gx - 0.5) * 5.2; pD[i3 + 1] = 0; pD[i3 + 2] = (gz - 0.5) * 4.2;
+      pR[i * 4] = r1; pR[i * 4 + 1] = r2; pR[i * 4 + 2] = r3; pR[i * 4 + 3] = g; void na;
+    }
+  })();
+  const ptsGeo = new T.BufferGeometry();
+  [['position', pA, 3], ['aB', pB, 3], ['aC', pC, 3], ['aC2', pC2, 3], ['aD', pD, 3], ['aR', pR, 4]].forEach((a) => ptsGeo.setAttribute(a[0], new T.BufferAttribute(a[1], a[2])));
+  const ptsU = { uTime: U.uTime, uNight: U.uNight, uW: { value: new T.Vector4(1, 0, 0, 0) }, uC: { value: new T.Vector3() }, uS: { value: 1 }, uOp: { value: 0 }, uPx: { value: 1 }, uAct: { value: -1 }, uCols: { value: COLS.map((c) => new T.Vector3(c[0], c[1], c[2])) } };
+  const points = new T.Points(ptsGeo, new T.ShaderMaterial({
+    uniforms: ptsU, transparent: true, depthTest: false, depthWrite: false,
+    vertexShader: [
+      'attribute vec3 aB, aC, aC2, aD; attribute vec4 aR; uniform float uTime, uS, uPx, uAct, uOp; uniform vec4 uW; uniform vec3 uC; uniform vec3 uCols[6];',
+      'varying float vA; varying vec3 vCol; varying float vK;',
+      'vec3 ry(vec3 p, float a){ float s = sin(a), c = cos(a); return vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z); }',
+      'vec3 rx(vec3 p, float a){ float s = sin(a), c = cos(a); return vec3(p.x, c * p.y - s * p.z, s * p.y + c * p.z); }',
+      'void main(){',
+      '  vec3 p0 = ry(position, uTime * 0.06 + aR.x * 0.4);',
+      '  vec3 p1 = aB + vec3(sin(uTime * 0.7 + aR.x * 40.0), cos(uTime * 0.6 + aR.y * 40.0), 0.0) * 0.035;',
+      '  float on = step(abs(aR.w - uAct), 0.5);',
+      '  p1 += (p1 - vec3(0.0)) * 0.0 + vec3(0.0, 0.0, on * 0.5);',
+      '  float tt = fract(aR.y + uTime * (0.10 + 0.12 * aR.z));',
+      '  vec3 p2 = ry(mix(aC, aC2, tt * tt * (3.0 - 2.0 * tt)), sin(uTime * 0.17) * 0.35);',
+      '  vec3 d = aD; d.y = 0.42 * sin(d.x * 1.25 + uTime * 0.35) * cos(d.z * 1.1 - uTime * 0.2) + 0.3 * sin(d.x * 0.55 - d.z * 0.9 + uTime * 0.25) - 0.25 * exp(-dot(d.xz, d.xz) * 0.35);',
+      '  float hgt = d.y; vec3 p3 = rx(ry(d, uTime * 0.05 + 0.5), 0.5);',
+      '  vec3 p = p0 * uW.x + p1 * uW.y + p2 * uW.z + p3 * uW.w;',
+      '  vec4 mv = modelViewMatrix * vec4(uC + p * uS, 1.0);',
+      '  gl_Position = projectionMatrix * mv;',
+      '  float node = step(distance(aC, aC2), 0.001);',
+      '  float sz = mix(1.0, 1.0 + on * 0.8, uW.y); sz = mix(sz, mix(0.85, 1.9, node), uW.z); sz = mix(sz, 1.05, uW.w);',
+      '  gl_PointSize = uPx * sz * (0.7 + 0.6 * aR.x) * 10.0 / -mv.z;',
+      '  vA = uOp * mix(0.5 + 0.4 * aR.z, 1.0, max(uW.y * on, uW.z * node)) * mix(1.0, 0.55 + 0.45 * smoothstep(-0.5, 0.5, hgt), uW.w) * mix(1.0, 0.55, uW.x);',
+      '  vCol = uCols[int(aR.w + 0.5)]; vK = max(uW.y * (0.25 + 0.75 * on), uW.w * smoothstep(0.1, 0.6, -hgt) * 0.8);',
+      '}'
+    ].join('\n'),
+    fragmentShader: 'precision mediump float; uniform float uNight; varying float vA; varying vec3 vCol; varying float vK; void main(){ vec2 q = gl_PointCoord - 0.5; float a = smoothstep(0.5, 0.32, length(q)); vec3 ink = mix(vec3(0.07), vec3(0.93), uNight); gl_FragColor = vec4(mix(ink, mix(vCol, vCol + 0.35, uNight), vK), a * vA); }'
+  }));
+  points.frustumCulled = false; points.renderOrder = -3; bgScene.add(points);
 
   /* ───────── Rocks: displaced spheres with a few chipped faces ───────── */
   const hash3 = (x, y, z, s) => { let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 1274126177) ^ Math.imul(s, 144665); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
@@ -157,7 +212,7 @@
     '  col = mix(col, env(R) * mix(1.0, 0.4, uNight), clamp(fres, 0.0, 1.0) * (uBack > 0.5 ? 0.3 : 1.0));',
     '  col += vec3(1.0) * pow(max(dot(R, normalize(uLight)), 0.0), 90.0) * (uBack > 0.5 ? 0.0 : 1.0);',
     '  col += vec3(0.55, 0.48, 0.95) * pow(rim, 2.5) * uNight * 0.55;',
-    '  col = mix(col, col * mix(vec3(1.0), uTint, 0.42) + uTint * 0.03, uGlow);',
+    '  col = mix(col, col * mix(vec3(1.0), uTint, 0.16), uGlow) + uTint * (pow(rim, 1.6) * 0.42 + frost * 0.22 + vein * 0.3) * uGlow; // the active chunk stays clear ice, lit from inside with its colour',
     '  col = mix(col, texture2D(uBg, uv).rgb, uFade);',
     '  gl_FragColor = vec4(col, 1.0);',
     '}'
@@ -166,7 +221,7 @@
   quadA.frustumCulled = false; quadA.renderOrder = -10; backScene.add(quadA);
 
   // 7 chunks (0 is the rock of the hero; 0–5 stand for the six disciplines) and 14 pebbles.
-  const BIG = 7, PEB = 14, COLS = ['#ff8a1f', '#5b6cff', '#ff5a3c', '#17b978', '#1fa7ff', '#ff4f8b'].map(hex);
+  const BIG = 7, PEB = 14;
   const SHAPES = [
     { d: 28, lump: 1.15, chips: 9, sq: [1, 1.1, 0.95] }, { d: 14, lump: 1.1, chips: 9, sq: [1.1, 0.9, 0.85] }, { d: 14, lump: 0.9, chips: 10, sq: [0.85, 1.15, 0.9] },
     { d: 14, lump: 1.2, chips: 8, sq: [1.05, 0.8, 1] }, { d: 14, lump: 0.8, chips: 11, sq: [0.9, 1, 1.1] }, { d: 14, lump: 1.1, chips: 9, sq: [1.15, 0.95, 0.8] }, { d: 14, lump: 1.0, chips: 10, sq: [0.95, 1.05, 1] },
@@ -302,9 +357,10 @@
   ND.burst = () => { shatterT = 1; }; // a click breaks the rock open for a moment
 
   /* ───────── Resize ───────── */
+  const q = { s: 1, ema: 16, n: 0 }; // quality: the drawing buffer shrinks a step when frames get slow
   function resize() {
     V.w = window.innerWidth; V.h = window.innerHeight; V.aspect = V.w / V.h; V.halfW = HALF_H * V.aspect;
-    V.dpr = Math.min(window.devicePixelRatio || 1, 1.6);
+    V.dpr = Math.min(window.devicePixelRatio || 1, 1.6) * q.s;
     renderer.setPixelRatio(V.dpr); renderer.setSize(V.w, V.h, false);
     cam.aspect = V.aspect; cam.updateProjectionMatrix();
     const rs = Math.max(0.5, Math.min(1, 1 / V.dpr)), bw = Math.max(2, Math.round(V.w * V.dpr * rs)), bh = Math.max(2, Math.round(V.h * V.dpr * rs)); // refraction textures at about one CSS pixel
@@ -317,17 +373,19 @@
   const A = { x: 0, y: 0, z: 0, s: 0 }, B = { x: 0, y: 0, z: 0, s: 0 }, C = { x: 0, y: 0, z: 0, s: 0 };
   function frame(now) {
     requestAnimationFrame(frame);
-    if (document.hidden) { last = now; return; }
+    if (document.hidden || ND.paused) { last = now; return; }
+    q.ema = lerp(q.ema, Math.min(100, now - last), 0.06); if (++q.n > 90 && q.ema > 25 && q.s > 0.55) { q.s -= 0.15; q.n = 30; q.ema = 16; resize(); }
     const dt = Math.min(0.05, (now - last) / 1000); last = now; time += dt * (reduce ? 0.3 : 1);
     const tg = ND.override ? Object.assign({}, ND.target, ND.override) : ND.target, k = 1 - Math.exp(-dt * 3.2);
     NUM.forEach((n) => { cur[n] = lerp(cur[n], tg[n], n === 'night' ? 1 - Math.exp(-dt * 2.2) : k); });
+    for (let i = 0; i < 4; i++) cur.pw[i] = lerp(cur.pw[i], tg.pw[i], 1 - Math.exp(-dt * 2.4));
     const sy = window.scrollY, prev = sc; sc = lerp(sc, sy, 1 - Math.exp(-dt * 8)); scVel = lerp(scVel, (sc - prev) / Math.max(dt, 0.001), 0.2); scrollPx = sc;
     ptr.sx = lerp(ptr.sx, ptr.x, 1 - Math.exp(-dt * 5)); ptr.sy = lerp(ptr.sy, ptr.y, 1 - Math.exp(-dt * 5));
     if (shatterT > 0) { shatter = lerp(shatter, 1, 1 - Math.exp(-dt * 9)); shatterT -= dt * 0.9; } else shatter = lerp(shatter, 0, 1 - Math.exp(-dt * 2.5));
     if (!spin.down) { spin.vx *= Math.exp(-dt * 2); spin.vy *= Math.exp(-dt * 2); }
     spin.x += spin.vx; spin.y += spin.vy;
 
-    U.uTime.value = time; U.uNight.value = cur.night; U.uMouse2.value.set(ptr.sx, ptr.sy); U.uRes.value.set(V.w * V.dpr, V.h * V.dpr);
+    U.uTime.value = time; U.uNight.value = cur.night; U.uMouse2.value.set(ptr.sx, ptr.sy); U.uRes.value.set(Math.floor(V.w * V.dpr), Math.floor(V.h * V.dpr));
     U.uLight.value.set(-0.5 + ptr.sx * 0.8, 0.72 + ptr.sy * 0.5, 0.48);
     const cx = cur.x * V.halfW, cy = cur.y * HALF_H, S = cur.scale * Math.min(1, V.aspect * 1.2), mx = ptr.sx * V.halfW, my = ptr.sy * HALF_H;
     const vel = Math.min(3, Math.abs(scVel) / 900);
@@ -353,6 +411,9 @@
         m.material.uniforms.uFade.value = cur.fade * (c.big ? 1 : 0.6); m.material.uniforms.uGlow.value = gl0 * 0.7;
       });
     }
+    // data points
+    points.visible = cur.pop > 0.01;
+    if (points.visible) { ptsU.uW.value.set(cur.pw[0], cur.pw[1], cur.pw[2], cur.pw[3]); ptsU.uC.value.set(cur.ptx * V.halfW, cur.pty * HALF_H, -1.4); ptsU.uS.value = cur.pts * Math.min(1, V.aspect * 1.15); ptsU.uOp.value = cur.pop; ptsU.uAct.value = tg.active; ptsU.uPx.value = (V.h * V.dpr) / 300; }
     // shadow under the hero rock
     const c0 = chunks[0], one = c0.s / Math.max(0.001, S);
     shadow.position.set(c0.front.position.x + 0.25 * c0.s, c0.front.position.y - 1.05 * c0.s, -1.2); shadow.scale.set(c0.s * 3.4, c0.s * 1.5, 1);

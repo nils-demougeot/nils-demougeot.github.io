@@ -60,6 +60,7 @@
     <button type="button" data-goto="work">Work</button>
     <button type="button" data-goto="about">About</button>
     <button type="button" data-goto="path">Path</button>
+    <button type="button" data-find>Search <kbd>/</kbd></button>
   </nav>
   <span class="nav-time">Paris <time id="clock">--:--</time></span>
   <span class="nav-status"><i></i>Open to internships</span>
@@ -75,7 +76,29 @@
     <button type="button" data-goto="work"><i>(04)</i>Work</button>
     <button type="button" data-goto="path"><i>(05)</i>Path</button>
     <button type="button" data-goto="contact"><i>(06)</i>Contact</button>
+    <button type="button" data-find><i>( / )</i>Search</button>
   </nav>
+</div>
+
+<!-- Section rail -->
+<nav class="rail" id="rail" aria-label="Sections">
+  <span class="rail-line"><i id="railBar"></i></span>
+  <button type="button" data-goto="hero"><span>Intro</span></button>
+  <button type="button" data-goto="about"><span>About</span></button>
+  <button type="button" data-goto="build"><span>What I build</span></button>
+  <button type="button" data-goto="skills"><span>Skills</span></button>
+  <button type="button" data-goto="work"><span>Work</span></button>
+  <button type="button" data-goto="path"><span>Path</span></button>
+  <button type="button" data-goto="contact"><span>Contact</span></button>
+</nav>
+
+<!-- Search -->
+<div class="find" id="find" role="dialog" aria-modal="true" aria-label="Search the portfolio" hidden>
+  <div class="find-box">
+    <label class="find-top"><span>Search</span><input id="findIn" type="text" autocomplete="off" spellcheck="false" placeholder="python, django, MIT, ligue 1…"><kbd>esc</kbd></label>
+    <div class="find-out" id="findOut"></div>
+    <p class="find-foot"><span>↑ ↓ to move</span><span>↵ to open</span><span>19 projects · 31 skills</span></p>
+  </div>
 </div>
 
 <!-- Switch between the two versions of the portfolio -->
@@ -200,6 +223,7 @@
       <p data-reveal>I'm looking for a 4 to 5 month Data &amp; AI internship from April 2027, in machine learning or data analysis. I bring solid Python, a habit of checking results against theory, and a lot of team projects, from hackathons to a startup prize.</p>
       <div class="links" data-reveal>
         <a class="mail" href="mailto:nils.demougeot@gmail.com" data-cursor="write">nils.demougeot@gmail.com <span>↗</span></a>
+        <button type="button" class="copy" id="copyMail">Copy</button>
         <a href="https://github.com/nils-demougeot" target="_blank" rel="noopener"><small>GitHub · code &amp; repos</small>nils-demougeot <span>↗</span></a>
         <a href="https://www.linkedin.com/in/nils-demougeot/" target="_blank" rel="noopener"><small>LinkedIn · professional</small>nils-demougeot <span>↗</span></a>
         <a href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf"><small>Resume · PDF</small>1-page CV <span>↓</span></a>
