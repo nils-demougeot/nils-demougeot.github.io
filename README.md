@@ -38,6 +38,25 @@ assets/img/projects/    project screenshots, one folder per card (managed by too
 tools/galleries.html    local tool: project cards (add, edit, reorder, delete) and their screenshots
 ```
 
+## Immersive version (`/3d/`)
+
+A second, separate design of the same portfolio lives in `3d/` and is served at `https://nils-demougeot.github.io/3d/`. The classic page (`index.html`) does not depend on it and is unchanged.
+
+```
+3d/index.html     page markup (uses <base href="../"> so it shares the fonts, images, demos and data of the classic site)
+3d/css/style.css  styles of the immersive version
+3d/css/demos.css  styles the live demos need (copied from assets/css/style.css)
+3d/js/scene.js    WebGL scene: glass crystal made of 80 shards, giant refracted words, globe, dust
+3d/js/app.js      scroll → 3D state, reveals, cursor, skills, project list, project detail with galleries and live demos
+3d/js/data.js     text of the 19 projects, extracted from index.html
+```
+
+- It reuses `assets/js/widgets.js`, `assets/js/demos.js` and `assets/data/galleries.js` as they are: a new screenshot added with the gallery tool shows up in both versions.
+- Project texts are a copy: after editing a project card in `index.html`, update the same entry in `3d/js/data.js`. The other texts (about, places, contact) are in `3d/index.html`, and the "What I build" and skills lists at the top of `3d/js/app.js`.
+- Each section's 3D state (layout of the shards, position, colours) is one line of `keys()` in `3d/js/app.js`.
+- The page is marked `noindex` with a canonical link to the classic page, so search engines keep a single version.
+- Without WebGL it falls back to a plain gradient background with the same content.
+
 ## Editing content
 
 - **What I build**: the `BUILD` array at the top of `assets/js/main.js`. Each entry has a label, blurb, tags, color and a `shape` (`neural`, `stack`, `tree`, `chip`, `tower`, `shield`). New shapes go in `SHAPES` in `widgets.js`.
