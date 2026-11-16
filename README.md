@@ -42,20 +42,24 @@ tools/galleries.html    local tool: project cards (add, edit, reorder, delete) a
 
 A second, separate design of the same portfolio lives in `3d/` and is served at `https://nils-demougeot.github.io/3d/`. The classic page (`index.html`) does not depend on it and is unchanged.
 
+Its look is its own: warm paper, black type (Inter Tight, with Instrument Serif italics), hairlines, and a block of ice in WebGL that bends the headline, breaks into chunks that float through the page, orbits a globe in a night section and gathers again at the end.
+
 ```
-3d/index.html     page markup (uses <base href="../"> so it shares the fonts, images, demos and data of the classic site)
+3d/index.html     page markup (uses <base href="../"> so it shares the images, demos and data of the classic site)
 3d/css/style.css  styles of the immersive version
 3d/css/demos.css  styles the live demos need (copied from assets/css/style.css)
-3d/js/scene.js    WebGL scene: glass crystal made of 80 shards, giant refracted words, globe, dust
-3d/js/app.js      scroll → 3D state, reveals, cursor, skills, project list, project detail with galleries and live demos
+3d/fonts/         Inter Tight and Instrument Serif (SIL Open Font License), self-hosted
+3d/js/scene.js    WebGL scene: ice rocks, headline marquee, globe, ring of words
+3d/js/app.js      scroll → 3D state, reveals, cursor, skills, project index, project page with galleries and live demos
 3d/js/data.js     text of the 19 projects, extracted from index.html
 ```
 
 - It reuses `assets/js/widgets.js`, `assets/js/demos.js` and `assets/data/galleries.js` as they are: a new screenshot added with the gallery tool shows up in both versions.
 - Project texts are a copy: after editing a project card in `index.html`, update the same entry in `3d/js/data.js`. The other texts (about, places, contact) are in `3d/index.html`, and the "What I build" and skills lists at the top of `3d/js/app.js`.
-- Each section's 3D state (layout of the shards, position, colours) is one line of `keys()` in `3d/js/app.js`.
+- Each section's 3D state (layout of the ice, position, size, day or night) is one line of `keys()` in `3d/js/app.js`; the layouts themselves are in `layout()` in `3d/js/scene.js`.
+- The headline behind the rock is the `parts` array in `buildMarquee()` (`scene.js`); the ring of words at the end is in `buildRing()`.
 - The page is marked `noindex` with a canonical link to the classic page, so search engines keep a single version.
-- Without WebGL it falls back to a plain gradient background with the same content.
+- Without WebGL it falls back to plain paper with the same content.
 
 ## Editing content
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Every relative path below resolves from the site root, so this page shares the classic site's assets (fonts, images, demos, data). -->
+  <!-- Every relative path below resolves from the site root, so this page shares the classic site's images, demos and data. -->
   <base href="../">
   <title>Nils Demougeot · Immersive Portfolio</title>
   <meta name="description" content="Immersive 3D version of Nils Demougeot's portfolio: Data & AI engineering student at ESILV Paris.">
@@ -11,10 +11,10 @@
   <!-- Alternate design of the main page: keep search engines on the classic version. -->
   <meta name="robots" content="noindex, follow">
   <link rel="canonical" href="https://nils-demougeot.github.io/">
-  <meta name="theme-color" content="#06070b">
+  <meta name="theme-color" content="#eceae4">
   <link rel="icon" href="assets/img/logo-nd.png" type="image/png" sizes="256x256">
-  <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="3d/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="3d/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="3d/css/style.css">
   <link rel="stylesheet" href="3d/css/demos.css">
   <script>document.documentElement.classList.add('js');</script>
@@ -42,238 +42,192 @@
   <symbol id="i-linkedin" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></symbol>
 </svg>
 
-<!-- One WebGL canvas behind the whole page: glass crystal, giant words, globe, particles. -->
+<!-- One WebGL canvas behind the whole page: paper, the headline, the ice and the globe. -->
 <canvas id="gl" aria-hidden="true"></canvas>
+<div class="lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="grain" aria-hidden="true"></div>
 
 <div class="loader" id="loader" aria-hidden="true">
-  <div class="loader-in">
-    <span class="loader-name">Nils Demougeot</span>
-    <span class="loader-num" id="loaderNum">000</span>
-    <span class="loader-bar"><i id="loaderBar"></i></span>
-    <span class="loader-txt">assembling the crystal</span>
-  </div>
+  <span class="loader-name">Nils Demougeot — Portfolio</span>
+  <span class="loader-num">( <b id="loaderNum">000</b> )</span>
 </div>
 
 <div class="cursor" id="cursor" aria-hidden="true"><i></i><span></span></div>
 
 <header class="nav" id="nav">
-  <button type="button" class="nav-logo" data-goto="hero" aria-label="Back to top"><img src="assets/img/logo-nd.png" alt="ND" width="30" height="30"><span>Nils Demougeot</span></button>
+  <button type="button" class="nav-id" data-goto="hero">Nils Demougeot</button>
   <nav class="nav-links" aria-label="Main">
-    <button type="button" data-goto="about"><i>01</i>About</button>
-    <button type="button" data-goto="build"><i>02</i>Build</button>
-    <button type="button" data-goto="skills"><i>03</i>Skills</button>
-    <button type="button" data-goto="path"><i>04</i>Path</button>
-    <button type="button" data-goto="work"><i>05</i>Work</button>
-    <button type="button" data-goto="contact"><i>06</i>Contact</button>
+    <button type="button" data-goto="work">Work</button>
+    <button type="button" data-goto="about">About</button>
+    <button type="button" data-goto="path">Path</button>
   </nav>
-  <div class="nav-right">
-    <span class="nav-status"><i></i>Open to internships</span>
-    <a class="nav-classic" href="./" title="Open the classic version of this portfolio">Classic version<svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
-    <button type="button" class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false"><i></i><i></i></button>
-  </div>
+  <span class="nav-time">Paris <time id="clock">--:--</time></span>
+  <span class="nav-status"><i></i>Open to internships</span>
+  <button type="button" class="nav-contact" data-goto="contact">Contact</button>
+  <button type="button" class="nav-menu" id="burger" aria-expanded="false" aria-controls="menu">Menu</button>
 </header>
 
 <div class="menu" id="menu" hidden>
   <nav aria-label="Mobile">
-    <button type="button" data-goto="about"><i>01</i>About</button>
-    <button type="button" data-goto="build"><i>02</i>Build</button>
-    <button type="button" data-goto="skills"><i>03</i>Skills</button>
-    <button type="button" data-goto="path"><i>04</i>Path</button>
-    <button type="button" data-goto="work"><i>05</i>Work</button>
-    <button type="button" data-goto="contact"><i>06</i>Contact</button>
+    <button type="button" data-goto="about"><i>(01)</i>About</button>
+    <button type="button" data-goto="build"><i>(02)</i>What I build</button>
+    <button type="button" data-goto="skills"><i>(03)</i>Skills</button>
+    <button type="button" data-goto="work"><i>(04)</i>Work</button>
+    <button type="button" data-goto="path"><i>(05)</i>Path</button>
+    <button type="button" data-goto="contact"><i>(06)</i>Contact</button>
   </nav>
-  <a class="menu-classic" href="./">Classic version<svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
 </div>
 
-<aside class="hud" aria-hidden="true">
-  <span class="hud-idx" id="hudIdx">00</span>
-  <span class="hud-line"><i id="hudBar"></i></span>
-  <span class="hud-lbl" id="hudLbl">Intro</span>
-</aside>
+<!-- Switch between the two versions of the portfolio -->
+<div class="switch" role="group" aria-label="Portfolio version"><span class="is-on">Immersive</span><a href="./">Classic</a></div>
 
 <main>
-  <!-- 00 · Hero: the name is drawn in WebGL behind the crystal (refracted through it); the h1 stays for readers and as fallback. -->
+  <!-- Hero: the headline is drawn in WebGL behind the rock (the ice bends it); the h1 stays for readers and as fallback. -->
   <section class="hero" id="hero" data-spin data-cursor="drag">
-    <div class="hero-top">
-      <span class="eyebrow" data-reveal><svg class="ic"><use href="#i-pin"/></svg>Paris, France · 48.86° N 2.35° E</span>
-      <span class="eyebrow hero-role" data-reveal>Data &amp; AI Engineering · Portfolio 2026</span>
+    <h1 class="hero-title"><span>Nils Demougeot</span> <em>data, made useful</em></h1>
+    <div class="hero-foot">
+      <p class="hero-a" data-reveal>Data &amp; AI engineering student<br>ESILV — Paris</p>
+      <p class="hero-b" data-reveal>Machine learning · Data<br>Full-stack · Embedded · Networks</p>
+      <p class="hero-c" data-reveal><span class="mouse" aria-hidden="true"></span>Scroll to explore</p>
+      <p class="hero-d" data-reveal><a href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf">CV ↓</a></p>
     </div>
-    <h1 class="hero-title"><span>Nils</span> <span>Demougeot</span></h1>
-    <div class="hero-bottom">
-      <div class="hero-lead" data-reveal>
-        <p>Data &amp; AI engineering student at <strong>ESILV Paris</strong>. I like taking real data all the way to something people use: a Ligue 1 match predictor, security dashboards for a cybersecurity team, network coding simulations at <strong>MIT</strong>, and La Fabrique, our prize-winning startup project.</p>
-        <div class="hero-cta">
-          <button type="button" class="btn btn-solid" data-goto="work" data-magnet>Explore the work<svg class="ic"><use href="#i-arrow-down"/></svg></button>
-          <a class="btn btn-ghost" href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf" data-magnet>1-page CV<svg class="ic"><use href="#i-download"/></svg></a>
-        </div>
-      </div>
-      <div class="hero-side" data-reveal>
-        <div class="school">
-          <span class="school-logo"><img src="assets/img/logos/esilv.png" alt="ESILV, De Vinci Engineering School" width="44" height="44"></span>
-          <div><b>Class of 2028</b><span>Data &amp; AI Engineering</span></div>
-        </div>
-        <span class="hint"><svg class="ic"><use href="#i-hand"/></svg>drag to spin · click to shatter</span>
-      </div>
-    </div>
-    <span class="scroll-hint" aria-hidden="true"><i></i>scroll</span>
   </section>
 
-  <!-- 01 · About -->
+  <!-- (01) About -->
   <section class="sec about" id="about">
-    <div class="col">
-      <span class="eyebrow" data-reveal><i>01</i>About</span>
-      <h2 class="h-xl" data-split>Real data, all the way to something people use.</h2>
-      <div class="who glass" data-reveal data-tilt>
-        <img class="who-img" src="assets/img/avatar.jpg" alt="Nils Demougeot" width="96" height="96" loading="lazy">
-        <div>
-          <p><strong>Nils Demougeot</strong>, Data &amp; AI engineering student at ESILV Paris. I did network coding research at MIT, built security dashboards during a cybersecurity internship and won a startup prize with La Fabrique. I like projects where data turns into a decision or a product.</p>
-          <div class="pills"><span>Courbevoie, FR</span><span>M1 · class of 2028</span><span class="ok">internship · from Apr 2027</span></div>
-        </div>
+    <span class="label" data-reveal>(01) About</span>
+    <h2 class="statement" data-words>I take real data all the way to something *people use* — a match predictor, security dashboards, a prize-winning startup.</h2>
+
+    <div class="about-grid">
+      <figure class="portrait" data-reveal><img src="assets/img/avatar.jpg" alt="Nils Demougeot" width="400" height="400" loading="lazy"><figcaption>Nils, Paris</figcaption></figure>
+      <div class="about-txt">
+        <p data-reveal><strong>Nils Demougeot</strong>, Data &amp; AI engineering student at ESILV Paris. I did network coding research at MIT, built security dashboards during a cybersecurity internship and won a startup prize with La Fabrique. I like projects where data turns into a decision or a product.</p>
+        <p class="soft" data-reveal>I like taking real data all the way to something people use: a Ligue 1 match predictor, security dashboards for a cybersecurity team, network coding simulations at MIT, and La Fabrique, our prize-winning startup project.</p>
+        <dl class="facts-dl" data-reveal>
+          <div><dt>Based</dt><dd>Courbevoie, FR</dd></div>
+          <div><dt>Now</dt><dd>M1 · class of 2028 · ESILV, Data &amp; AI Engineering</dd></div>
+          <div><dt>Looking for</dt><dd>Internship · from Apr 2027</dd></div>
+          <div><dt>Languages</dt><dd>French, native · English, C1 (TOEFL 657) · Spanish, intermediate</dd></div>
+        </dl>
       </div>
+    </div>
 
-      <div class="stats" data-reveal>
-        <div><b data-count="19">19</b><span>projects, most of them running live</span></div>
-        <div><b data-count="3">3</b><span>countries studied and worked in</span></div>
-        <div><b data-count="140">140</b><span>teams or so at the showroom where La Fabrique won its prize</span></div>
-      </div>
+    <div class="nums" data-reveal>
+      <div><b data-count="19">19</b><span>projects, most of them<br>running live</span></div>
+      <div><b data-count="3">3</b><span>countries studied<br>and worked in</span></div>
+      <div><b data-count="140">140</b><span>teams or so at the showroom<br>where La Fabrique won its prize</span></div>
+    </div>
 
-      <div class="cards">
-        <article class="glass card xp" data-reveal data-tilt>
-          <span class="card-lbl">Experience</span>
-          <div class="xp-row" style="--c:#818cf8"><span class="xp-ic"><svg class="ic"><use href="#i-scissors"/></svg></span><div><b>La Fabrique, founder project</b><span>Django platform for textile upcycling · Prix Esprit Startup</span></div><em>2026</em></div>
-          <div class="xp-row" style="--c:#fb7185"><span class="xp-ic"><svg class="ic"><use href="#i-briefcase"/></svg></span><div><b>Cybersecurity &amp; Data intern</b><span>Corporate SOC team · threat detection &amp; security dashboards</span></div><em>summer 2025</em></div>
-          <div class="xp-row" style="--c:#38bdf8"><span class="xp-ic logo"><img src="assets/img/logos/mit.svg" alt="MIT"></span><div><b>Research intern</b><span>MIT, Research Lab of Electronics · network coding</span></div><em>summer 2022</em></div>
-        </article>
-
-        <article class="glass card lang" data-reveal data-tilt>
-          <span class="card-lbl">Languages</span>
-          <div class="gauges">
-            <div class="gauge" style="--c:#FFCC00;--p:1"><svg viewBox="0 0 120 66"><path d="M10,60 A50,50 0 0 1 110,60"/><path class="g" d="M10,60 A50,50 0 0 1 110,60"/></svg><b>FR</b><span>native</span></div>
-            <div class="gauge" style="--c:#818cf8;--p:.85"><svg viewBox="0 0 120 66"><path d="M10,60 A50,50 0 0 1 110,60"/><path class="g" d="M10,60 A50,50 0 0 1 110,60"/></svg><b>EN</b><span>C1 · TOEFL 657</span></div>
-            <div class="gauge" style="--c:#fb7185;--p:.5"><svg viewBox="0 0 120 66"><path d="M10,60 A50,50 0 0 1 110,60"/><path class="g" d="M10,60 A50,50 0 0 1 110,60"/></svg><b>ES</b><span>intermediate</span></div>
-          </div>
-        </article>
-
-        <article class="glass card vol" data-reveal data-tilt style="--c:#4ade80">
-          <span class="card-lbl">Volunteering</span>
-          <p><span class="xp-ic"><svg class="ic"><use href="#i-leaf"/></svg></span><span><strong>DeVinci Durable</strong>, Head of Communication &amp; Board Advisor.</span></p>
-          <div class="vol-stats">
-            <div><b>10</b><span>people on my team</span></div>
-            <div><b>600 m²</b><span>shared garden launched at La Défense</span></div>
-            <div><b>4 days</b><span>eco seminar in Marseille</span></div>
-          </div>
-        </article>
-      </div>
+    <div class="table" data-reveal>
+      <span class="label">Experience</span>
+      <div class="tr"><span>2026</span><b>La Fabrique, founder project</b><span>Django platform for textile upcycling · Prix Esprit Startup</span></div>
+      <div class="tr"><span>Summer 2025</span><b>Cybersecurity &amp; Data intern</b><span>Corporate SOC team · threat detection &amp; security dashboards</span></div>
+      <div class="tr"><span>Summer 2022</span><b>Research intern</b><span>MIT, Research Lab of Electronics · network coding</span></div>
+    </div>
+    <div class="table" data-reveal>
+      <span class="label">Volunteering</span>
+      <div class="tr"><span>DeVinci Durable</span><b>Head of Communication &amp; Board Advisor</b><span>10 people on my team · 600 m² shared garden launched at La Défense · 4 days eco seminar in Marseille</span></div>
     </div>
   </section>
 
-  <!-- 02 · What I build: pinned; scrolling walks through the six clusters, and the crystal splits one cluster out at a time. -->
+  <!-- (02) What I build: pinned; scrolling walks through the six fields, and one chunk of ice comes forward for each. -->
   <section class="build" id="build">
-    <div class="build-sticky" data-spin data-cursor="drag">
-      <div class="build-col">
-        <span class="eyebrow"><i>02</i>What I build</span>
-        <div class="build-main" id="buildMain" aria-live="polite"></div>
-        <ol class="build-list" id="buildList"></ol>
-      </div>
-      <span class="hint build-hint"><svg class="ic"><use href="#i-hand"/></svg>scroll to split · drag to spin</span>
+    <div class="build-sticky" data-spin>
+      <span class="label">(02) What I build</span>
+      <ol class="disc" id="disc"></ol>
+      <div class="disc-note" id="discNote" aria-live="polite"></div>
     </div>
   </section>
 
-  <!-- 03 · Skills -->
+  <!-- (03) Skills -->
   <section class="sec skills" id="skills">
-    <div class="wide">
-      <span class="eyebrow" data-reveal><i>03</i>Skills</span>
-      <h2 class="h-xl" data-split>Every skill, tied to a project.</h2>
-      <p class="sec-lead" data-reveal><span id="skillCount"></span> Hover or tap a skill to see where I used it, then jump to the project.</p>
-      <div class="skill-grid" id="skillGrid"></div>
-      <div class="skill-used glass" id="skillUsed" aria-live="polite"><span class="card-lbl">Used in</span><div class="skill-used-list"><em>pick a skill above</em></div></div>
-    </div>
+    <span class="label" data-reveal>(03) Skills</span>
+    <h2 class="statement small" data-words>Every skill here is tied to a project where I *used it*.</h2>
+    <p class="hintline" data-reveal><span id="skillCount"></span> Pick one to see where.</p>
+    <div class="skill-table" id="skillTable"></div>
   </section>
 
-  <!-- 04 · Path: globe + education -->
+  <!-- (04) Work -->
+  <section class="sec work" id="work">
+    <div class="work-head">
+      <span class="label" data-reveal>(04) Selected work</span>
+      <span class="label" data-reveal id="workCount">19 projects</span>
+    </div>
+    <h2 class="statement small" data-words>Projects, *running live.* Open one for the full story, its screenshots and a small model you can play with.</h2>
+    <div class="filters" id="filters" role="toolbar" aria-label="Filter projects" data-reveal></div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <!-- (05) Path: the page turns to night; a globe with the three cities -->
   <section class="sec path" id="path">
-    <div class="col">
-      <span class="eyebrow" data-reveal><i>04</i>Path</span>
-      <h2 class="h-xl" data-split>Where I've studied &amp; worked.</h2>
-      <div class="places" id="places" data-reveal>
-        <button type="button" class="place glass is-on" data-place="paris" style="--c:#FFCC00">
-          <span class="place-top"><i></i><b>Paris</b><small>France</small><em>HOME BASE</em></span>
-          <span class="place-body"><span class="place-logo"><img src="assets/img/logos/esilv.png" alt=""></span><span><strong>ESILV, engineering cycle</strong><span>Data &amp; AI major · M1, class of 2028</span><span class="place-meta">2023 → 2028 · 48.86° N · 2.35° E · home · 0 km</span><span class="place-extra">Also here: cybersecurity &amp; data internship (summer 2025).</span></span></span>
+    <span class="label" data-reveal>(05) Path</span>
+    <h2 class="statement serif" data-words>Three cities so far — where I've studied *and worked.*</h2>
+    <div class="path-grid">
+      <div class="places" id="places">
+        <button type="button" class="place is-on" data-place="paris" style="--c:#ffcc4d">
+          <span class="place-name"><i>(01)</i>Paris<small>France — home base</small></span>
+          <span class="place-body"><span><strong>ESILV, engineering cycle</strong><br>Data &amp; AI major · M1, class of 2028<br><em>2023 → 2028 · 48.86° N · 2.35° E · home · 0 km</em><br>Also here: cybersecurity &amp; data internship (summer 2025).</span></span>
         </button>
-        <button type="button" class="place glass" data-place="riga" style="--c:#34d399">
-          <span class="place-top"><i></i><b>Riga</b><small>Latvia</small><em>EXCHANGE SEMESTER</em></span>
-          <span class="place-body"><span class="place-logo"><img src="assets/img/logos/rtu.svg" alt=""></span><span><strong>Riga Technical University</strong><span>Telecommunications &amp; data transmission</span><span class="place-meta">Aug 2025 → Jan 2026 · 56.95° N · 24.11° E · ≈ 1,700 km from Paris</span><span class="place-extra">One semester abroad during the engineering cycle.</span></span></span>
+        <button type="button" class="place" data-place="riga" style="--c:#5fe0b0">
+          <span class="place-name"><i>(02)</i>Riga<small>Latvia — exchange semester</small></span>
+          <span class="place-body"><span><strong>Riga Technical University</strong><br>Telecommunications &amp; data transmission<br><em>Aug 2025 → Jan 2026 · 56.95° N · 24.11° E · ≈ 1,700 km from Paris</em><br>One semester abroad during the engineering cycle.</span></span>
         </button>
-        <button type="button" class="place glass" data-place="boston" style="--c:#fb7185">
-          <span class="place-top"><i></i><b>Boston</b><small>USA</small><em>RESEARCH + HIGH SCHOOL</em></span>
-          <span class="place-body"><span class="place-logo"><img src="assets/img/logos/mit.svg" alt=""></span><span><strong>MIT, Research Lab of Electronics</strong><span>Network Coding group · research intern</span><span class="place-meta">Jul → Aug 2022 · 42.36° N · 71.09° W · ≈ 5,500 km from Paris</span><span class="place-extra">Also here: International School of Boston (2021 → 2023), French Bac with Mention Très Bien.</span></span></span>
+        <button type="button" class="place" data-place="boston" style="--c:#ff8fa3">
+          <span class="place-name"><i>(03)</i>Boston<small>USA — research + high school</small></span>
+          <span class="place-body"><span><strong>MIT, Research Lab of Electronics</strong><br>Network Coding group · research intern<br><em>Jul → Aug 2022 · 42.36° N · 71.09° W · ≈ 5,500 km from Paris</em><br>Also here: International School of Boston (2021 → 2023), French Bac with Mention Très Bien.</span></span>
         </button>
       </div>
-
-      <article class="glass card acad" data-reveal data-tilt>
-        <div class="acad-head"><span class="card-lbl">Academics</span><span class="badge">M1 · Class of 2028</span></div>
-        <div class="years">
-          <div class="years-bar"><i></i><i class="dot"></i><i class="half"></i><i class="now"></i><i class="todo"></i></div>
-          <div class="years-lbl"><span>Y1</span><span>Y2</span><span>Y3</span><span class="now">Y4</span><span>Y5</span></div>
-          <div class="years-legend"><span><i class="sw sw-dot"></i>Y2 · cybersecurity internship</span><span><i class="sw sw-half"></i>Y3 · Riga exchange, Sep → Jan</span></div>
-        </div>
-        <div class="edu">
-          <div class="edu-row" style="--c:#f4f4f5;--l:35.6%;--w:64.4%"><span class="place-logo"><img src="assets/img/logos/esilv.png" alt=""></span><div><b>ESILV Paris</b><span>Data &amp; AI engineering school</span><i class="edu-bar"><i></i></i></div><em>2023 → 2028</em></div>
-          <div class="edu-row" style="--c:#34d399;--l:62.2%;--w:5.5%"><span class="place-logo"><img src="assets/img/logos/rtu.svg" alt=""></span><div><b>Riga Technical University</b><span>exchange semester</span><i class="edu-bar"><i></i></i></div><em>Sep 2025 → Jan 2026</em></div>
-          <div class="edu-row" style="--c:#fb7185;--l:8.9%;--w:24.4%"><span class="xp-ic"><svg class="ic"><use href="#i-cap"/></svg></span><div><b>International School of Boston</b><span>high school · French Bac, Très Bien</span><i class="edu-bar"><i></i></i></div><em>2021 → 2023</em></div>
-        </div>
-      </article>
+      <div class="globe-zone" data-spin data-cursor="drag" aria-hidden="true"></div>
     </div>
-    <div class="globe-zone" data-spin data-cursor="drag" aria-hidden="true"><span class="hint"><svg class="ic"><use href="#i-hand"/></svg>drag the globe · pick a place</span></div>
-  </section>
 
-  <!-- 05 · Work -->
-  <section class="sec work" id="work">
-    <div class="col col-work">
-      <span class="eyebrow" data-reveal><i>05</i>Work</span>
-      <h2 class="h-xl" data-split>Projects, running live.</h2>
-      <p class="sec-lead" data-reveal>Most relevant first. Open a project for the full story, its screenshots and, when it has one, a small live model of the project you can play with.</p>
-      <div class="filters" id="filters" role="toolbar" aria-label="Filter projects" data-reveal></div>
-      <div class="rows" id="rows"></div>
+    <div class="table acad" data-reveal>
+      <div class="acad-head"><span class="label">Academics</span><span class="label">M1 · Class of 2028</span></div>
+      <div class="years">
+        <div class="years-bar"><i></i><i class="dot"></i><i class="half"></i><i class="now"></i><i class="todo"></i></div>
+        <div class="years-lbl"><span>Y1</span><span>Y2 · cybersecurity internship</span><span>Y3 · Riga exchange, Sep → Jan</span><span class="now">Y4 · now</span><span>Y5</span></div>
+      </div>
+      <div class="tr"><span>2023 → 2028</span><b>ESILV Paris</b><span>Data &amp; AI engineering school</span></div>
+      <div class="tr"><span>Sep 2025 → Jan 2026</span><b>Riga Technical University</b><span>Exchange semester</span></div>
+      <div class="tr"><span>2021 → 2023</span><b>International School of Boston</b><span>High school · French Bac, Très Bien</span></div>
     </div>
   </section>
 
-  <!-- 06 · Contact -->
+  <!-- (06) Contact -->
   <section class="sec contact" id="contact">
-    <div class="col">
-      <span class="eyebrow" data-reveal><i>06</i>Contact</span>
-      <h2 class="h-xxl" data-split>Let's build something together.</h2>
-      <p class="sec-lead" data-reveal>I'm looking for a 4 to 5 month Data &amp; AI internship from April 2027, in machine learning or data analysis. I bring solid Python, a habit of checking results against theory, and a lot of team projects, from hackathons to a startup prize.</p>
-      <a class="mail" href="mailto:nils.demougeot@gmail.com" data-reveal data-magnet data-cursor="write"><svg class="ic"><use href="#i-mail"/></svg><span>nils.demougeot@gmail.com</span><svg class="ic"><use href="#i-arrow-up-right"/></svg></a>
-      <div class="elsewhere" data-reveal>
-        <a class="glass" href="https://github.com/nils-demougeot" target="_blank" rel="noopener"><svg class="ic"><use href="#i-github"/></svg><span><small>GitHub · code &amp; repos</small><b>nils-demougeot</b></span><svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
-        <a class="glass" href="https://www.linkedin.com/in/nils-demougeot/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-linkedin"/></svg><span><small>LinkedIn · professional</small><b>nils-demougeot</b></span><svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
-        <a class="glass" href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf"><svg class="ic"><use href="#i-download"/></svg><span><small>Resume · PDF</small><b>1-page CV</b></span><svg class="ic ext"><use href="#i-arrow-up-right"/></svg></a>
+    <span class="label" data-reveal>(06) Contact</span>
+    <h2 class="hello" data-words>Let's build something *together.*</h2>
+    <div class="contact-grid">
+      <p data-reveal>I'm looking for a 4 to 5 month Data &amp; AI internship from April 2027, in machine learning or data analysis. I bring solid Python, a habit of checking results against theory, and a lot of team projects, from hackathons to a startup prize.</p>
+      <div class="links" data-reveal>
+        <a class="mail" href="mailto:nils.demougeot@gmail.com" data-cursor="write">nils.demougeot@gmail.com <span>↗</span></a>
+        <a href="https://github.com/nils-demougeot" target="_blank" rel="noopener"><small>GitHub · code &amp; repos</small>nils-demougeot <span>↗</span></a>
+        <a href="https://www.linkedin.com/in/nils-demougeot/" target="_blank" rel="noopener"><small>LinkedIn · professional</small>nils-demougeot <span>↗</span></a>
+        <a href="assets/cv/Resume_Nils_Demougeot.pdf" download="Resume_Nils_Demougeot.pdf"><small>Resume · PDF</small>1-page CV <span>↓</span></a>
       </div>
     </div>
     <footer class="foot">
       <span>© 2026 Nils Demougeot</span>
-      <span>Immersive edition · <a href="./">open the classic version</a></span>
+      <button type="button" data-goto="hero">Back to top ↑</button>
     </footer>
   </section>
 </main>
 
 <!-- Hover preview of a project row -->
-<div class="peek" id="peek" aria-hidden="true"><div class="peek-in"><img alt=""><span></span></div></div>
+<div class="peek" id="peek" aria-hidden="true"><div class="peek-in"><img alt=""></div></div>
 
 <!-- Project detail -->
 <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="detailTitle" hidden>
   <div class="detail-top">
-    <button type="button" class="chip-btn" id="detailBack"><svg class="ic"><use href="#i-arrow-left"/></svg>All projects</button>
+    <button type="button" id="detailBack">← Index</button>
     <span class="detail-idx" id="detailIdx"></span>
     <div class="detail-nav">
-      <button type="button" class="round-btn" id="detailPrev" aria-label="Previous project"><svg class="ic"><use href="#i-arrow-left"/></svg></button>
-      <button type="button" class="round-btn" id="detailNext" aria-label="Next project"><svg class="ic"><use href="#i-arrow-right"/></svg></button>
-      <button type="button" class="round-btn" id="detailClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+      <button type="button" id="detailPrev">Prev</button>
+      <button type="button" id="detailNext">Next</button>
+      <button type="button" id="detailClose" aria-label="Close">Close ✕</button>
     </div>
   </div>
   <div class="detail-scroll" id="detailScroll">
+    <div class="detail-head" id="detailHead"></div>
     <div class="detail-grid">
       <div class="detail-media" id="detailMedia"></div>
       <div class="detail-body" id="detailBody"></div>
@@ -281,7 +235,7 @@
   </div>
 </div>
 
-<div class="zoom" id="zoom" hidden><img alt=""><button type="button" class="round-btn" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+<div class="zoom" id="zoom" hidden><img alt=""><button type="button" aria-label="Close">Close ✕</button></div>
 
 <noscript><style>.loader{display:none}.hero-title{position:static!important;clip:auto!important;width:auto!important;height:auto!important}</style></noscript>
 <script src="assets/js/vendor/three.r128.min.js" defer></script>
